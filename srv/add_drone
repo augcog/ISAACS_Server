@@ -1,0 +1,6 @@
+string ip
+uint32 port
+string drone_type
+---
+bool success
+string message
