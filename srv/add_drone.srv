@@ -4,3 +4,4 @@ string drone_type
 ---
 bool success
 string message
+uint32 id

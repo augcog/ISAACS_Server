@@ -1,5 +1,6 @@
+import drone
 import roslibpy
-
+#roslaunch rosbridge_server rosbridge_websocket.launch
 
 ####################
 # Global Variables #
@@ -19,7 +20,7 @@ def add_drone(request, response):
     '''
 
     def get_id():
-        nonlocal next_id
+        #nonlocal next_id
         cur_id, next_id = next_id, next_id + 1
         return cur_id
 
@@ -34,6 +35,7 @@ def add_drone(request, response):
     drones[id] = Drone.create(id, ip, port, drone_type)
     response["id"] = id
     response["success"] = drones[id].add_drone()
+    response["message"] = "Adding drone"
 
     return True # TODO check where this return goes to
 
