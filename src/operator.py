@@ -1,4 +1,4 @@
-import drone
+from drone import Drone
 import roslibpy
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
@@ -19,12 +19,16 @@ def add_drone(request, response):
     :param request: dict of {ip: string, port: int, drone_type: string}
     '''
 
+    #TODO error checking fixes ID when bad Drone init
     def get_id():
-        #nonlocal next_id
+        #nonlocal next_id  TODO FIXME
         cur_id, next_id = next_id, next_id + 1
         return cur_id
 
     id = get_id()
+    ip = request["ip"]
+    port = request["port"]
+    drone_type = request["drone_type"]
     print(f"Adding drone {id} to global drones map with following properties:")
     print(f"\tIP: {request['ip']}")
     print(f"\tPort: {request['port']}")
@@ -33,9 +37,11 @@ def add_drone(request, response):
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type (TODO)
     drones[id] = Drone.create(id, ip, port, drone_type)
-    response["id"] = id
     response["success"] = drones[id].add_drone()
+    response["id"] = id
+    #TODO fix message to error
     response["message"] = "Adding drone"
+    
 
     return True # TODO check where this return goes to
 
