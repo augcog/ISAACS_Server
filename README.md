@@ -17,6 +17,8 @@ ROS package that acts as a server for the Immersive Semi-Autonomous Aerial Comma
 
 ## Getting Started
 
+Make sure you `git pull` to ensure you have the latest code before you make any changes. 
+
 * **src/** contains all source code and python executables
     * **src/operator.py** is the main ROS node running on the server that defines all services that can be called by the VR interface node.
     * **src/drone.py** defines the drone abstract class, and subclasses for each drone that we have implemented. Currently, this is just DjiMatrice. Currently, only add_drone has been implemented (with some error checking still needed). Additional functions need to be added.
@@ -25,3 +27,24 @@ ROS package that acts as a server for the Immersive Semi-Autonomous Aerial Comma
     * **To add a new service type**, create a new file named [service_name].srv (within the isaacs_server/srv/ directory). srv files are simple text files that have two parts: a request and response. The 2 parts are separated by a "---". Each part describes the fields (parameters) for the request/response. To describe a field, simply include the field type and field name, with one field per line. See srv/add_drone.srv for an example. 
     * Before we can actually use the service type we just defined, we must make sure the srv file is turned into source code. To do this, closely follow [this link](http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv). You'll need to make changes to isaacs_server/CMakeLists.txt (not catkin_ws/src/CMakeLists.txt) and isaacs_server/package.xml. Following section 4.1 should be enough, but read through the whole thing at least once to understand how messages and services work.
     * Don't forget to run `catkin_make` and `source devel/setup.bash` from catkin_ws/ to compile the package with the new service types. This must be done before you can use these new service types.
+    
+## Using Roslipby
+
+You'll need to `pip install roslibpy` before you can use it. Make sure you're using python3, as python2 will run into errors. You might have to pip3 install roslibpy if python2 is your default python version, and python3 file_name.py to run it with python3.
+
+`import roslibpy` at the top of the python file.
+
+Create a connection to ROS master:  
+    `client = roslibpy.Ros(host='ip', port=9090)` #where ip is either 'localhost' or the static IP of the ROS master you are trying to connect to.  
+    `client.run()`. 
+
+Creating a service:   
+`service = roslibpy.Service(client, '/add_drone', 'isaacs_server/add_drone')` #where /add_drone is the name of the service, and isaacs_server/add_drone is the service type defined by add_drone.srv in the isaacs_server package.  
+`service.advertise(handler)` #where handler is a function that is run upon the service being called. 
+
+Calling a service:  
+`service = roslibpy.Service(client, '/add_drone', 'isaacs_server/add_drone')` #where /add_drone is the name of the service, and isaacs_server/add_drone is the service type defined by add_drone.srv in the isaacs_server package.  
+`request = roslibpy.ServiceRequest({'ip': "some ip", "port": 9090, "drone_type":"spider man"})` #a dictionary of field names (defined in the service type) to inputs.  
+`result = service.call(request)` #calls the service, with inputs defined by request, and sets result to the callback.  
+
+
