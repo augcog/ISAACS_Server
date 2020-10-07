@@ -5,19 +5,33 @@ ROS package that acts as a server for the Immersive Semi-Autonomous Aerial Comma
 ## Setup
 
 1. Please install ROS by following [this link](http://wiki.ros.org/melodic/Installation)
-2. Create a catkin workspace. [(read more about catkin workspaces here)](http://wiki.ros.org/catkin/workspaces) 
+2. Install rosbridgelib by following [this link](http://wiki.ros.org/rosbridge_suite/Tutorials/RunningRosbridge). You don't need to run it yet.
+3. Create a catkin workspace. [(read more about catkin workspaces here)](http://wiki.ros.org/catkin/workspaces) 
     * `mkdir catkin_ws`
     * `mkdir catkin_ws/src`
     * `cd catkin_ws/src`
     * `catkin_init_workspace` (this should create a "build" and "devel" directory in catkin_ws)
-3. from within catkin_ws/src, run `git clone -b operator https://github.com/immersive-command-system/isaacs_server.git` (Or you can use the ssh uri). The "-b operator" argument ensures you clone the operator branch, which contains our most up-to-date (and probably buggy) code.
-4. `cd ..`
-5. `catkin_make`
-6. `source devel/setup.bash`
+4. from within catkin_ws/src, run `git clone -b operator https://github.com/immersive-command-system/isaacs_server.git` (Or you can use the ssh uri). The "-b operator" argument ensures you clone the operator branch, which contains our most up-to-date (and probably buggy) code.
+5. `cd ..`
+6. `catkin_make`
+7. `source devel/setup.bash`   
+
+You are now all set and can run the server node.
+
+8. To start the server, run `roslaunch rosbridge_server rosbridge_websocket.launch`. (To test locally, you should 
+9. To run the operator node, run `python3 operator.py` from isaacs_server/src in a new terminal window.
+10. You can now make service calls. These will eventually be made from the VR interface, but you can also test our services by running `python3 service_test/[test_name].py` from isaacs_server/src in a new terminal window.
+
+
+Note that for roslibpy to work, the host IP should be the ROS master that is running rosbridge (multi-network) or roscore (local network). All ros connections are currently made to a static IP address (that probably isn't yours), so you will have to change all IP addresses to 'localhost' to run it locally, or to your static IP if you set up port forwarding. If you're confused about port forwarding, ask Kyle for more info.
+
 
 ## Getting Started
 
-Make sure you `git pull` to ensure you have the latest code before you make any changes. 
+Make sure you `git pull` to ensure you have the latest code before you make any changes.
+
+
+
 
 * **src/** contains all source code and python executables
     * **src/operator.py** is the main ROS node running on the server that defines all services that can be called by the VR interface node.
