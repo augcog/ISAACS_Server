@@ -37,11 +37,14 @@ def add_drone(request, response):
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type (TODO)
     drones[id] = Drone.create(id, ip, port, drone_type)
-    response["success"] = drones[id].add_drone()
+    successful=drones[id].add_drone()
+    response["success"] = s
     response["id"] = id
     #TODO fix message to error
-    response["message"] = "Adding drone"
-    
+    if successful:
+        response["message"] = "Adding drone"
+    else:
+        response["message"] = "Failed to add drone"
 
     return True # TODO check where this return goes to
 
