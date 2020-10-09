@@ -51,7 +51,9 @@ def upload_mission(request, response):
     :param request: dict of {id: int, waypoints: list of ints/strings --> pass
     these directly into the drone instance}
     '''
-
+    if not drones[request["id"]]:
+        response["success"] = False
+        return False
     response["success"] = drones[request["id"]].upload_mission(request["waypoints"])
 
     return True
