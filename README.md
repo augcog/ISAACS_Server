@@ -59,6 +59,13 @@ Creating a service:
 Calling a service:  
 `service = roslibpy.Service(client, '/add_drone', 'isaacs_server/add_drone')` #where /add_drone is the name of the service, and isaacs_server/add_drone is the service type defined by add_drone.srv in the isaacs_server package.  
 `request = roslibpy.ServiceRequest({'ip': "some ip", "port": 9090, "drone_type":"DjiMatrice"})` #a dictionary of field names (defined in the service type) to inputs.  
-`result = service.call(request)` #calls the service, with inputs defined by request, and sets result to the callback.  
+`result = service.call(request)` #calls the service, with inputs defined by request, and sets result to the callback.
+
+## Setup Port Forwarding
+1. Find your router ip address.
+2. Type in ip address as url of browser
+3. Enter router credentials (most likely *user: admin* and *pass: admin* if it has not been setup previously)
+4. Search for *Virtual Server* or *Port Forwarding* tab.  Will probably be located under advanced settings.
+5. Add a port forwarding service with the local port you plan to use.
 
 
