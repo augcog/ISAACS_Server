@@ -11,30 +11,32 @@ class Flight_Status(Enum):
     NULL = 7
 
 class Drone():
-    
+
     #TODO fix structure
-    
+
+
     def __init__(self, id, ip, port, drone_type):
         #raise Exception("Drone class not instantiable. Drone type " +
         #                drone_type + " has not been implemented.")
-        self.drones = {
-            "DjiMatrice": DjiMatriceDrone
-        }
+
         return
-        
+
     @staticmethod
     def create(id, ip, port, drone_type):
         #TODO Dont create DRONE class with bad drone_type
-        if drone_type not in self.drones:
-            return False
+        drones = {
+            "DjiMatrice": DjiMatriceDrone
+        }
+        if drone_type not in drones:
+            return False #return an error message that is propogated to the VR user
         else:
-            return self.drones.get(drone_type, Drone)(id, ip, port, drone_type)
-        
+            return drones.get(drone_type, Drone)(id, ip, port, drone_type)
+
     def add_drone(self):
         return False
 
     def upload_mission(self, waypoints):
-        if drone_type not in self.dones:
+        if drone_type not in self.drones:
             return False
         else:
             return self.drones.get(drone_type, Drone).upload_mission(waypoints)
@@ -55,15 +57,31 @@ class DjiMatriceDrone(Drone):
         self.mission_msg_list = []
         self.flight_status = Flight_Status.ON_GROUND_STANDBY
 
+    #going to change once we make drones connect to server instead of server to drones
     def add_drone(self):
+        '''client = roslibpy.Ros(host='136.25.185.6', port=9090)
+        client.run()
+        print(client.is_connected)'''
         try:
-            self.ros_drone_connection = roslibpy.Ros(host=self.ip, port=self.port)
+            client = roslibpy.Ros(host='136.25.185.6', port=9090)
+            client.run()
+            print(client.is_connected)
+
+
+            '''self.ros_drone_connection = roslibpy.Ros(host=self.ip, port=self.port)
+
             print("connection variable")
+            print(self.ros_drone_connection)
+            print(self.ip)
+            print(self.port)
+            print("ip", type(self.ip))
+            print("port", type(self.port))
             self.ros_drone_connection.run()
-            print("connection run")
+            print("connection run")'''
             return True
-        except:
+        except Exception as e:
             print("Failure")
+            print(e)
             return False
 
         '''service = roslibpy.Service(client, '/set_ludicrous_speed', 'std_srvs/SetBool')
@@ -77,7 +95,7 @@ class DjiMatriceDrone(Drone):
         self.waypoints = waypoints
         # TODO: Assumes that upload completely overwrites the old mission
         self.mission_msg_list = []
-        if self.flight_status = Flight_Status.ON_GROUND_STANDBY:
+        if self.flight_status == Flight_Status.ON_GROUND_STANDBY:
             for i in range(len(self.waypoints)):
                 # TODO: Get waypoint message from waypoint
                 way_point_msg = waypoints[i]

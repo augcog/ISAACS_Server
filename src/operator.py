@@ -21,7 +21,7 @@ def add_drone(request, response):
 
     #TODO error checking fixes ID when bad Drone init
     def get_id():
-        #nonlocal next_id  TODO FIXME
+        global next_id  #TODO FIXME
         cur_id, next_id = next_id, next_id + 1
         return cur_id
 
@@ -37,9 +37,11 @@ def add_drone(request, response):
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type (TODO)
     drones[id] = Drone.create(id, ip, port, drone_type)
-    successful=drones[id].add_drone()
-    response["success"] = s
-    response["id"] = id
+    successful = False
+    if drones[id]:
+        successful=drones[id].add_drone()
+        response["success"] = successful
+        response["id"] = id
     #TODO fix message to error
     if successful:
         response["message"] = "Adding drone"
@@ -100,8 +102,10 @@ def handler(request, response):
 
 client = roslibpy.Ros(host='136.25.185.6', port=9090)
 
+
 service = roslibpy.Service(client, '/set_ludicrous_speed', 'std_srvs/SetBool')
 service.advertise(handler)
+
 
 # TODO naming convention for services
 add_drone_service = roslibpy.Service(client, '/add_drone', 'isaacs_server/add_drone')
@@ -109,4 +113,5 @@ add_drone_service.advertise(add_drone)
 print('Services advertised.')
 
 client.run_forever()
+print(client.is_connected)
 client.terminate()
