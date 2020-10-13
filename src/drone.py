@@ -1,4 +1,5 @@
 import roslibpy
+from abc import ABC, abstractmethod
 from enum import Enum
 
 class Flight_Status(Enum):
@@ -10,121 +11,68 @@ class Flight_Status(Enum):
     LANDING = 6
     NULL = 7
 
-class Drone():
+class Drone(ABC):
 
-    #TODO fix structure
-
+    speed = 5
+    ROS_master_connection = roslibpy.Ros(host='136.25.185.6', port=9090)
 
     def __init__(self, id, ip, port, drone_type):
-        #raise Exception("Drone class not instantiable. Drone type " +
-        #                drone_type + " has not been implemented.")
+        self.id = id
+        self.ip = ip
+        self.port = port
+        self.drone_type = drone_type
+        self.connection_status = False
+        self.flight_status = Flight_Status.NULL
 
-        return
+        # Don't think we need these
+        # self.waypoints = None
+        # self.next_waypoint_id = 0
+        # self.mission_msg_list = []
+
 
     @staticmethod
     def create(id, ip, port, drone_type):
-        #TODO Dont create DRONE class with bad drone_type
+        from djimatrice_drone import DjiMatriceDrone
         drones = {
             "DjiMatrice": DjiMatriceDrone
         }
         if drone_type not in drones:
-            return False #return an error message that is propogated to the VR user
-        else:
-            return drones.get(drone_type, Drone)(id, ip, port, drone_type)
-
-    def add_drone(self):
-        return False
-
-    def upload_mission(self, waypoints):
-        if drone_type not in self.drones:
             return False
         else:
-            return self.drones.get(drone_type, Drone).upload_mission(waypoints)
+            return drones.get(drone_type)(id, ip, port, drone_type)
 
-
-class DjiMatriceDrone(Drone):
-
-    drone_type = "DjiMatrice"
-    ros_drone_connection = None
-
-    def __init__(self, id, ip, port, drone_type):
-        assert(drone_type == self.drone_type)
-        self.id = id
-        self.ip = ip
-        self.port = port
-        self.waypoints = None
-        self.next_waypoint_id = 0
-        self.mission_msg_list = []
-        self.flight_status = Flight_Status.ON_GROUND_STANDBY
-
-    #going to change once we make drones connect to server instead of server to drones
+    @abstractmethod
     def add_drone(self):
-        '''client = roslibpy.Ros(host='136.25.185.6', port=9090)
-        client.run()
-        print(client.is_connected)'''
-        try:
-            client = roslibpy.Ros(host='136.25.185.6', port=9090)
-            client.run()
-            print(client.is_connected)
+        pass
 
-
-            '''self.ros_drone_connection = roslibpy.Ros(host=self.ip, port=self.port)
-
-            print("connection variable")
-            print(self.ros_drone_connection)
-            print(self.ip)
-            print(self.port)
-            print("ip", type(self.ip))
-            print("port", type(self.port))
-            self.ros_drone_connection.run()
-            print("connection run")'''
-            return True
-        except Exception as e:
-            print("Failure")
-            print(e)
-            return False
-
-        '''service = roslibpy.Service(client, '/set_ludicrous_speed', 'std_srvs/SetBool')
-        service = roslibpy.Service(client, "")
-
-        request =
-        result = service.call(request)'''
-
+    @abstractmethod
     def upload_mission(self, waypoints):
-        # Find part in source code where you upload an entire mission
-        self.waypoints = waypoints
-        # TODO: Assumes that upload completely overwrites the old mission
-        self.mission_msg_list = []
-        if self.flight_status == Flight_Status.ON_GROUND_STANDBY:
-            for i in range(len(self.waypoints)):
-                # TODO: Get waypoint message from waypoint
-                way_point_msg = waypoints[i]
-                mission_msg_list.append(way_point_msg)
-            # TODO: Create task msg, discuss how to do this
-            way_point_task = way_point_msg
-            upload_waypoint_task(way_point_task)
-        return False
+        pass
 
+    @abstractmethod
     def upload_waypoint_task(self, task):
-        service_name = "/dji_sdk/mission_waypoint_upload"
-        # TODO: Clarify what the third argument should be, i.e. what is std_srvs/SetBool
-        service = roslibpy.Service(ros_drone_connection, service_name, 'std_srvs/SetBool')
-        service.advertise(upload_handler)
-        # TODO: Clarify how to get response from handler
-        return result
+        pass
 
-    def start_mission(self, speed=5):
-        service_name = "dji_sdk/mission_waypoint_setSpeed"
-        service = roslibpy.Service(ros_drone_connection, service_name, 'std_srvs/SetBool')
-        service.advertise(speed_handler)
-        return result
+    @abstractmethod
+    def set_speed(self, speed):
+        pass
 
-    def speed_handler(request, response):
-        print('Setting speed to {}'.format(request['data']))
-        response['success'] = True
-        return True
+    @abstractmethod
+    def start_mission(self):
+        pass
 
-    def upload_handler(request, response):
-        print('Return from upload_task')
-        response['success'] = True
-        return True
+    @abstractmethod
+    def pause_mission(self):
+        pass
+
+    @abstractmethod
+    def resume_missionk(self):
+        pass
+
+    @abstractmethod
+    def land_drone(self):
+        pass
+
+    @abstractmethod
+    def fly_home(self):
+        pass
