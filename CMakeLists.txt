@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    add_drone.srv
+   all_drones_available.srv
    control_drone.srv
    set_speed.srv
    upload_mission.srv

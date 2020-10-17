@@ -1,0 +1,4 @@
+---
+string[] drones_available
+string message
+bool success

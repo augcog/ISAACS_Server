@@ -1,0 +1,6 @@
+string drone_name
+string drone_type
+---
+bool success
+uint32 drone_id
+string message
