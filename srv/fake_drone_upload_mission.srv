@@ -1,0 +1,4 @@
+sensor_msgs/NavSatFix[] waypoints
+---
+bool success
+string message

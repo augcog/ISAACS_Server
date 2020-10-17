@@ -13,14 +13,13 @@ print(client.is_connected)
 #TODO: DroneTaskControl should take care of land, takeoff, etc, depending on the input to request["task"] (4 = takeoff, 6 = land, 1 = go home)
 #We might not need to actually implement each case, depending on how precise we want this "simulator" to be
 def handler(request, response):
-    print("Control task service is being simulated")
-    print(f"Performing task: {request["task"]}")
+    print("Upload mission service is being simulated")
     response["success"] = True
-    response["message"] = f"Control task {request["task"]} completed"
+    response["message"] = "Mission uploaded"
     return True
 
 
-service = roslibpy.Service(client, '/fake_drone_control_task', 'isaacs_server/fake_drone_control_task')
+service = roslibpy.Service(client, '/fake_drone_upload_mission', 'isaacs_server/fake_drone_upload_mission')
 service.advertise(handler)
 
 client.run_forever()
