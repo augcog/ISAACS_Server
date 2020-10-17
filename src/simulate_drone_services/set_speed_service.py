@@ -6,22 +6,21 @@ import roslibpy
 
 
 client = roslibpy.Ros(host='136.25.185.6', port=9090)
-client.run()
-
-print(client.is_connected)
 
 #TODO: DroneTaskControl should take care of land, takeoff, etc, depending on the input to request["task"] (4 = takeoff, 6 = land, 1 = go home)
 #We might not need to actually implement each case, depending on how precise we want this "simulator" to be
 def handler(request, response):
     print("Set speed service is being simulated")
-    print(f"Speed set to {request["speed"]}")
+    print(f"Speed set to {request['speed']}")
     response["success"] = True
-    response["message"] = f"Speed set to {request["speed"]}"
+    response["message"] = f"Speed set to {request['speed']}"
     return True
 
 
 service = roslibpy.Service(client, '/fake_drone_set_speed', 'isaacs_server/fake_drone_set_speed')
 service.advertise(handler)
+
+print("Set speed service advertised...")
 
 client.run_forever()
 client.terminate()
