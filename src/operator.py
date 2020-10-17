@@ -15,53 +15,26 @@ next_id = 0 # ID to assign next drone
 ################################
 
 # Todo Implement
-def add_drone(request, response):
-    '''
-    :param request: dict of {ip: string, port: int, drone_type: string}
-    '''
-
-    #TODO error checking fixes ID when bad Drone init
-    def get_id():
-        global next_id  #TODO FIXME
-        cur_id, next_id = next_id, next_id + 1
-        return cur_id
-
-    id = get_id()
-    ip = request["ip"]
-    port = request["port"]
-    drone_type = request["drone_type"]
-    print(f"Adding drone {id} to global drones map with following properties:")
-    print(f"\tIP: {request['ip']}")
-    print(f"\tPort: {request['port']}")
-    print(f"\tDroneType: {request['drone_type']}\n")
-
-    # Create new drone instance using base class constructor, which should then
-    # call child constructor corresponding to the drone_type (TODO)
-    drones[id] = Drone.create(id, ip, port, drone_type)
-    successful = False
-    if drones[id]:
-        successful=drones[id].add_drone()
-        response["success"] = successful
-        response["id"] = id
-    #TODO fix message to error
-    if successful:
-        response["message"] = "Adding drone"
-    else:
-        response["message"] = "Failed to add drone"
-
-    return True # TODO check where this return goes to
 
 # Todo Implement
+def all_drones_available(request, response):
+    drones_available = {k: {drone_name: v.name, drone_subs: v.topics} for k, v in drones}
+    response["success"]= True
+    response['drones_available']= drones_available
+
+    return True
+
+
 def upload_mission(request, response):
     '''
-    :param request: dict of {id: int, waypoints: list of ints/strings --> pass
+    :param request: dict of {drone_id: int, waypoints: list of ints/strings --> pass
     these directly into the drone instance}
     '''
-    if not drones[request["id"]]:
+    if not drones[request["drone_id"]]:
         response["success"] = False
         return False
-    response["success"] = drones[request["id"]].upload_mission(request["waypoints"])
-
+    response["success"], response['meta_data'] = drones[request["drone_id"]].upload_mission(request["waypoints"])
+    response['drone_id']= request['drone_id']
     return True
 
 # Todo Implement
@@ -80,7 +53,7 @@ def set_speed(request, response):
 # includes startmission, pausemission, resume mission, landdrone, flyhome
 def control_drone(request, response):
     control_task = request["control_task"]
-    drone = drones.get(request["id"])
+    drone = drones.get(request["drone_id"])
     if control_task == "start_mission":
         response = drone.start_mission()
     elif control_task == "pause_mission":
@@ -124,6 +97,42 @@ def handler(request, response):
     response['success'] = True
     return True
 
+def register_drone(request, response):
+    '''
+    :param request: dict of {drone_name: string, drone_type: string}
+    '''
+
+    #TODO error checking fixes ID when bad Drone init
+    def get_id():
+        global next_id  #TODO FIXME
+        cur_id, next_id = next_id, next_id + 1
+        return cur_id
+
+    drone_name = request["drone_name"]
+    drone_type = request["drone_type"]
+    print(f"\tDroneType: {request['drone_type']}\n")
+
+    # Create new drone instance using base class constructor, which should then
+    # call child constructor corresponding to the drone_type (TODO)
+    d=Drone.create(drone_name, drone_type)
+    successful=False
+    
+    if d:
+        id = get_id()
+        d.id=id
+        drones[id] = d
+        successful = True
+        response["success"] = successful
+        response["id"] = id
+    print(f"Adding drone {id} to global drones map with following properties:")
+
+    #TODO fix message to error
+    if successful:
+        response["message"] = "Adding drone"
+    else:
+        response["message"] = "Failed to add drone"
+
+    return True # TODO check where this return goes to
 
 
 
@@ -140,13 +149,16 @@ service.advertise(handler)
 
 # TODO naming convention for services
 # Uncomment service advertises as needed
-add_drone_service = roslibpy.Service(ROS_master_connection, '/add_drone', 'isaacs_server/add_drone')
-add_drone_service.advertise(add_drone)
+register_drone_service = roslibpy.Service(ROS_master_connection, '/register_drone', 'isaacs_server/register_drone')
+register_drone_service.advertise(register_drone)
 
-'''upload_mission_service = roslibpy.Service(ROS_master_connection, '/upload_mission', 'isaacs_server/upload_mission')
+all_drones_available_service = roslibpy.Service(ROS_master_connection, '/all_drones_available', 'isaacs_server/all_drones_available')
+all_drones_available_service.advertise(all_drones_available)
+
+upload_mission_service = roslibpy.Service(ROS_master_connection, '/upload_mission', 'isaacs_server/upload_mission')
 upload_mission_service.advertise(upload_mission)
 
-upload_waypoint_task_service = roslibpy.Service(ROS_master_connection, '/upload_waypoint_task', 'isaacs_server/upload_waypoint_task')
+'''upload_waypoint_task_service = roslibpy.Service(ROS_master_connection, '/upload_waypoint_task', 'isaacs_server/upload_waypoint_task')
 upload_waypoint_task_service.advertise(upload_waypoint_task)
 
 set_speed_service = roslibpy.Service(ROS_master_connection, '/set_speed', 'isaacs_server/set_speed')

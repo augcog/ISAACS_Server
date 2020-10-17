@@ -7,8 +7,8 @@ class DjiMatriceDrone(Drone):
     drone_type = "DjiMatrice"
     ros_drone_connection = None
 
-    def __init__(self, id, ip, port, drone_type):
-        super().__init__(id, ip, port, drone_type)
+    def __init__(self, drone_name, drone_type, id=False):
+        super().__init__(drone_name, drone_type, id)
         assert(drone_type == self.drone_type)
 
     #TODO going to change once we make drones connect to server instead of server to drones
