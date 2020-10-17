@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
     rospy
     std_msgs
     message_generation
+    sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,6 +60,12 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    add_drone.srv
    control_drone.srv
+   set_speed.srv
+   upload_mission.srv
+
+   fake_drone_control.srv
+   fake_drone_upload_mission.srv
+   fake_drone_set_speed.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -71,6 +78,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
+   sensor_msgs
    std_msgs  # Or other packages containing msgs
 )
 
