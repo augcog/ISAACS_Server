@@ -7,14 +7,14 @@ import roslibpy
 ####################
 
 drones = dict() # Global map between drone IDs and drone instances
-next_id = 0 # ID to assign next drone
-
+sensors = dict() # Global map between sensor IDs and sensor instances
+drone_names = dict() # Global map between drone names and drone IDs
+sensor_names = dict() # Global map between sensor names and sensor IDs
+next_id = 0 # ID to assign next drone or sensor
 
 ################################
 # Interface -> Server Handlers #
 ################################
-
-# Todo Implement
 
 # Todo Implement
 def all_drones_available(request, response):
@@ -134,7 +134,74 @@ def register_drone(request, response):
 
     return True # TODO check where this return goes to
 
+def shutdown_drone(request, response):
+    '''
+    :param request: message that has a drone_id: std_msgs/Int32 and drone_subs: issacs_server/topic[]
+    '''
+    drone_id = request["drone_id"]
+    successful = False
+    if drone_id in drones:
+        drones.pop(drone_id)
+        # TODO ensure that drone instance is completely terminated
+        # TODO Remove drone_subs from global topics dict
+        successful = True
+    response["success"] = successful
+    if successful:
+        response["message"] = "Drone successfully shutdown"
+    else:
+        response["message"] = "Failed to shutdown drone"
 
+
+
+############################
+# Sensor -> Server Handlers #
+############################
+
+def register_sensor(request, response):
+    '''
+    :param request: dict of {drone_name: string, drone_type: string}
+    '''
+
+    #TODO error checking fixes ID when bad Sensor init
+    def get_id():
+        global next_id  #TODO FIXME
+        cur_id, next_id = next_id, next_id + 1
+        return cur_id
+
+    sensor_name = request["sensor_name"]
+    sensor_type = request["sensor_type"]
+    parent_drone_name = request["parent_drone_message"]
+    print(f"\tSensorType: {request['sensor_type']}\n")
+
+    successful=False
+    
+    # TODO Instantiate Sensor Object
+    print(f"Adding sensor {id} to global sensor map with following properties:")
+
+    #TODO fix message to error
+    if successful:
+        response["message"] = "Adding sensor"
+    else:
+        response["message"] = "Failed to add sensor"
+
+    return True # TODO check where this return goes to
+
+def shutdown_sensor(request, response):
+    '''
+    :param request: message that has a sensor_id: std_msgs/Int32 and sensor_subs: issacs_server/topic[]
+    '''
+    sensor_id = request["sensor_id"]
+    successful = False
+    if sensor_id in sensors:
+        sensors.pop(sensor_id)
+        # TODO ensure that sensor instance is completely terminated
+        # TODO Remove sensor_subs from global topics dict
+        successful = True
+    response["success"] = successful
+    if successful:
+        response["message"] = "Sensor successfully shutdown"
+    else:
+        response["message"] = "Failed to shutdown sensor"
 
 
 ###################################
