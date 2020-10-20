@@ -38,35 +38,104 @@ class Drone(ABC):
     @abstractmethod
     def upload_mission(self, waypoints):
         '''
-        waypoints: List<NavSatFix msgs>
-        return success: boolean and meta_data: JSON(raw drone API callback data)
+        Uploads list of waypoints for drone to follow
+        Parameters:
+            waypoints: List<NavSatFix msgs>
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
         '''
-        return True, {}
+        pass
 
     @abstractmethod
     def upload_waypoint_task(self, task):
+        '''
+        idk
+        '''
         pass
 
     @abstractmethod
     def set_speed(self, speed):
+        '''
+        Sets the speed of the drone
+        Parameters:
+            speed: int representing speed to set
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
 
     @abstractmethod
     def start_mission(self):
+        '''
+        Starts waypoint mission
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
 
     @abstractmethod
     def pause_mission(self):
+        '''
+        Pauses current mission
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
 
     @abstractmethod
     def resume_mission(self):
+        '''
+        Resumes current mission
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
 
     @abstractmethod
     def land_drone(self):
+        '''
+        Commands the drone to land
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
 
     @abstractmethod
     def fly_home(self):
+        '''
+        Commands the drone to fly home
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
         pass
