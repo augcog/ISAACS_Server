@@ -24,12 +24,6 @@ class Drone(ABC):
         self.flight_status = Flight_Status.NULL
         self.topics = {}
 
-        # Don't think we need these
-        # self.waypoints = None
-        # self.next_waypoint_id = 0
-        # self.mission_msg_list = []
-
-
     @staticmethod
     def create(drone_name, drone_type, id=None):
         from djimatrice_drone import DjiMatriceDrone
@@ -40,10 +34,6 @@ class Drone(ABC):
             return False
         else:
             return drones.get(drone_type)(drone_name, drone_type, id)
-
-    @abstractmethod
-    def add_drone(self):
-        pass
 
     @abstractmethod
     def upload_mission(self, waypoints):
@@ -70,7 +60,7 @@ class Drone(ABC):
         pass
 
     @abstractmethod
-    def resume_missionk(self):
+    def resume_mission(self):
         pass
 
     @abstractmethod
