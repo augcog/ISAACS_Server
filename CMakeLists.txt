@@ -49,19 +49,23 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   drone.msg
+   sensor.msg
+   topic_types.msg
+ )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   add_drone.srv
    all_drones_available.srv
+   all_sensors_available.srv
+   register_drone.srv
+   register_sensor.srv
    control_drone.srv
    set_speed.srv
+   type_to_topic.srv
    upload_mission.srv
 
    fake_drone_control.srv

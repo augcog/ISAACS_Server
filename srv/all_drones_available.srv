@@ -1,4 +1,4 @@
 ---
-string[] drones_available
+isaacs_server/drone[] drones_available
 string message
 bool success

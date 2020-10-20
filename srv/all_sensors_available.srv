@@ -1,0 +1,4 @@
+---
+isaacs_server/sensor[] sensors_available
+string message
+bool success
