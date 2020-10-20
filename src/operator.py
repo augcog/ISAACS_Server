@@ -121,6 +121,7 @@ def register_drone(request, response):
         id = get_id()
         d.id=id
         drones[id] = d
+        drone_names[drone_name] = id
         successful = True
         response["success"] = successful
         response["id"] = id
@@ -141,7 +142,9 @@ def shutdown_drone(request, response):
     drone_id = request["drone_id"]
     successful = False
     if drone_id in drones:
-        drones.pop(drone_id)
+        removed_drone = drones.pop(drone_id)
+        if removed_drone.name in drone_names:
+            drone_names.pop(removed_drone.name)
         # TODO ensure that drone instance is completely terminated
         # TODO Remove drone_subs from global topics dict
         successful = True
@@ -175,7 +178,9 @@ def register_sensor(request, response):
 
     successful=False
     
-    # TODO Instantiate Sensor Object
+    # TODO Instantiate Sensor Object and add the ID and Object to sensors
+    id = get_id()
+    sensor_names[sensor_name] = id
     print(f"Adding sensor {id} to global sensor map with following properties:")
 
     #TODO fix message to error
@@ -193,7 +198,10 @@ def shutdown_sensor(request, response):
     sensor_id = request["sensor_id"]
     successful = False
     if sensor_id in sensors:
-        sensors.pop(sensor_id)
+        removed_sensor = sensors.pop(sensor_id)
+        # Uncomment after implementing the sensor object
+        # if removed_sensor.name in sensor_names:
+        #     sensor_names.pop(removed_sensor.name) 
         # TODO ensure that sensor instance is completely terminated
         # TODO Remove sensor_subs from global topics dict
         successful = True
