@@ -2,6 +2,11 @@ from drone import Drone
 import roslibpy
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
+#####################
+# Global Parameters #
+#####################
+HOST = '136.25.185.6'
+
 ####################
 # Global Variables #
 ####################
@@ -11,6 +16,19 @@ sensors = dict() # Global map between sensor IDs and sensor instances
 drone_names = dict() # Global map between drone names and drone IDs
 sensor_names = dict() # Global map between sensor names and sensor IDs
 next_id = 0 # ID to assign next drone or sensor
+
+###################################
+# Set up and boot Roslibpy server #
+###################################
+
+ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
+services = []
+# Use the @custom_service decorator on a handler method to have it automatically advertise as a Service.
+def custom_serivce(handler):
+    service = roslibpy.Service(ROS_master_connection, f'server/{handler.__name__}', 'isaacs_server/{handler.__name__}')
+    service.advertise(handler)
+    services.append(service)
+    return handler
 
 ################################
 # Interface -> Server Handlers #
@@ -186,6 +204,7 @@ def register_sensor(request, response):
 
     return True # TODO check where this return goes to
 
+@custom_serivce
 def shutdown_sensor(request, response):
     '''
     :param request: message that has a sensor_id: std_msgs/Int32 and sensor_subs: issacs_server/topic[]
@@ -209,10 +228,13 @@ def shutdown_sensor(request, response):
 ###################################
 
 ROS_master_connection = roslibpy.Ros(host='136.25.185.6', port=9090)
-
-service = roslibpy.Service(ROS_master_connection, '/set_ludicrous_speed', 'std_srvs/SetBool')
-service.advertise(handler)
-
+services = []
+# Use the @custom_service decorator on a handler method to have it automatically advertise as a Service.
+def custom_serivce(handler):
+    service = roslibpy.Service(ROS_master_connection, f'server/{handler.__name__}', 'isaacs_server/{handler.__name__}')
+    service.advertise(handler)
+    services.append(service)
+    return handler
 
 # TODO naming convention for services
 # Uncomment service advertises as needed
