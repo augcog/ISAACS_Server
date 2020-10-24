@@ -1,5 +1,8 @@
 from drone import Drone
 import roslibpy
+from topic_types import topic_types
+#from drone_msg import drone_msg
+#from sensor_msg import sensor_msg
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
 ####################
@@ -10,6 +13,7 @@ drones = dict() # Global map between drone IDs and drone instances
 sensors = dict() # Global map between sensor IDs and sensor instances
 drone_names = dict() # Global map between drone names and drone IDs
 sensor_names = dict() # Global map between sensor names and sensor IDs
+all_topics = dict() # Global map of topic names to topic types
 next_id = 0 # ID to assign next drone or sensor
 
 ################################
@@ -102,9 +106,8 @@ def register_drone(request, response):
     :param request: dict of {drone_name: string, drone_type: string}
     '''
 
-    #TODO error checking fixes ID when bad Drone init
     def get_id():
-        global next_id  #TODO FIXME
+        global next_id
         cur_id, next_id = next_id, next_id + 1
         return cur_id
 
@@ -113,37 +116,60 @@ def register_drone(request, response):
     print(f"\tDroneType: {request['drone_type']}\n")
 
     # Create new drone instance using base class constructor, which should then
-    # call child constructor corresponding to the drone_type (TODO)
+    # call child constructor corresponding to the drone_type
     d=Drone.create(drone_name, drone_type)
     successful=False
-    
+
     if d:
         id = get_id()
         d.id=id
         drones[id] = d
+        drone_names[drone_name] = id
         successful = True
         response["success"] = successful
-        response["id"] = id
+        response["drone_id"] = id
     print(f"Adding drone {id} to global drones map with following properties:")
 
     #TODO fix message to error
     if successful:
-        response["message"] = "Adding drone"
+        response["message"] = "Drone registered"
     else:
-        response["message"] = "Failed to add drone"
+        response["message"] = "Failed to register drone"
+
+    print(drones)
+    print(drone_names)
 
     return True # TODO check where this return goes to
+
+
+def save_drone_topics(request, response):
+    publishes = request["publishes"]
+    for topic in publishes:
+        all_topics[topic["name"]] = topic["type"]
+
+    response["success"] = True
+    response["message"] = "Successfully saved drone topics"
+    print(all_topics)
+
+    return True
 
 def shutdown_drone(request, response):
     '''
     :param request: message that has a drone_id: std_msgs/Int32 and drone_subs: issacs_server/topic[]
     '''
-    drone_id = request["drone_id"]
+    id = request["id"]
+    publishes = request["publishes"]
     successful = False
-    if drone_id in drones:
-        drones.pop(drone_id)
+    if id in drones:
+
+        drone_names.pop(drones[id].drone_name)
+        drones.pop(id)
+        for topic in publishes:
+            all_topics.pop(topic['name'])
+
         # TODO ensure that drone instance is completely terminated
         # TODO Remove drone_subs from global topics dict
+
         successful = True
     response["success"] = successful
     if successful:
@@ -151,6 +177,10 @@ def shutdown_drone(request, response):
     else:
         response["message"] = "Failed to shutdown drone"
 
+    print(drone_names)
+    print(drones)
+    print(all_topics)
+    return True
 
 
 ############################
@@ -174,7 +204,7 @@ def register_sensor(request, response):
     print(f"\tSensorType: {request['sensor_type']}\n")
 
     successful=False
-    
+
     # TODO Instantiate Sensor Object
     print(f"Adding sensor {id} to global sensor map with following properties:")
 
@@ -186,13 +216,25 @@ def register_sensor(request, response):
 
     return True # TODO check where this return goes to
 
+def save_sensor_topics(request, response):
+    publishes = request["publishes"]
+    for topic in publishes:
+        all_topics[topic["name"]] = topic["type"]
+
+    response["success"] = True
+    response["message"] = "Successfully saved sensor topics"
+
+    return True
+
 def shutdown_sensor(request, response):
     '''
     :param request: message that has a sensor_id: std_msgs/Int32 and sensor_subs: issacs_server/topic[]
     '''
-    sensor_id = request["sensor_id"]
+    sensor_id = request["id"]
+    publishes = request["publishes"]
     successful = False
     if sensor_id in sensors:
+        # TODO Fix when sensor class is done
         sensors.pop(sensor_id)
         # TODO ensure that sensor instance is completely terminated
         # TODO Remove sensor_subs from global topics dict
@@ -218,6 +260,24 @@ service.advertise(handler)
 # Uncomment service advertises as needed
 register_drone_service = roslibpy.Service(ROS_master_connection, '/register_drone', 'isaacs_server/register_drone')
 register_drone_service.advertise(register_drone)
+
+save_drone_topics_service = roslibpy.Service(ROS_master_connection, '/save_drone_topics', 'isaacs_server/type_to_topic')
+save_drone_topics_service.advertise(save_drone_topics)
+
+shutdown_drone_service = roslibpy.Service(ROS_master_connection, '/shutdown_drone', 'isaacs_server/type_to_topic')
+shutdown_drone_service.advertise(shutdown_drone)
+
+
+register_sensor_service = roslibpy.Service(ROS_master_connection, '/register_sensor', 'isaacs_server/register_sensor')
+register_sensor_service.advertise(register_sensor)
+
+save_sensor_topics_service = roslibpy.Service(ROS_master_connection, '/save_sensor_topics', 'isaacs_server/type_to_topic')
+save_sensor_topics_service.advertise(save_sensor_topics)
+
+shutdown_sensor_service = roslibpy.Service(ROS_master_connection, '/shutdown_sensor', 'isaacs_server/type_to_topic')
+shutdown_sensor_service.advertise(shutdown_sensor)
+
+
 
 all_drones_available_service = roslibpy.Service(ROS_master_connection, '/all_drones_available', 'isaacs_server/all_drones_available')
 all_drones_available_service.advertise(all_drones_available)
