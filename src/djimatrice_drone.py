@@ -11,18 +11,6 @@ class DjiMatriceDrone(Drone):
         super().__init__(drone_name, drone_type, id)
         assert(drone_type == self.drone_type)
 
-    #TODO going to change once we make drones connect to server instead of server to drones
-    def add_drone(self):
-        try:
-            client = roslibpy.Ros(host='136.25.185.6', port=9090)
-            client.run()
-            print(client.is_connected)
-            return True
-        except Exception as e:
-            print("Failure")
-            print(e)
-            return False
-
     # TODO Implement
     def upload_mission(self, waypoints):
         # Find part in source code where you upload an entire mission
@@ -44,10 +32,6 @@ class DjiMatriceDrone(Drone):
         return
 
     # TODO Implement
-    def start_mission(self):
-        return
-
-    # TODO Implement
     def set_speed(self, speed):
         return
 
@@ -60,15 +44,15 @@ class DjiMatriceDrone(Drone):
         return
 
     # TODO Implement
-    def resume_missionk(self):
+    def resume_mission(self):
         return
 
     # TODO Implement
     def land_drone(self):
-        # change service name on drone
         try:
             print("Attempting to call drone specific service...")
-            service = roslibpy.Service(self.ROS_master_connection, 'land_drone_' + str(self.id), 'dji_sdk/DroneTaskControl')
+            #TODO change to actual service call and type
+            service = roslibpy.Service(self.ROS_master_connection, '/fake_drone_control', 'isaacs_server/fake_drone_control')
             # TODO check service type on drone aka check if 6 is correct
             request = roslibpy.ServiceRequest({"task": 6})
 
@@ -77,9 +61,22 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
-            result = {"success":False, "message":"Bricked"}
+            result = {"success":False, "message":"Drone landing failed"}
         return result
 
     # TODO Implement
     def fly_home(self):
-        return
+        try:
+            print("Attempting to call drone specific service...")
+            #TODO change to actual service call and type
+            service = roslibpy.Service(self.ROS_master_connection, '/fake_drone_control', 'isaacs_server/fake_drone_control')
+            # TODO check service type on drone aka check if 6 is correct
+            request = roslibpy.ServiceRequest({"task": 1})
+
+            print('Calling fly_home service...')
+            #TODO parse service.call(request)
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone flying home failed"}
+        return result
