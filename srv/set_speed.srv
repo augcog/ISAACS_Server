@@ -1,5 +1,5 @@
 uint32 id
-uint32 speed
+float32 speed
 ---
 bool success
 string message
