@@ -19,7 +19,8 @@ sensors = dict() # Global map between sensor IDs and sensor instances
 drone_names = dict() # Global map between drone names and drone IDs
 sensor_names = dict() # Global map between sensor names and sensor IDs
 all_topics = dict() # Global map of topic names to topic types
-next_id = 0 # ID to assign next drone or sensor
+# If an id of 0 is passed in, it refers to all drones, sensors, and global topics
+next_id = 1 # ID to assign next drone or sensor
 
 ###################################
 # Set up and boot Roslibpy server #
@@ -89,13 +90,6 @@ def upload_mission(request, response):
 
 # Todo Implement
 @custom_service
-def upload_waypoint_task(request, response):
-    print('Setting speed to {}'.format(request['data']))
-    response['success'] = True
-    return True
-
-# Todo Implement
-@custom_service
 def set_speed(request, response):
     print('Setting speed to {}'.format(request['data']))
     response['success'] = True
@@ -120,6 +114,31 @@ def control_drone(request, response):
     else:
         response["success"] = False
         response["message"] = "Invalid control task"
+    return True
+
+@custom_service
+def query_topics(request, response):
+    id = request["id"]
+    response["id"] = id
+    all_topics_response = []
+    if id == 0:
+        for k,v in all_topics:
+            all_topics_response.append({"name": k, "type": v})
+    else:
+        if not drones[id] and not sensors[id]:
+            response["success"] = False
+            response["message"] = "No drone or sensor with that id."
+            return False
+        if id in drones:
+            all_topics_response = drones[id].topics
+            for sensor_id in drones[id].sensors:
+                all_topics_response += sensors[sensor_id].topics
+        else:
+            all_topics_response = sensors[id].topics
+
+    response["all_topics"] = all_topics_response
+    response["success"] = True
+    response["message"] = "Successfully queried topics."
     return True
 
 
@@ -331,8 +350,6 @@ def shutdown_sensor(request, response):
 # upload_mission_service = roslibpy.Service(ROS_master_connection, '/upload_mission', 'isaacs_server/upload_mission')
 # upload_mission_service.advertise(upload_mission)
 #
-# '''upload_waypoint_task_service = roslibpy.Service(ROS_master_connection, '/upload_waypoint_task', 'isaacs_server/upload_waypoint_task')
-# upload_waypoint_task_service.advertise(upload_waypoint_task)
 #
 # set_speed_service = roslibpy.Service(ROS_master_connection, '/set_speed', 'isaacs_server/set_speed')
 # set_speed_service.advertise(set_speed)'''

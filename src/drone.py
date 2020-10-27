@@ -23,6 +23,7 @@ class Drone(ABC):
         self.connection_status = False
         self.flight_status = Flight_Status.NULL
         self.topics = []
+        self.sensors = []
 
     @staticmethod
     def create(drone_name, drone_type, id=None):
@@ -46,13 +47,6 @@ class Drone(ABC):
                 success: boolean
                 message: descriptive string
             }
-        '''
-        pass
-
-    @abstractmethod
-    def upload_waypoint_task(self, task):
-        '''
-        idk
         '''
         pass
 

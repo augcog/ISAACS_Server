@@ -1,6 +1,11 @@
 import roslibpy
 from drone import Drone
 
+class WaypointActions(Enum):
+    START = 0
+    STOP = 1
+    PAUSE = 2
+    RESUME = 3
 
 class DjiMatriceDrone(Drone):
 
@@ -17,7 +22,7 @@ class DjiMatriceDrone(Drone):
         self.waypoints = waypoints
         # TODO: Assumes that upload completely overwrites the old mission
         self.mission_msg_list = []
-        if self.flight_status == Flight_Status.ON_GROUND_STANDBY:
+        if self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
             for i in range(len(self.waypoints)):
                 # TODO: Get waypoint message from waypoint
                 way_point_msg = waypoints[i]
@@ -28,25 +33,70 @@ class DjiMatriceDrone(Drone):
 
         return False
 
-    # TODO Implement
     def upload_waypoint_task(self, task):
-        return
+        try:
+            print("Attempting to upload waypoint task...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
+            request = roslibpy.ServiceRequest({"waypoint_task": task})
 
-    # TODO Implement
+            print('Calling mission_waypoint_upload service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone landing failed"}
+        return result
+
     def set_speed(self, speed):
-        return
+        try:
+            print("Attempting to set speed...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
+            request = roslibpy.ServiceRequest({"speed": speed})
 
-    # TODO Implement
+            print('Calling mission_waypoint_setSpeed service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone landing failed"}
+        return result
+
     def start_mission(self):
-        return
+        try:
+            print("Attempting to start drone mission...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            request = roslibpy.ServiceRequest({"action": WaypointActions.START})
 
-    # TODO Implement
+            print('Calling mission_waypoint_action start service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone landing failed"}
+        return result
+
     def pause_mission(self):
-        return
+        try:
+            print("Attempting to pause drone mission...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            request = roslibpy.ServiceRequest({"action": WaypointActions.PAUSE})
 
-    # TODO Implement
+            print('Calling mission_waypoint_action pause service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone landing failed"}
+        return result
+
     def resume_mission(self):
-        return
+        try:
+            print("Attempting to resume drone mission...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            request = roslibpy.ServiceRequest({"action": WaypointActions.RESUME})
+
+            print('Calling mission_waypoint_action resume service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone landing failed"}
+        return result
 
     # TODO Implement
     def land_drone(self):
