@@ -22,7 +22,7 @@ class Drone(ABC):
         self.drone_name= drone_name
         self.connection_status = False
         self.flight_status = Flight_Status.NULL
-        self.topics = {}
+        self.topics = []
 
     @staticmethod
     def create(drone_name, drone_type, id=None):

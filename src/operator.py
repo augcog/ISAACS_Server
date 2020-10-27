@@ -38,7 +38,7 @@ def custom_service(handler):
     if handler.__name__ in exceptions:
         serv_type = exceptions[handler.__name__]
     else:
-        serv_type = f'issacs_server/{handler.__name__}'
+        serv_type = f'isaacs_server/{handler.__name__}'
     service = roslibpy.Service(ROS_master_connection, f'/server/{handler.__name__}', serv_type)
     print(service.name)
     service.advertise(handler)
@@ -52,8 +52,23 @@ def custom_service(handler):
 # Todo Implement
 @custom_service
 def all_drones_available(request, response):
-    drones_available = {k: {drone_name: v.name, drone_subs: v.topics} for k, v in drones}
+
+    #dont have list of services
+    #drones_available = {k: {drone_name: v.name, drone_subs: v.topics} for k, v in drones}
+
+    drones_available = []
+    for k, v in drones:
+        avail = dict()
+        avail["id"] = k
+        avail["name"] = v.name
+        avail["type"] = v.type
+        avail["topics"] = v.topics
+        #TODO fix services
+        avail["services"] = []
+        drones_available.append(avail)
+
     response["success"]= True
+    response["message"] = "Successfully sent all available drones to VR"
     response['drones_available']= drones_available
 
     return True
@@ -66,9 +81,10 @@ def upload_mission(request, response):
     '''
     if not drones[request["drone_id"]]:
         response["success"] = False
+        response["message"] = "No drone with that id."
+        response["drone_id"] = -1
         return False
-    response["success"], response['meta_data'] = drones[request["drone_id"]].upload_mission(request["waypoints"])
-    response['drone_id']= request['drone_id']
+    response = drones[request["drone_id"]].upload_mission(request["waypoints"])
     return True
 
 # Todo Implement
@@ -173,14 +189,23 @@ def register_drone(request, response):
 @custom_service
 def save_drone_topics(request, response):
     publishes = request["publishes"]
+    id = request["id"]
+
+    if drones[id] == None:
+        response["success"] = False
+        response["message"] = "Drone id does not exist"
+        return False
+
     for topic in publishes:
         all_topics[topic["name"]] = topic["type"]
+        drones[id].topics.append(topic)
 
     response["success"] = True
     response["message"] = "Successfully saved drone topics"
     print(all_topics)
-
     return True
+
+
 @custom_service
 def shutdown_drone(request, response):
     '''

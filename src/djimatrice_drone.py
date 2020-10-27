@@ -25,6 +25,7 @@ class DjiMatriceDrone(Drone):
             # TODO: Create task msg, discuss how to do this
             way_point_task = way_point_msg
             upload_waypoint_task(way_point_task)
+
         return False
 
     # TODO Implement
