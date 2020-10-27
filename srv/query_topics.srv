@@ -1,0 +1,6 @@
+uint32 id
+---
+uint32 id
+isaacs_server/topic_types[] all_topics
+string message
+bool success
