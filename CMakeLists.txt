@@ -67,6 +67,7 @@ add_message_files(
    set_speed.srv
    type_to_topic.srv
    upload_mission.srv
+   query_topics.srv
 
    fake_drone_control.srv
    fake_drone_upload_mission.srv
