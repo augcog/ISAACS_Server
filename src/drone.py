@@ -35,6 +35,9 @@ class Drone(ABC):
         self.flight_status = Drone.Flight_Status.NULL
         self.topics = []
         self.sensors = []
+        self.mission_msg_list = []
+        self.waypoints = []
+        self.waypoints_count = 0
 
     @staticmethod
     def create(drone_name, drone_type, id=None):

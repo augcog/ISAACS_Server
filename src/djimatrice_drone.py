@@ -1,22 +1,17 @@
 import roslibpy
+import numpy as np
 from drone import Drone
 from enum import Enum
 
 class DjiMatriceDrone(Drone):
 
-    class UpdateMissionAction(Enum):
-        CONTINUE_MISSION = 0,
-        UPDATE_CURRENT_MISSION = 1,
-        END_AND_HOVER = 2
-
-    class WaypointActions(Enum):
-        START = 0
-        STOP = 1
-        PAUSE = 2
-        RESUME = 3
-
     drone_type = "DjiMatrice"
     ros_drone_connection = None
+
+    class DroneTaskControl(Enum):
+        GO_HOME = 1
+        TAKEOFF = 4
+        LANDING = 6
 
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
@@ -64,6 +59,7 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Failed to set new drone speed"}
+        # TODO: Upon failure, revert back to original setting
         return result
 
     def fetch_speed(self):
@@ -80,6 +76,20 @@ class DjiMatriceDrone(Drone):
         return result
 
     def start_mission(self):
+        # TODO: Can start on this once waypoints are implemented
+        
+        # if (self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY):
+        #     if (self.prev_flight_status == NULL):
+        #         self.flight_status = Drone.Flight_Status.FLYING
+        #         self.prev_flight_status = Drone.Flight_Status.ON_GROUND_STANDBY
+        #         command_list = np.zeros(16)
+        #         command_params = np.zeros(16)
+        #         for i in range(drone.waypoints_count):
+
+        #             #TODO: Find out where waypoints are being added
+        #     else:
+        #         self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
+
         try:
             print("Attempting to start drone mission...")
             service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
@@ -90,7 +100,32 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to start"}
+        # self.start_mission_callback(result)
+        # TODO: Upon failure, revert back to original setting
         return result
+
+    def start_mission_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
+        
+    def stop_mission(self):
+        try:
+            print("Attempting to stop drone mission...")
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
+
+            print('Calling mission_waypoint_action stop service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Mission failed to stop"}
+        self.stop_mission_callback(result)
+        # TODO: Upon failure, revert back to original setting
+        return result
+
+    def stop_mission_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
 
     def pause_mission(self):
         try:
@@ -103,7 +138,12 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to pause"}
+        # TODO: Upon failure, revert back to original setting
         return result
+
+    def pause_mission_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
 
     def resume_mission(self):
         try:
@@ -116,16 +156,21 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to resume"}
+        # TODO: Upon failure, revert back to original setting
         return result
+    
+    def resume_mission_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
 
     # TODO Implement
     def land_drone(self):
         try:
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
-            service = roslibpy.Service(self.ROS_master_connection, '/fake_drone_control', 'isaacs_server/fake_drone_control')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             # TODO check service type on drone aka check if 6 is correct
-            request = roslibpy.ServiceRequest({"task": 6})
+            request = roslibpy.ServiceRequest({"task": DroneTaskControl.LAND})
 
             print('Calling land_drone service...')
             #TODO parse service.call(request)
@@ -133,16 +178,21 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Drone landing failed"}
+        # self.land_drone_callback(result)
         return result
+    
+    def land_drone_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
 
     # TODO Implement
     def fly_home(self):
         try:
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
-            service = roslibpy.Service(self.ROS_master_connection, '/fake_drone_control', 'isaacs_server/fake_drone_control')
-            # TODO check service type on drone aka check if 6 is correct
-            request = roslibpy.ServiceRequest({"task": 1})
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            # TODO check service type on drone aka check if 1 is correct
+            request = roslibpy.ServiceRequest({"task": DroneTaskControl.GO_HOME})
 
             print('Calling fly_home service...')
             #TODO parse service.call(request)
@@ -151,6 +201,10 @@ class DjiMatriceDrone(Drone):
         except:
             result = {"success":False, "message":"Drone flying home failed"}
         return result
+
+    def land_drone_callback(self, result):
+        # TODO: Add more after figuring out what callback is used to update
+        return result["success"]
 
     #TODO Implement
     def update_mission_helper(self, action):
@@ -177,3 +231,4 @@ class DjiMatriceDrone(Drone):
         else:
             result = {"success":False, "message":"Invalid Request: Could not update mission"}
         return result
+    
