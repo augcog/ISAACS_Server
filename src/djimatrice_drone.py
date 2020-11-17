@@ -77,15 +77,18 @@ class DjiMatriceDrone(Drone):
 
     def start_mission(self):
         # TODO: Can start on this once waypoints are implemented
-        
+
         # if (self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY):
-        #     if (self.prev_flight_status == NULL):
+        #     if (self.prev_flight_status == Drone.Flight_Status.NULL):
         #         self.flight_status = Drone.Flight_Status.FLYING
         #         self.prev_flight_status = Drone.Flight_Status.ON_GROUND_STANDBY
         #         command_list = np.zeros(16)
         #         command_params = np.zeros(16)
-        #         for i in range(drone.waypoints_count):
-
+        #         for i in range(self.waypoints_count):
+        #             waypoint = self.waypoints[i]
+        #             waypoint_coord = waypoint.position
+        #             # Assumption: position stored as dictionary
+        #             waypoint_msg = {}
         #             #TODO: Find out where waypoints are being added
         #     else:
         #         self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
@@ -202,7 +205,7 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Drone flying home failed"}
         return result
 
-    def land_drone_callback(self, result):
+    def fly_home_drone_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
         return result["success"]
 

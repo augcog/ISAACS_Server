@@ -15,6 +15,7 @@ class Waypoint(ABC):
     
     # Called within drone class/subclass, must pass in self as drone
     def __init__(self, drone, position):
+        # TODO: GPS vs Unity Coords, assume GPS for now
         self.position = position
         self.prev_waypoint = None
         self.next_waypoint = None

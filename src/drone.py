@@ -38,6 +38,9 @@ class Drone(ABC):
         self.mission_msg_list = []
         self.waypoints = []
         self.waypoints_count = 0
+        #TODO: define position structure i.e. (lat, long) or (x, y);
+        # tuple vs dictionary
+        self.position = None
 
     @staticmethod
     def create(drone_name, drone_type, id=None):
