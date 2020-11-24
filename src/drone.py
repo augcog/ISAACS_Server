@@ -12,7 +12,7 @@ class Drone(ABC):
         PAUSED_IN_AIR = 5
         LANDING = 6
         NULL = 7
-        
+
     class UpdateMissionAction(Enum):
         CONTINUE_MISSION = 0,
         UPDATE_CURRENT_MISSION = 1,
@@ -34,6 +34,7 @@ class Drone(ABC):
         self.connection_status = False
         self.flight_status = Drone.Flight_Status.NULL
         self.topics = []
+        self.services = []
         self.sensors = []
         self.mission_msg_list = []
         self.waypoints = []

@@ -1,4 +1,5 @@
 from drone import Drone
+from sensor import Sensor
 import roslibpy
 #from topic_types import topic_types
 #from drone_msg import drone_msg
@@ -66,7 +67,7 @@ def all_drones_available(request, response):
         avail["type"] = v.drone_type
         avail["topics"] = v.topics
         #TODO fix services
-        avail["services"] = []
+        avail["services"] = v.services
         drones_available.append(avail)
 
     response["success"] = True
@@ -247,7 +248,6 @@ def shutdown_drone(request, response):
         # TODO Remove drone_subs from global topics dict
 
         successful = True
-        next_id -= 1
     response["success"] = successful
     if successful:
         response["message"] = "Drone successfully shutdown"
@@ -277,31 +277,50 @@ def register_sensor(request, response):
 
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
-    parent_drone_name = request["parent_drone_message"]
+    parent_drone_name = request["parent_drone_name"]
     print(f"\tSensorType: {request['sensor_type']}\n")
 
+    s=Sensor.create(drone_name, drone_type, drone_names[parent_drone_name])
     successful=False
+
+    if s:
+        id = get_id()
+        s.id=id
+        sensors[id] = s
+        sensor_names[sensor_name] = id
+        successful = True
+        response["success"] = successful
+        response["sensor_id"] = id
 
     # TODO Instantiate Sensor Object
     print(f"Adding sensor {id} to global sensor map with following properties:")
 
     #TODO fix message to error
     if successful:
-        response["message"] = "Adding sensor"
+        response["message"] = "Registering sensor"
     else:
-        response["message"] = "Failed to add sensor"
+        response["message"] = "Failed to register sensor"
 
     return True # TODO check where this return goes to
 @custom_service
 def save_sensor_topics(request, response):
     publishes = request["publishes"]
+    id = request["id"]
+
+    if sensors[id] == None:
+        response["success"] = False
+        response["message"] = "Sensor id does not exist"
+        return False
+
     for topic in publishes:
         all_topics[topic["name"]] = topic["type"]
+        sensors[id].topics.append(topic)
 
     response["success"] = True
     response["message"] = "Successfully saved sensor topics"
 
     return True
+
 @custom_service
 def shutdown_sensor(request, response):
     '''
@@ -312,7 +331,10 @@ def shutdown_sensor(request, response):
     successful = False
     if sensor_id in sensors:
         # TODO Fix when sensor class is done
+        sensor_names.pop(sensors[id].sensor_name)
         sensors.pop(sensor_id)
+        for topic in publishes:
+            all_topics.pop(topic['name'])
         # TODO ensure that sensor instance is completely terminated
         # TODO Remove sensor_subs from global topics dict
         successful = True
@@ -321,6 +343,8 @@ def shutdown_sensor(request, response):
         response["message"] = "Sensor successfully shutdown"
     else:
         response["message"] = "Failed to shutdown sensor"
+
+    return True
 
 
 ###################################
