@@ -11,6 +11,19 @@ class MavrosDrone(Drone):
     class MAV_CMD(Enum):
         NAVIGATE_TO_WAYPOINT = 16
 
+    class MAV_MODE(Enum):
+        MAV_MODE_PREFLIGHT = 0
+        MAV_MODE_STABILIZE_DISARMED = 80
+        MAV_MODE_STABILIZE_ARMED = 208
+        MAV_MODE_MANUAL_DISARMED = 64
+        MAV_MODE_MANUAL_ARMED = 192
+        MAV_MODE_GUIDED_DISARMED = 88
+        MAV_MODE_GUIDED_ARMED = 216
+        MAV_MODE_AUTO_DISARMED = 92
+        MAV_MODE_AUTO_ARMED = 220
+        MAV_MODE_TEST_DISARMED = 66
+        MAV_MODE_TEST_ARMED = 194
+
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
         assert(drone_type == self.drone_type)
@@ -25,14 +38,14 @@ class MavrosDrone(Drone):
             converted_waypoint_objects.append(roslibpy.Message(convert_navsatfix_mavroswaypoint(navsatfix)))
         try:
             print("Attempting to upload mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'mavros/mission/push', 'mavros_msgs/WaypointPush')
+            service = roslibpy.Service(self.ROS_master_connection, '/mavros/mission/push', 'mavros_msgs/WaypointPush')
             request = roslibpy.ServiceRequest({'start_index': 0, 'waypoints': converted_waypoint_objects})
 
-            print('Calling mavros/mission/push service...')
+            print('Calling /mavros/mission/push service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
-            result = {"success":False, "message":"Failed to set new drone speed"}
+            result = {"success":False, "message":"Failed to upload waypoints"}
         return result
 
     def convert_navsatfix_mavroswaypoint(self, navsatfix):
@@ -75,46 +88,23 @@ class MavrosDrone(Drone):
         return result
 
     def start_mission(self):
-        # TODO: Can start on this once waypoints are implemented
-
-        # if (self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY):
-        #     if (self.prev_flight_status == Drone.Flight_Status.NULL):
-        #         self.flight_status = Drone.Flight_Status.FLYING
-        #         self.prev_flight_status = Drone.Flight_Status.ON_GROUND_STANDBY
-        #         command_list = np.zeros(16)
-        #         command_params = np.zeros(16)
-        #         for i in range(self.waypoints_count):
-        #             waypoint = self.waypoints[i]
-        #             waypoint_coord = waypoint.position
-        #             # Assumption: position stored as dictionary
-        #             waypoint_msg = {}
-        #             #TODO: Find out where waypoints are being added
-        #     else:
-        #         self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-
         try:
             print("Attempting to start drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
+            service = roslibpy.Service(self.ROS_master_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
+            request = roslibpy.ServiceRequest({"base_mode": MavrosDrone.MAV_MODE.MAV_MODE_AUTO_ARMED, "custom_mode": ""})
 
             print('Calling mission_waypoint_action start service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to start"}
-        # self.start_mission_callback(result)
-        # TODO: Upon failure, revert back to original setting
         return result
-
-    def start_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
         
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'mavros/mission/clear', 'mavros_msgs/WaypointClear')
-            request = roslibpy.ServiceRequest({})
+            service = roslibpy.Service(self.ROS_master_connection, '/mavros/mission/clear', 'mavros_msgs/WaypointClear')
+            request = roslibpy.ServiceRequest()
 
             print('Calling mission_waypoint_action stop service...')
             result = service.call(request)
@@ -169,44 +159,29 @@ class MavrosDrone(Drone):
     def land_drone(self):
         try:
             print("Attempting to call drone specific service...")
-            #TODO change to actual service call and type
-            service = roslibpy.Service(self.ROS_master_connection, 'mavros/cmd/land', 'mavros_msgs/CommandTOL')
-            # TODO check service type on drone aka check if 6 is correct
-            request = roslibpy.ServiceRequest({"task": DroneTaskControl.LAND})
+            service = roslibpy.Service(self.ROS_master_connection, '/mavros/cmd/land', 'mavros_msgs/CommandTOL')
+            request = roslibpy.ServiceRequest()
 
             print('Calling land_drone service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Drone landing failed"}
-        # self.land_drone_callback(result)
         return result
-    
-    def land_drone_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
 
-    # # TODO Implement
-    # def fly_home(self):
-    #     try:
-    #         print("Attempting to call drone specific service...")
-    #         #TODO change to actual service call and type
-    #         service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-    #         # TODO check service type on drone aka check if 1 is correct
-    #         request = roslibpy.ServiceRequest({"task": DroneTaskControl.GO_HOME})
+    def fly_home(self):
+        try:
+            print("Attempting to call drone specific service...")
+            service = roslibpy.Service(self.ROS_master_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
+            request = roslibpy.ServiceRequest({"custom_mode": "RTL"})
 
-    #         print('Calling fly_home service...')
-    #         #TODO parse service.call(request)
-    #         result = service.call(request)
-    #         print('Service response: {}'.format(result))
-    #     except:
-    #         result = {"success":False, "message":"Drone flying home failed"}
-    #     return result
-
-    # def fly_home_drone_callback(self, result):
-    #     # TODO: Add more after figuring out what callback is used to update
-    #     return result["success"]
+            print('Calling fly_home service...')
+            #TODO parse service.call(request)
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+        except:
+            result = {"success":False, "message":"Drone flying home failed"}
+        return result
 
     #TODO Implement
     def update_mission_helper(self, action):
