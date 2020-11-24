@@ -1,6 +1,6 @@
 from drone import Drone
 import roslibpy
-from topic_types import topic_types
+#from topic_types import topic_types
 #from drone_msg import drone_msg
 #from sensor_msg import sensor_msg
 #roslaunch rosbridge_server rosbridge_websocket.launch
@@ -40,7 +40,7 @@ def custom_service(handler):
         serv_type = exceptions[handler.__name__]
     else:
         serv_type = f'isaacs_server/{handler.__name__}'
-    service = roslibpy.Service(ROS_master_connection, f'/server/{handler.__name__}', serv_type)
+    service = roslibpy.Service(ROS_master_connection, f'/isaacs_server/{handler.__name__}', serv_type)
     print(service.name)
     service.advertise(handler)
     services.append(service)
@@ -58,19 +58,22 @@ def all_drones_available(request, response):
     #drones_available = {k: {drone_name: v.name, drone_subs: v.topics} for k, v in drones}
 
     drones_available = []
-    for k, v in drones:
+    print("Calling all_drones_available_service ...")
+    for k, v in drones.items():
         avail = dict()
         avail["id"] = k
-        avail["name"] = v.name
-        avail["type"] = v.type
+        avail["name"] = v.drone_name
+        avail["type"] = v.drone_type
         avail["topics"] = v.topics
         #TODO fix services
         avail["services"] = []
         drones_available.append(avail)
 
-    response["success"]= True
+    response["success"] = True
     response["message"] = "Successfully sent all available drones to VR"
-    response['drones_available']= drones_available
+    #response['drones_available'] = []
+    response['drones_available'] = drones_available
+    print("All_drones_available_service finished")
 
     return True
 
@@ -122,7 +125,7 @@ def query_topics(request, response):
     response["id"] = id
     all_topics_response = []
     if id == 0:
-        for k,v in all_topics:
+        for k,v in all_topics.items():
             all_topics_response.append({"name": k, "type": v})
     else:
         if not drones[id] and not sensors[id]:
@@ -244,6 +247,7 @@ def shutdown_drone(request, response):
         # TODO Remove drone_subs from global topics dict
 
         successful = True
+        next_id -= 1
     response["success"] = successful
     if successful:
         response["message"] = "Drone successfully shutdown"
