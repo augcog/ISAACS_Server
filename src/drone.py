@@ -46,8 +46,10 @@ class Drone(ABC):
     @staticmethod
     def create(drone_name, drone_type, id=None):
         from djimatrice_drone import DjiMatriceDrone
+        from mavros_drone import MavrosDrone
         drones = {
-            "DjiMatrice": DjiMatriceDrone
+            "DjiMatrice": DjiMatriceDrone, 
+            "MavrosDrone": MavrosDrone
         }
         if drone_type not in drones:
             return False

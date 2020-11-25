@@ -104,7 +104,7 @@ def set_speed(request, response):
 @custom_service
 def control_drone(request, response):
     control_task = request["control_task"]
-    drone = drones.get(request["drone_id"])
+    drone = drones.get(request["id"])
     if control_task == "start_mission":
         response = drone.start_mission()
     elif control_task == "pause_mission":
