@@ -26,7 +26,7 @@ class MavrosDrone(Drone):
     def upload_mission(self, waypoints):
         # TODO NEEDS TO SWITCH OVER TO NAVSATFIX USAGE!
         self.waypoints = [{'frame': 3, 'command': 22, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': -35.363578, 'y_long': 149.1656228, 'z_alt': 10}] + waypoints
-        print(self.waypoints
+        print(self.waypoints)
         # Converts all the NavSatFix messages to Waypoint so that its MAVROS compatible
         # converted_waypoint_objects = []
         # for navsatfix in waypoints:
@@ -131,7 +131,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to pause drone mission...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/command', 'mavros_msgs/CommandLong')
-            request = roslibpy.ServiceRequest({'command': 193, 'param1': 0})
+            request = roslibpy.ServiceRequest({'command': 252, 'param1': 0, 'param2': 2})
 
             print('Calling pause mission service...')
             result = service.call(request)
