@@ -14,19 +14,26 @@ class MavrosDrone(Drone):
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
         assert(drone_type == self.drone_type)
-        self.ros_drone_connection = roslibpy.Ros(host="47.145.22.68", port=9090)
+        self.ros_drone_connection = roslibpy.Ros(host='47.145.22.68', port=9090)
         try:
-            self.ros_drone_connection.run()
+            self.ros_drone_connection.run(timeout=20)
+            position_listener = roslibpy.Topic(self.ros_drone_connection, '/mavros/global_position/global', 'sensor_msgs/NavSatFix')
+            position_listener.subscribe(self.received_position_update)
         except:
             print(self.ros_drone_connection.is_connected)
-            self.ros_drone_connection.close()
+        self.location = None
         self.prev_flight_status = Drone.Flight_Status.NULL
+
+    def received_position_update(self, message):
+        self.location = message
 
     # TODO Implement
     def upload_mission(self, waypoints):
+        if not self.location:
+            return {"success":False, "message":"Failed to upload waypoints. Drone location is unknown."}
         # TODO NEEDS TO SWITCH OVER TO NAVSATFIX USAGE!
-        self.waypoints = [{'frame': 3, 'command': 22, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': -35.363578, 'y_long': 149.1656228, 'z_alt': 10}] + waypoints
-        print(self.waypoints)
+        waypoints = 2*[{'frame': 3, 'command': 22, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
+        self.waypoints = waypoints
         # Converts all the NavSatFix messages to Waypoint so that its MAVROS compatible
         # converted_waypoint_objects = []
         # for navsatfix in waypoints:
@@ -34,7 +41,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to upload mission...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/mission/push', 'mavros_msgs/WaypointPush')
-            request = roslibpy.ServiceRequest({'start_index': 0, 'waypoints': self.waypoints})
+            request = roslibpy.ServiceRequest({'waypoints': self.waypoints})
 
             print('Calling /mavros/mission/push service...')
             result = service.call(request)
@@ -58,28 +65,14 @@ class MavrosDrone(Drone):
     def set_speed(self, speed):
         try:
             print("Attempting to set speed...")
-            service = roslibpy.Service(self.ros_drone_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
-            request = roslibpy.ServiceRequest({"speed": speed})
+            service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/command', 'mavros_msgs/CommandLong')
+            request = roslibpy.ServiceRequest({"command": 178, "param1": 0, "param2": speed, "param3": -1, "param4": 0})
 
             print('Calling mission_waypoint_setSpeed service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Failed to set new drone speed"}
-        # TODO: Upon failure, revert back to original setting
-        return result
-
-    def fetch_speed(self):
-        try:
-            print("Attempting to fetch speed...")
-            service = roslibpy.Service(self.ros_drone_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
-            request = roslibpy.ServiceRequest()
-
-            print('Calling mission_waypoint_setSpeed service...')
-            result = service.call(request)
-            print('Service response: {}'.format(result))
-        except:
-            result = {"success":False, "message":"Failed to fetch drone speed"}
         return result
 
     def start_mission(self):
@@ -96,7 +89,7 @@ class MavrosDrone(Drone):
             
             print("Attempting to takeoff...")
             takeoff_service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/takeoff', 'mavros_msgs/CommandTOL')
-            takeoff_request = roslibpy.ServiceRequest({'altitude': 1.5})
+            takeoff_request = roslibpy.ServiceRequest({'altitude': 3})
             takeoff_service.call(takeoff_request)
 
             mission_start_service = roslibpy.Service(self.ros_drone_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
