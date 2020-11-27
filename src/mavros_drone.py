@@ -123,8 +123,8 @@ class MavrosDrone(Drone):
     def pause_mission(self):
         try:
             print("Attempting to pause drone mission...")
-            service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/command', 'mavros_msgs/CommandLong')
-            request = roslibpy.ServiceRequest({'command': 252, 'param1': 0, 'param2': 2})
+            service = roslibpy.Service(self.ros_drone_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
+            request = roslibpy.ServiceRequest({"custom_mode": "GUIDED"})
 
             print('Calling pause mission service...')
             result = service.call(request)
