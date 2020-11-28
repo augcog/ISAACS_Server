@@ -10,6 +10,12 @@ class MavrosDrone(Drone):
 
     class MAV_CMD(Enum):
         NAVIGATE_TO_WAYPOINT = 16
+        TAKEOFF = 22
+        SET_SPEED = 178
+
+    class FRAME_REFERENCE(Enum):
+        GLOBAL = 0 # Coordinate frame is global in terms of absolute GPS coords
+        RELATIVE_ALT = 3 # Global coordinates for lat and long, but altitude is relative
 
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
@@ -19,6 +25,7 @@ class MavrosDrone(Drone):
             self.ros_drone_connection.run(timeout=20)
             position_listener = roslibpy.Topic(self.ros_drone_connection, '/mavros/global_position/global', 'sensor_msgs/NavSatFix')
             position_listener.subscribe(self.received_position_update)
+            self.connection_status = True
         except:
             print(self.ros_drone_connection.is_connected)
         self.location = None
@@ -27,12 +34,11 @@ class MavrosDrone(Drone):
     def received_position_update(self, message):
         self.location = message
 
-    # TODO Implement
     def upload_mission(self, waypoints):
         if not self.location:
             return {"success":False, "message":"Failed to upload waypoints. Drone location is unknown."}
         # TODO NEEDS TO SWITCH OVER TO NAVSATFIX USAGE!
-        waypoints = 2*[{'frame': 3, 'command': 22, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
+        waypoints = 2*[{'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
         self.waypoints = waypoints
         # Converts all the NavSatFix messages to Waypoint so that its MAVROS compatible
         # converted_waypoint_objects = []
@@ -55,7 +61,7 @@ class MavrosDrone(Drone):
         Takes in a NavSatFix message and returns a mavros_msgs/Waypoint message.
         This is in the form of a dictionary.
         '''
-        waypoint = {'frame': 0, 'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0}
+        waypoint = {'frame': MavrosDrone.FRAME_REFERENCE.GLOBAL.value, 'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0}
         waypoint['x_lat'] = navsatfix['latitude']
         waypoint['y_long'] = navsatfix['longitude']
         waypoint['z_alt'] = navsatfix['altitude']
@@ -66,7 +72,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to set speed...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/command', 'mavros_msgs/CommandLong')
-            request = roslibpy.ServiceRequest({"command": 178, "param1": 0, "param2": speed, "param3": -1, "param4": 0})
+            request = roslibpy.ServiceRequest({"command": MavrosDrone.MAV_CMD.SET_SPEED.value, "param1": 0, "param2": speed, "param3": -1, "param4": 0})
 
             print('Calling mission_waypoint_setSpeed service...')
             result = service.call(request)
@@ -97,6 +103,8 @@ class MavrosDrone(Drone):
             print('Calling mission_waypoint_action start service...')
             result = mission_start_service.call(mission_start_request)            
             print('Service response: {}'.format(result))
+            if result['mode_sent']:
+                self.prev_flight_status = Drone.Flight_Status.FLYING
         except:
             result = {"success":False, "message":"Mission failed to start"}
         return result
@@ -110,15 +118,12 @@ class MavrosDrone(Drone):
             print('Calling mission_waypoint_action stop service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+
+            if result['mode_sent']:
+                self.prev_flight_status = Drone.Flight_Status.IN_AIR_STANDBY
         except:
             result = {"success":False, "message":"Mission failed to stop"}
-        self.stop_mission_callback(result)
-        # TODO: Upon failure, revert back to original setting
         return result
-
-    def stop_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
 
     def pause_mission(self):
         try:
@@ -129,9 +134,11 @@ class MavrosDrone(Drone):
             print('Calling pause mission service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+
+            if result['mode_sent']:
+                self.prev_flight_status = Drone.Flight_Status.PAUSED_IN_AIR
         except:
             result = {"success":False, "message":"Mission failed to pause"}
-        # TODO: Upon failure, revert back to original setting
         return result
 
     def resume_mission(self):
@@ -143,9 +150,11 @@ class MavrosDrone(Drone):
             print('Calling mission_waypoint_action resume service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+
+            if result['mode_sent']:
+                self.prev_flight_status = Drone.Flight_Status.FLYING
         except:
             result = {"success":False, "message":"Mission failed to resume"}
-        # TODO: Upon failure, revert back to original setting
         return result
 
     def land_drone(self):
@@ -157,47 +166,23 @@ class MavrosDrone(Drone):
             print('Calling mavros_land_drone service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result['success']:
+                self.prev_flight_status = Drone.Flight_Status.LANDING
         except:
             result = {"success":False, "message":"Drone landing failed"}
         return result
 
     def fly_home(self):
         try:
-            print("Attempting to call drone specific service...")
+            print("Attempting to make drone fly_home...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
             request = roslibpy.ServiceRequest({"custom_mode": "RTL"})
 
             print('Calling fly_home service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result['mode_sent']:
+                self.prev_flight_status = Drone.Flight_Status.FLYING_HOME
         except:
             result = {"success":False, "message":"Drone flying home failed"}
         return result
-
-    #TODO Implement
-    def update_mission_helper(self, action):
-        if action == Drone.UpdateMissionAction.CONTINUE_MISSION:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        elif action == Drone.UpdateMissionAction.UPDATE_CURRENT_MISSION:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        elif action == Drone.UpdateMissionAction.END_AND_HOVER:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        return result
-    
-    # TODO: Need to implement update_mission_helper to work
-    def update_mission(self):
-        if self.flight_status == Drone.Flight_Status.FLYING_HOME:
-            result = self.update_mission_helper(Drone.UpdateMissionAction.UPDATE_CURRENT_MISSION)
-        elif self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
-            if self.prev_flight_status != Drone.Flight_Status.NULL:
-                result = self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-        elif self.flight_status == Drone.Flight_Status.IN_AIR_STANDBY:
-            result = self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-        else:
-            result = {"success":False, "message":"Invalid Request: Could not update mission"}
-        return result
-    
