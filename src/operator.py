@@ -145,25 +145,6 @@ def query_topics(request, response):
     response["message"] = "Successfully queried topics."
     return True
 
-
-''' Funtions to implement
-Click button - query drone ID from button
-SelectedDrone.waypoints -
-Example: MatriceRosDroneConnection
-UploadMissionCallback()
-StartMission(ID)
-StartMissionCallback()
-PauseMission(ID)
-PauseMissionCallback()
-ResumeMission(ID)
-ResumeMissionCallback()
-LandDrone(ID)
-LandDroneCallback()
-FlyHome(ID)
-FlyHomeCallback()
-'''
-
-
 ############################
 # Drone -> Server Handlers #
 ############################
@@ -302,6 +283,7 @@ def register_sensor(request, response):
         response["message"] = "Failed to register sensor"
 
     return True # TODO check where this return goes to
+
 @custom_service
 def save_sensor_topics(request, response):
     publishes = request["publishes"]
@@ -347,43 +329,6 @@ def shutdown_sensor(request, response):
     return True
 
 
-###################################
-# Set up and boot Roslibpy server #
-###################################
-# Uncomment service advertises as needed
-# register_drone_service = roslibpy.Service(ROS_master_connection, '/register_drone', 'isaacs_server/register_drone')
-# register_drone_service.advertise(register_drone)
-#
-# save_drone_topics_service = roslibpy.Service(ROS_master_connection, '/save_drone_topics', 'isaacs_server/type_to_topic')
-# save_drone_topics_service.advertise(save_drone_topics)
-#
-# shutdown_drone_service = roslibpy.Service(ROS_master_connection, '/shutdown_drone', 'isaacs_server/type_to_topic')
-# shutdown_drone_service.advertise(shutdown_drone)
-#
-#
-# register_sensor_service = roslibpy.Service(ROS_master_connection, '/register_sensor', 'isaacs_server/register_sensor')
-# register_sensor_service.advertise(register_sensor)
-#
-# save_sensor_topics_service = roslibpy.Service(ROS_master_connection, '/save_sensor_topics', 'isaacs_server/type_to_topic')
-# save_sensor_topics_service.advertise(save_sensor_topics)
-#
-# shutdown_sensor_service = roslibpy.Service(ROS_master_connection, '/shutdown_sensor', 'isaacs_server/type_to_topic')
-# shutdown_sensor_service.advertise(shutdown_sensor)
-#
-#
-#
-# all_drones_available_service = roslibpy.Service(ROS_master_connection, '/all_drones_available', 'isaacs_server/all_drones_available')
-# all_drones_available_service.advertise(all_drones_available)
-#
-# upload_mission_service = roslibpy.Service(ROS_master_connection, '/upload_mission', 'isaacs_server/upload_mission')
-# upload_mission_service.advertise(upload_mission)
-#
-#
-# set_speed_service = roslibpy.Service(ROS_master_connection, '/set_speed', 'isaacs_server/set_speed')
-# set_speed_service.advertise(set_speed)'''
-#
-# control_drone_service = roslibpy.Service(ROS_master_connection, '/control_drone', 'isaacs_server/control_drone')
-# control_drone_service.advertise(control_drone)
 
 print('Services advertised.')
 
