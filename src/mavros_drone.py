@@ -41,12 +41,14 @@ class MavrosDrone(Drone):
         # Converts all the NavSatFix messages to Waypoint so that its MAVROS compatible
         converted_waypoint_objects = []
         for navsatfix in waypoints:
-            converted_waypoint_objects.append(roslibpy.Message(convert_navsatfix_mavroswaypoint(navsatfix)))
-        converted_waypoint_objects = 2*[{'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
+            converted_waypoint_objects.append(self.convert_navsatfix_mavroswaypoint(navsatfix))
+
+        converted_waypoint_objects = 2*[{'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + converted_waypoint_objects
+        print(converted_waypoint_objects)
         try:
             print("Attempting to upload mission...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/mission/push', 'mavros_msgs/WaypointPush')
-            request = roslibpy.ServiceRequest({'waypoints': self.waypoints})
+            request = roslibpy.ServiceRequest({'waypoints': converted_waypoint_objects})
 
             print('Calling /mavros/mission/push service...')
             result = service.call(request)
@@ -56,11 +58,11 @@ class MavrosDrone(Drone):
         return result
 
     def convert_navsatfix_mavroswaypoint(self, navsatfix):
-        ''' 
+        '''
         Takes in a NavSatFix message and returns a mavros_msgs/Waypoint message.
         This is in the form of a dictionary.
         '''
-        waypoint = {'frame': MavrosDrone.FRAME_REFERENCE.GLOBAL.value, 'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0}
+        waypoint = {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0}
         waypoint['x_lat'] = navsatfix['latitude']
         waypoint['y_long'] = navsatfix['longitude']
         waypoint['z_alt'] = navsatfix['altitude']
@@ -91,7 +93,7 @@ class MavrosDrone(Drone):
             arm_service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/arming', 'mavros_msgs/CommandBool')
             arm_request = roslibpy.ServiceRequest({'value': True})
             arm_service.call(arm_request)
-            
+
             print("Attempting to takeoff...")
             takeoff_service = roslibpy.Service(self.ros_drone_connection, '/mavros/cmd/takeoff', 'mavros_msgs/CommandTOL')
             takeoff_request = roslibpy.ServiceRequest({'altitude': 3})
@@ -100,7 +102,7 @@ class MavrosDrone(Drone):
             mission_start_service = roslibpy.Service(self.ros_drone_connection, '/mavros/set_mode', 'mavros_msgs/SetMode')
             mission_start_request = roslibpy.ServiceRequest({"custom_mode": "AUTO"})
             print('Calling mission_waypoint_action start service...')
-            result = mission_start_service.call(mission_start_request)            
+            result = mission_start_service.call(mission_start_request)
             print('Service response: {}'.format(result))
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING
