@@ -37,13 +37,12 @@ class MavrosDrone(Drone):
     def upload_mission(self, waypoints):
         if not self.location:
             return {"success":False, "message":"Failed to upload waypoints. Drone location is unknown."}
-        # TODO NEEDS TO SWITCH OVER TO NAVSATFIX USAGE!
-        waypoints = 2*[{'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
         self.waypoints = waypoints
         # Converts all the NavSatFix messages to Waypoint so that its MAVROS compatible
-        # converted_waypoint_objects = []
-        # for navsatfix in waypoints:
-        #     converted_waypoint_objects.append(roslibpy.Message(convert_navsatfix_mavroswaypoint(navsatfix)))
+        converted_waypoint_objects = []
+        for navsatfix in waypoints:
+            converted_waypoint_objects.append(roslibpy.Message(convert_navsatfix_mavroswaypoint(navsatfix)))
+        converted_waypoint_objects = 2*[{'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value, 'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False, 'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0, 'x_lat': self.location['latitude'], 'y_long': self.location['longitude'], 'z_alt': 10}] + waypoints
         try:
             print("Attempting to upload mission...")
             service = roslibpy.Service(self.ros_drone_connection, '/mavros/mission/push', 'mavros_msgs/WaypointPush')
