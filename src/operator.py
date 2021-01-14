@@ -141,16 +141,16 @@ def query_topics(request, response):
         for k,v in all_topics.items():
             all_topics_response.append({"name": k, "type": v})
     else:
-        if not drones[id] and not sensors[id]:
-            response["success"] = False
-            response["message"] = "No drone or sensor with that id."
-            return False
         if id in drones:
             all_topics_response = drones[id].topics
             for sensor_id in drones[id].sensors:
                 all_topics_response += sensors[sensor_id].topics
-        else:
+        else if id in sensors:
             all_topics_response = sensors[id].topics
+        else:
+            response["success"] = False
+            response["message"] = "No drone or sensor with that id."
+            return False
 
     response["all_topics"] = all_topics_response
     response["success"] = True
