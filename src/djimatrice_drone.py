@@ -6,7 +6,6 @@ from enum import Enum
 class DjiMatriceDrone(Drone):
 
     drone_type = "DjiMatrice"
-    ros_drone_connection = None
 
     class DroneTaskControl(Enum):
         GO_HOME = 1

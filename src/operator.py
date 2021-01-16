@@ -145,7 +145,7 @@ def query_topics(request, response):
             all_topics_response = drones[id].topics
             for sensor_id in drones[id].sensors:
                 all_topics_response += sensors[sensor_id].topics
-        else if id in sensors:
+        elif id in sensors:
             all_topics_response = sensors[id].topics
         else:
             response["success"] = False
@@ -179,9 +179,9 @@ def register_drone(request, response):
     d=Drone.create(drone_name, drone_type)
     successful=False
 
-    print(f"Adding drone {id} to global drones map...")
     if d:
         id = get_id()
+        print(f"Adding drone {id} to global drones map...")
         d.id=id
         drones[id] = d
         drone_names[drone_name] = id
@@ -263,12 +263,14 @@ def register_sensor(request, response):
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
     parent_drone_name = request["parent_drone_name"]
-    s=Sensor.create(drone_name, drone_type, drone_names[parent_drone_name])
+    parent_drone_id = drone_names[parent_drone_name]
+    parent_drone_type = drones[parent_drone_id].drone_type
+    s=Sensor.create(parent_drone_name, parent_drone_type, parent_drone_id)
     successful=False
 
-    print(f"Adding sensor {id} to global sensor map.")
     if s:
         id = get_id()
+        print(f"Adding sensor {id} to global sensor map.")
         s.id=id
         sensors[id] = s
         sensor_names[sensor_name] = id

@@ -1,6 +1,7 @@
 import roslibpy
 from abc import ABC, abstractmethod
 from enum import Enum
+from operator import ROS_master_connection as server_connection
 
 class Drone(ABC):
 
@@ -25,7 +26,7 @@ class Drone(ABC):
         RESUME = 3
 
     speed = 5
-    ROS_master_connection = roslibpy.Ros(host='136.25.185.6', port=9090)
+    ROS_master_connection = server_connection
 
     def __init__(self, drone_name, drone_type, id=None):
         self.id = id

@@ -44,6 +44,9 @@ qtcreator-*
 /planning/docs
 /planning/src
 
+# VSCode stuff
+.vscode
+
 *~
 
 # Emacs
