@@ -155,3 +155,17 @@ class Drone(ABC):
             }
         '''
         pass
+
+    @abstractmethod
+    def shutdown(self):
+        '''
+        Shutsdown the drone and disconnects from ROSBridge.
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
+        pass 

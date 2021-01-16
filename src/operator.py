@@ -207,10 +207,16 @@ def register_drone(request, response):
 
 @custom_service
 def save_drone_topics(request, response):
+    """
+        Adds topics to the given drone.
+
+        Parameters:
+            request: "publishes": topics, "id": drone id
+    """
     print("Calling save_drone_topics...")
     publishes = request["publishes"]
     id = request["id"]
-    if drones[id] == None:
+    if not id in drones:
         response["success"] = False
         response["message"] = "Drone id does not exist"
         return False
@@ -227,26 +233,23 @@ def save_drone_topics(request, response):
 @custom_service
 def shutdown_drone(request, response):
     '''
+    Shuts down the drone. Please ensure that the drone is landed.
+
     :param request: message that has a drone_id: std_msgs/Int32 and drone_subs: issacs_server/topic[]
     '''
     print("Calling shutdown_drone service...")
     id = request["id"]
     publishes = request["publishes"]
-    successful = False
+    response["success"] = False
+    response["message"] = "failed to shutdown drone"
     if id in drones:
         drone_names.pop(drones[id].drone_name)
-        drones.pop(id)
+        d = drones.pop(id)
         for topic in publishes:
             all_topics.pop(topic['name'])
         # TODO ensure that drone instance is completely terminated
+        response = d.shutdown() # Does this terminate the drone instance fully?
         # TODO Remove drone_subs from global topics dict
-        successful = True
-
-    response["success"] = successful
-    if successful:
-        response["message"] = "Drone successfully shutdown"
-    else:
-        response["message"] = "Failed to shutdown drone"
 
     print(drone_names)
     print(drones)
