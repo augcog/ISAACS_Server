@@ -1,6 +1,6 @@
 import roslibpy
 
-client = roslibpy.Ros(host='136.25.185.6', port=9090)
+client = roslibpy.Ros(host='54.161.15.175', port=9090)
 client.run()
 
 print(client.is_connected)
