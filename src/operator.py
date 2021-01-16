@@ -84,7 +84,7 @@ def upload_mission(request, response):
     these directly into the drone instance}
     '''
     print("Calling upload_mission service...")
-    if not drones[request["drone_id"]]:
+    if not drones.get(request["drone_id"]):
         response["success"] = False
         response["message"] = "No drone with that id."
         response["drone_id"] = -1
@@ -97,7 +97,7 @@ def upload_mission(request, response):
 @custom_service
 def set_speed(request, response):
     print("Calling set_speed service...")
-    if not drones[request["drone_id"]]:
+    if not drones.get(request["drone_id"]):
         response["success"] = False
         response["message"] = "No drone with that id."
         response["drone_id"] = -1
@@ -115,6 +115,10 @@ def control_drone(request, response):
     print("Calling control_drone service...")
     control_task = request["control_task"]
     drone = drones.get(request["id"])
+    if not drone:
+        response["success"] = False
+        response["message"] = "Invalid drone id"
+        return False
     if control_task == "start_mission":
         print("Executing start_mission...")
         response = drone.start_mission()
@@ -214,7 +218,7 @@ def save_drone_topics(request, response):
     print("Calling save_drone_topics...")
     publishes = request["publishes"]
     id = request["id"]
-    if drones[id] == None:
+    if not drones.get(id):
         response["success"] = False
         response["message"] = "Drone id does not exist"
         return False
@@ -274,9 +278,12 @@ def register_sensor(request, response):
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
     parent_drone_name = request["parent_drone_name"]
-    parent_drone_id = drone_names[parent_drone_name]
-    parent_drone_type = drones[parent_drone_id].drone_type
-    s=Sensor.create(parent_drone_name, parent_drone_type, parent_drone_id)
+    s=None
+    if parent_drone_name in drone_names:
+        parent_drone_id = drone_names[parent_drone_name]
+        if parent_drone_id in drones:
+            parent_drone_type = drones[parent_drone_id].drone_type
+            s=Sensor.create(parent_drone_name, parent_drone_type, parent_drone_id)
     successful=False
 
     if s:
@@ -308,7 +315,7 @@ def save_sensor_topics(request, response):
     print("Calling save_sensor_topics service...")
     publishes = request["publishes"]
     id = request["id"]
-    if sensors[id] == None:
+    if not sensors.get(id):
         response["success"] = False
         response["message"] = "Sensor id does not exist"
         return False
