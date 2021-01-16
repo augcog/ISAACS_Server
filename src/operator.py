@@ -207,6 +207,10 @@ def register_drone(request, response):
 
 @custom_service
 def save_drone_topics(request, response):
+    '''
+    :param request: message that has a drone id: std_msgs/Int32 and publishes: issacs_server/topic[]
+    This service saves all topics provided into the appropriate drone object.
+    '''
     print("Calling save_drone_topics...")
     publishes = request["publishes"]
     id = request["id"]
@@ -297,6 +301,10 @@ def register_sensor(request, response):
 
 @custom_service
 def save_sensor_topics(request, response):
+    '''
+    :param request: message that has a sensor id: std_msgs/Int32 and publishes: issacs_server/topic[]
+    This service saves all of the sensor topics provided into the appropriate sensor object.
+    '''
     print("Calling save_sensor_topics service...")
     publishes = request["publishes"]
     id = request["id"]

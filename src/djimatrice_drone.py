@@ -19,19 +19,14 @@ class DjiMatriceDrone(Drone):
 
     # TODO Implement
     def upload_mission(self, waypoints):
-        # Find part in source code where you upload an entire mission
         self.waypoints = waypoints
-        # TODO: Assumes that upload completely overwrites the old mission
         self.mission_msg_list = []
         if self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
             for i in range(len(self.waypoints)):
-                # TODO: Get waypoint message from waypoint
                 way_point_msg = waypoints[i]
                 self.mission_msg_list.append(way_point_msg)
-            # TODO: Create task msg, discuss how to do this
             way_point_task = way_point_msg
             self.upload_waypoint_task(way_point_task)
-
         return False
 
     def upload_waypoint_task(self, task):
@@ -58,7 +53,6 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Failed to set new drone speed"}
-        # TODO: Upon failure, revert back to original setting
         return result
 
     def fetch_speed(self):
