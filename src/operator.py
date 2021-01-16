@@ -1,6 +1,7 @@
 from drone import Drone
 from sensor import Sensor
 import roslibpy
+import argparse
 #from topic_types import topic_types
 #from drone_msg import drone_msg
 #from sensor_msg import sensor_msg
@@ -9,7 +10,13 @@ import roslibpy
 #####################
 # Global Parameters #
 #####################
-HOST = '136.25.185.6'
+# Allows option to type --ip and specify ip of the server through the command line. Ex: python3 operator.py --ip 0.0.0.0
+parser = argparse.ArgumentParser(description='Starts the operator of the server.')
+parser.add_argument('--ip', type=str, default='136.25.185.6')
+args = parser.parse_args()
+
+# HOST ip parameter
+HOST = args.ip
 
 ####################
 # Global Variables #

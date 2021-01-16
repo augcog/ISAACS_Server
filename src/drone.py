@@ -1,7 +1,6 @@
 import roslibpy
 from abc import ABC, abstractmethod
 from enum import Enum
-from operator import ROS_master_connection as server_connection
 
 class Drone(ABC):
 
@@ -26,8 +25,7 @@ class Drone(ABC):
         RESUME = 3
 
     speed = 5
-    ROS_master_connection = server_connection
-
+    
     def __init__(self, drone_name, drone_type, id=None):
         self.id = id
         self.drone_type = drone_type
@@ -43,6 +41,9 @@ class Drone(ABC):
         #TODO: define position structure i.e. (lat, long) or (x, y);
         # tuple vs dictionary
         self.position = None
+        from operator import ROS_master_connection as server_connection
+        self.ROS_master_connection = server_connection
+
 
     @staticmethod
     def create(drone_name, drone_type, id=None):
