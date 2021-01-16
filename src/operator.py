@@ -12,7 +12,7 @@ import argparse
 #####################
 # Allows option to type --ip and specify ip of the server through the command line. Ex: python3 operator.py --ip 0.0.0.0
 parser = argparse.ArgumentParser(description='Starts the operator of the server.')
-parser.add_argument('--ip', type=str, default='136.25.185.6')
+parser.add_argument('--ip', type=str, default='54.161.15.175')
 args = parser.parse_args()
 
 # HOST ip parameter
