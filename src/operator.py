@@ -54,6 +54,25 @@ def custom_service(handler):
     services.append(service)
     return handler
 
+def get_id(type):
+    '''
+    :param type: Expects the type of object that an id is assigned to (either a Sensor or a Drone)
+    This function assigns an id to a Drone or a Sensor.
+    The protocol for id assignment is that Drones are odd numbered and Sensors are even numbered. (This way it is known what an id corresponds to)
+    '''
+    global next_id
+    if type == Drone:
+        if next_id % 2 == 1:
+            cur_id, next_id = next_id, next_id + 1
+        else:
+            cur_id, next_id = next_id + 1, next_id + 2
+    else:
+        if next_id % 2 == 0:
+            cur_id, next_id = next_id, next_id + 1
+        else:
+            cur_id, next_id = next_id + 1, next_id + 2
+    return cur_id
+
 ################################
 # Interface -> Server Handlers #
 ################################
@@ -179,10 +198,6 @@ def register_drone(request, response):
     :param request: dict of {drone_name: string, drone_type: string}
     '''
     print("Calling register_drone service...")
-    def get_id():
-        global next_id
-        cur_id, next_id = next_id, next_id + 1
-        return cur_id
     drone_name = request["drone_name"]
     drone_type = request["drone_type"]
     # Create new drone instance using base class constructor, which should then
@@ -191,7 +206,7 @@ def register_drone(request, response):
     successful=False
 
     if d:
-        id = get_id()
+        id = get_id(Drone)
         print(f"Adding drone {id} to global drones map...")
         d.id=id
         drones[id] = d
@@ -268,12 +283,9 @@ def shutdown_drone(request, response):
 def register_sensor(request, response):
     '''
     :param request: dict of {drone_name: string, drone_type: string}
+    Parent drone must be initiated before sensors are registered.
     '''
     print("Calling register_sensor service...")
-    def get_id():
-        global next_id
-        cur_id, next_id = next_id, next_id + 1
-        return cur_id
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
     parent_drone_name = request["parent_drone_name"]
@@ -286,7 +298,7 @@ def register_sensor(request, response):
     successful=False
 
     if s:
-        id = get_id()
+        id = get_id(Sensor)
         print(f"Adding sensor {id} to global sensor map.")
         s.id=id
         sensors[id] = s
@@ -310,6 +322,7 @@ def save_sensor_topics(request, response):
     '''
     :param request: message that has a sensor id: std_msgs/Int32 and publishes: issacs_server/topic[]
     This service saves all of the sensor topics provided into the appropriate sensor object.
+    This is called by the sensor client.
     '''
     print("Calling save_sensor_topics service...")
     publishes = request["publishes"]
