@@ -81,12 +81,13 @@ def all_drones_available(request, response):
     drones_available = []
     print("Calling all_drones_available service...")
     for k, v in drones.items():
-        avail = dict()
-        avail["id"] = k
-        avail["name"] = v.drone_name
-        avail["type"] = v.drone_type
-        avail["topics"] = v.topics
-        avail["services"] = v.services
+        avail = {
+                "id" : k,
+                "name" : v.drone_name,
+                "type" : v.drone_type,
+                "topics" : v.topics,
+                "services" : v.services
+        }
         drones_available.append(avail)
 
     response["success"] = True
