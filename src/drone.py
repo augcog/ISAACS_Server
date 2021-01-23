@@ -23,9 +23,6 @@ class Drone(ABC):
         STOP = 1
         PAUSE = 2
         RESUME = 3
-
-    # Speed of drone in flight
-    speed = 5
     
     def __init__(self, drone_name, drone_type, id=None):
         self.id = id
@@ -44,6 +41,8 @@ class Drone(ABC):
         self.position = None
         from operator import ROS_master_connection as server_connection
         self.ROS_master_connection = server_connection
+        # Speed of drone in flight; default set to 5
+        self.speed = 5
 
 
     @staticmethod
@@ -160,7 +159,7 @@ class Drone(ABC):
     @abstractmethod
     def shutdown(self):
         '''
-        Shutsdown the drone and disconnects from ROSBridge.
+        Shuts down the drone and disconnects from ROSBridge.
         Parameters:
             None
         Return:
