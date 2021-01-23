@@ -126,7 +126,7 @@ def set_speed(request, response):
     return True
 
 
-# includes startmission, pausemission, resume mission, landdrone, flyhome
+# includes startmission, pausemission, resumemission, landdrone, flyhome
 @custom_service
 def control_drone(request, response):
     print("Calling control_drone service...")
