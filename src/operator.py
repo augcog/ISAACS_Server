@@ -138,25 +138,20 @@ def control_drone(request, response):
         response["success"] = False
         response["message"] = "Invalid drone id"
         return False
-    if control_task == "start_mission":
-        print("Executing start_mission...")
-        response = drone.start_mission()
-    elif control_task == "pause_mission":
-        print("Executing pause_mission...")
-        response = drone.pause_mission()
-    elif control_task == "resume_mission":
-        print("Executing resume_mission...")
-        response = drone.resume_mission()
-    elif control_task == "land_drone":
-        print("Executing land_drone...")
-        response = drone.land_drone()
-    elif control_task == "fly_home":
-        print("Executing fly_home...")
-        response = drone.fly_home()
-    else:
+    tasks = {
+        "start_mission" : drone.start_mission,
+        "pause_mission" : drone.pause_mission,
+        "resume_mission" : drone.resume_mission,
+        "land_drone" : drone.land_drone,
+        "fly_home" : drone.fly_home
+    }
+    if control_task not in tasks:
         response["success"] = False
         response["message"] = "Invalid control task"
         return False
+    else:
+        print(f"Executing {control_task}...")
+        response = tasks.get(control_task)()
     print("Control_drone service finished!")
     return True
 
