@@ -2,9 +2,6 @@ from drone import Drone
 from sensor import Sensor
 import roslibpy
 import argparse
-#from topic_types import topic_types
-#from drone_msg import drone_msg
-#from sensor_msg import sensor_msg
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
 #####################
