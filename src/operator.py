@@ -254,7 +254,7 @@ def shutdown_drone(request, response):
     '''
     Shuts down the drone. Please ensure that the drone is landed.
 
-    :param request: message that has a drone_id: std_msgs/Int32 and drone_subs: issacs_server/topic[]
+    :param request: message that has a id: std_msgs/Int32 and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_drone service...")
     id = request["id"]
@@ -344,7 +344,7 @@ def save_sensor_topics(request, response):
 @custom_service
 def shutdown_sensor(request, response):
     '''
-    :param request: message that has a sensor_id: std_msgs/Int32 and sensor_subs: issacs_server/topic[]
+    :param request: message that has a id: std_msgs/Int32 and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_sensor service...")
     sensor_id = request["id"]
