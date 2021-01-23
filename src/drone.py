@@ -78,7 +78,7 @@ class Drone(ABC):
         '''
         Sets the speed of the drone
         Parameters:
-            speed: int representing speed to set
+            speed: float32 representing speed to set
         Return:
             dictionary {
                 success: boolean
