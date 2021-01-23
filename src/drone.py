@@ -24,6 +24,7 @@ class Drone(ABC):
         PAUSE = 2
         RESUME = 3
 
+    # Speed of drone in flight
     speed = 5
     
     def __init__(self, drone_name, drone_type, id=None):
