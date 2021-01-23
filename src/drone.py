@@ -30,7 +30,7 @@ class Drone(ABC):
     def __init__(self, drone_name, drone_type, id=None):
         self.id = id
         self.drone_type = drone_type
-        self.drone_name= drone_name
+        self.drone_name = drone_name
         self.connection_status = False
         self.flight_status = Drone.Flight_Status.NULL
         self.topics = []
