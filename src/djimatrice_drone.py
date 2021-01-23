@@ -4,6 +4,11 @@ from drone import Drone
 from enum import Enum
 
 class DjiMatriceDrone(Drone):
+    '''
+    DJI Matrice API translator layer. 
+    Please see https://github.com/dji-sdk/Onboard-SDK-ROS for more information about the DJI SDK.
+    To use this, please install [TODO] on the DJI drone's onboard computer.
+    '''
 
     drone_type = "DjiMatrice"
 
