@@ -305,6 +305,7 @@ def shutdown_drone(request, response):
         # TODO ensure that drone instance is completely terminated
         response = d.shutdown() # Does this terminate the drone instance fully?
         # TODO Remove drone_subs from global topics dict
+        raise NotImplementedError
     else:
         response["success"] = False
         response["message"] = "failed to shutdown drone"
@@ -403,6 +404,7 @@ def shutdown_sensor(request, response):
         # TODO ensure that sensor instance is completely terminated
         # TODO Remove sensor_subs from global topics dict
         successful = True
+        raise NotImplementedError
     response["success"] = successful
     if successful:
         response["message"] = "Sensor successfully shutdown"
