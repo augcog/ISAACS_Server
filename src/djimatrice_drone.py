@@ -81,21 +81,6 @@ class DjiMatriceDrone(Drone):
         return result
 
     def start_mission(self):
-        # if (self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY):
-        #     if (self.prev_flight_status == Drone.Flight_Status.NULL):
-        #         self.flight_status = Drone.Flight_Status.FLYING
-        #         self.prev_flight_status = Drone.Flight_Status.ON_GROUND_STANDBY
-        #         command_list = np.zeros(16)
-        #         command_params = np.zeros(16)
-        #         for i in range(self.waypoints_count):
-        #             waypoint = self.waypoints[i]
-        #             waypoint_coord = waypoint.position
-        #             # Assumption: position stored as dictionary
-        #             waypoint_msg = {}
-        #             #TODO: Find out where waypoints are being added
-        #     else:
-        #         self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-
         try:
             print("Attempting to start drone mission...")
             service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
