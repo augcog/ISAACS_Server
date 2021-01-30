@@ -145,7 +145,8 @@ def control_drone(request, response):
     }
     if control_task not in tasks:
         response["success"] = False
-        response["message"] = "Invalid control task"
+        response["message"] = "Invalid control task: " + str(control_task)
+        response["id"] = request["id"]
         return False
     else:
         print(f"Executing {control_task}...")
