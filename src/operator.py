@@ -239,7 +239,6 @@ def register_drone(request, response):
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
     d=Drone.create(drone_name, drone_type, ROS_master_connection)
-    successful=False
 
     if d:
         drone_id = get_id(Drone)
@@ -247,12 +246,11 @@ def register_drone(request, response):
         d.id = drone_id
         drones[drone_id] = d
         drone_names[drone_name] = drone_id
-        successful = True
-        response["success"] = successful
+        response["success"] = True
         response["id"] = drone_id
-    if successful:
         response["message"] = "Drone registered"
     else:
+        response["success"] = False
         response["message"] = "Failed to register drone"
     print(drones)
     print(drone_names)
@@ -297,16 +295,20 @@ def shutdown_drone(request, response):
     print("Calling shutdown_drone service...")
     drone_id = request["id"]
     publishes = request["publishes"]
-    response["success"] = False
-    response["message"] = "failed to shutdown drone"
-    if id in drones:
-        drone_names.pop(drones[drone_id].drone_name)
-        d = drones.pop(drone_id)
+    d = drones.pop(drone_id, None)
+    if d:
+        drone_names.pop(d.drone_name)
+        # for topic in d.topics:
         for topic in publishes:
             all_topics.pop(topic['name'])
         # TODO ensure that drone instance is completely terminated
         response = d.shutdown() # Does this terminate the drone instance fully?
         # TODO Remove drone_subs from global topics dict
+    else:
+        response["success"] = False
+        response["message"] = "failed to shutdown drone"
+        print("Failed to shutdown drone. ID", drone_id, "not found")
+        return False
 
     print(drone_names)
     print(drones)
