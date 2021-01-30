@@ -2,6 +2,7 @@ from drone import Drone
 from sensor import Sensor
 import roslibpy
 import argparse
+import constants
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
 #####################
@@ -11,7 +12,7 @@ import argparse
 # Ex: python3 operator.py --ip 0.0.0.0
 parser = argparse.ArgumentParser(
         description='Starts the operator of the server.')
-parser.add_argument('--ip', type=str, default='54.161.15.175')
+parser.add_argument('--ip', type=str, default=constants.IP_ADDRESS)
 args = parser.parse_args()
 
 # HOST ip parameter

@@ -6,8 +6,9 @@ Instead of seeing the perform its action, we will get a print message.
 
 import roslibpy
 import json
+import ..constants
 
-client = roslibpy.Ros(host='54.161.15.175', port=9090)
+client = roslibpy.Ros(host=constants.IP_ADDRESS, port=9090)
 
 '''
 Simulates advertising the service upload_mission from the drone.
