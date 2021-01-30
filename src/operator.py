@@ -26,13 +26,13 @@ sensor_names = dict() # Global map between sensor names and sensor IDs
 all_topics = dict() # Global map of topic names to topic types
 # If an id of 0 is passed in, it refers to all drones, sensors, and global topics
 next_id = 1 # ID to assign next drone or sensor
+services = [] # TODO list of all services
 
 ###################################
 # Set up and boot Roslibpy server #
 ###################################
 
 ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
-services = []
 # Use the @custom_service decorator on a handler method to have it automatically advertise as a Service.
 def custom_service(handler):
     exceptions = {
