@@ -15,7 +15,7 @@ class DjiMatriceDrone(Drone):
     class DroneTaskControl(Enum):
         GO_HOME = 1
         TAKEOFF = 4
-        LANDING = 6
+        LAND = 6
 
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
