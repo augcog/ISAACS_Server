@@ -227,4 +227,7 @@ class DjiMatriceDrone(Drone):
         else:
             result = {"success":False, "message":"Invalid Request: Could not update mission"}
         return result
+
+    def shutdown(self):
+        pass
     
