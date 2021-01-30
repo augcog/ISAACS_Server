@@ -35,6 +35,13 @@ services = [] # TODO list of all services
 ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
 # Use the @custom_service decorator on a handler method to have it automatically advertise as a Service.
 def custom_service(handler):
+    """
+    This method is designed to be used as a decorator (@custom_service) to advertise the handler method as a service via the ROS_master_connection.
+    By default, the service can be found at `/isaacs_server/[handler_name]` with a service type of `isaacs_server/[handler_name]`.
+    Exceptions for the handler name to service type mapping can be added to the exceptions dictionary.
+    parameter: handler(request, response) - handles an incoming service request.
+    returns: handler
+    """
     exceptions = {
         'save_drone_topics': 'isaacs_server/type_to_topic',
         'save_sensor_topics': 'isaacs_server/type_to_topic',
@@ -101,10 +108,10 @@ def upload_mission(request, response):
     these directly into the drone instance}
     '''
     print("Calling upload_mission service...")
-    if not drones.get(request["drone_id"]):
+    if not drones.get(request["id"]):
         response["success"] = False
         response["message"] = "No drone with that id."
-        response["drone_id"] = -1
+        response["id"] = request["id"]
         return False
     response = drones[request["drone_id"]].upload_mission(request["waypoints"])
     print("Upload_mission service finished!")
@@ -114,14 +121,13 @@ def upload_mission(request, response):
 @custom_service
 def set_speed(request, response):
     print("Calling set_speed service...")
-    if not drones.get(request["drone_id"]):
+    if not drones.get(request["id"]):
         response["success"] = False
         response["message"] = "No drone with that id."
-        response["drone_id"] = -1
+        response["id"] = request["id"]
         return False
     print('Setting speed to {}...'.format(request['data']))
     response = drones[request["drone_id"]].set_speed(request["data"])
-    response['success'] = True
     print("Set_speed service finished!")
     return True
 
@@ -135,6 +141,7 @@ def control_drone(request, response):
     if not drone:
         response["success"] = False
         response["message"] = "Invalid drone id"
+        response["id"] = request["id"]
         return False
     tasks = {
         "start_mission" : drone.start_mission,
@@ -145,7 +152,8 @@ def control_drone(request, response):
     }
     if control_task not in tasks:
         response["success"] = False
-        response["message"] = "Invalid control task"
+        response["message"] = "Invalid control task: " + str(control_task)
+        response["id"] = request["id"]
         return False
     else:
         print(f"Executing {control_task}...")
@@ -195,7 +203,7 @@ def register_drone(request, response):
     drone_type = request["drone_type"]
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
-    d=Drone.create(drone_name, drone_type)
+    d=Drone.create(drone_name, drone_type, ROS_master_connection)
     successful=False
 
     if d:

@@ -12,6 +12,9 @@ class DjiMatriceDrone(Drone):
 
     drone_type = "DjiMatrice"
 
+    '''
+    This enum is used to reference control task numbers as hardcoded in the DJI SDK.
+    '''
     class DroneTaskControl(Enum):
         GO_HOME = 1
         TAKEOFF = 4
@@ -32,7 +35,10 @@ class DjiMatriceDrone(Drone):
                 waypoint_msg = waypoints[i]
                 self.mission_msg_list.append(waypoint_msg)
                 self.upload_waypoint_task(waypoint_msg)
-        return False
+            return True
+        else:
+            print("Must be in ON_GROUND_STANDBY to upload mission")
+            return False
 
     # Helper function for upload_mission()
     def upload_waypoint_task(self, task):
@@ -231,4 +237,7 @@ class DjiMatriceDrone(Drone):
         else:
             result = {"success":False, "message":"Invalid Request: Could not update mission"}
         return result
+
+    def shutdown(self):
+        pass
     
