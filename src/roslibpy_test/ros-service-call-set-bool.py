@@ -1,3 +1,8 @@
+'''
+This is the example calling services script.
+Found at: https://roslibpy.readthedocs.io/en/latest/examples.html
+'''
+
 import roslibpy
 
 client = roslibpy.Ros(host='136.25.185.6', port=9090)

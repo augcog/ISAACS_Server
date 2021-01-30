@@ -1,3 +1,8 @@
+'''
+This is the example creating services script.
+Found at: https://roslibpy.readthedocs.io/en/latest/examples.html
+'''
+
 import roslibpy
 
 def handler(request, response):

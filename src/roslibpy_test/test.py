@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-# license removed for brevity
+
+'''
+This is the example creating publisher for topics.
+The script is tested with both roslibpy and rospy and both work
+with the exception that rospy needs to be on same network.
+Found at: https://roslibpy.readthedocs.io/en/latest/examples.html
+'''
+
 import rospy
 from std_msgs.msg import String
 
@@ -18,3 +25,4 @@ if __name__ == '__main__':
         talker()
     except rospy.ROSInterruptException:
         pass
+        
