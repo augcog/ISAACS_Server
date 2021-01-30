@@ -35,7 +35,10 @@ class DjiMatriceDrone(Drone):
                 self.mission_msg_list.append(way_point_msg)
             way_point_task = way_point_msg
             self.upload_waypoint_task(way_point_task)
-        return False
+            return True
+        else:
+            print("Must be in ON_GROUND_STANDBY to upload mission")
+            return False
 
     def upload_waypoint_task(self, task):
         try:
