@@ -135,6 +135,7 @@ def control_drone(request, response):
     if not drone:
         response["success"] = False
         response["message"] = "Invalid drone id"
+        response["id"] = request["id"]
         return False
     tasks = {
         "start_mission" : drone.start_mission,
