@@ -202,7 +202,7 @@ def register_drone(request, response):
     drone_type = request["drone_type"]
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
-    d=Drone.create(drone_name, drone_type)
+    d=Drone.create(drone_name, drone_type, ROS_master_connection)
     successful=False
 
     if d:

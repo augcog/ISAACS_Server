@@ -26,7 +26,7 @@ class Drone(ABC):
 
     speed = 5
     
-    def __init__(self, drone_name, drone_type, id=None):
+    def __init__(self, drone_name, drone_type, ROS_master_connection, id=None):
         self.id = id
         self.drone_type = drone_type
         self.drone_name= drone_name
@@ -41,9 +41,7 @@ class Drone(ABC):
         #TODO: define position structure i.e. (lat, long) or (x, y);
         # tuple vs dictionary
         self.position = None
-        from operator import ROS_master_connection as server_connection
-        self.ROS_master_connection = server_connection
-
+        self.ROS_master_connection = ROS_master_connection
 
     @staticmethod
     def create(drone_name, drone_type, id=None):
