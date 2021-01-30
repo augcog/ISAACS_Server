@@ -11,7 +11,7 @@ request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMat
 print('Calling register_drone service...')
 result = service.call(request)
 print('Service response: {}'.format(result))
-drone_id = result.data['drone_id']
+drone_id = result.data['id']
 topics_published = [{'name': 'test_name', 'type':
     'std_msgs/String'}]
 topics_service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/save_drone_topics')
