@@ -4,13 +4,18 @@ from drone import Drone
 from enum import Enum
 
 class DjiMatriceDrone(Drone):
+    '''
+    DJI Matrice API translator layer. 
+    Please see https://github.com/dji-sdk/Onboard-SDK-ROS for more information about the DJI SDK.
+    To use this, please install [TODO] on the DJI drone's onboard computer.
+    '''
 
     drone_type = "DjiMatrice"
 
     class DroneTaskControl(Enum):
         GO_HOME = 1
         TAKEOFF = 4
-        LANDING = 6
+        LAND = 6
 
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)

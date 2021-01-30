@@ -5,7 +5,7 @@ from enum import Enum
 
 class MavrosDrone(Drone):
 
-    drone_type = "MavrosDrone"
+    drone_type = "Mavros"
 
     class MAV_CMD(Enum):
         NAVIGATE_TO_WAYPOINT = 16

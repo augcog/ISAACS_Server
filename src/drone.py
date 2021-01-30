@@ -23,13 +23,11 @@ class Drone(ABC):
         STOP = 1
         PAUSE = 2
         RESUME = 3
-
-    speed = 5
     
     def __init__(self, drone_name, drone_type, ROS_master_connection, id=None):
         self.id = id
         self.drone_type = drone_type
-        self.drone_name= drone_name
+        self.drone_name = drone_name
         self.connection_status = False
         self.flight_status = Drone.Flight_Status.NULL
         self.topics = []
@@ -42,6 +40,8 @@ class Drone(ABC):
         # tuple vs dictionary
         self.position = None
         self.ROS_master_connection = ROS_master_connection
+        # Speed of drone in flight; default set to 5
+        self.speed = 5
 
     @staticmethod
     def create(drone_name, drone_type, id=None):
@@ -75,7 +75,7 @@ class Drone(ABC):
         '''
         Sets the speed of the drone
         Parameters:
-            speed: int representing speed to set
+            speed: float32 representing speed to set
         Return:
             dictionary {
                 success: boolean
@@ -157,7 +157,7 @@ class Drone(ABC):
     @abstractmethod
     def shutdown(self):
         '''
-        Shutsdown the drone and disconnects from ROSBridge.
+        Shuts down the drone and disconnects from ROSBridge.
         Parameters:
             None
         Return:

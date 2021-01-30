@@ -2,9 +2,6 @@ from drone import Drone
 from sensor import Sensor
 import roslibpy
 import argparse
-#from topic_types import topic_types
-#from drone_msg import drone_msg
-#from sensor_msg import sensor_msg
 #roslaunch rosbridge_server rosbridge_websocket.launch
 
 #####################
@@ -29,13 +26,13 @@ sensor_names = dict() # Global map between sensor names and sensor IDs
 all_topics = dict() # Global map of topic names to topic types
 # If an id of 0 is passed in, it refers to all drones, sensors, and global topics
 next_id = 1 # ID to assign next drone or sensor
+services = [] # TODO list of all services
 
 ###################################
 # Set up and boot Roslibpy server #
 ###################################
 
 ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
-services = []
 # Use the @custom_service decorator on a handler method to have it automatically advertise as a Service.
 def custom_service(handler):
     exceptions = {
@@ -81,12 +78,13 @@ def all_drones_available(request, response):
     drones_available = []
     print("Calling all_drones_available service...")
     for k, v in drones.items():
-        avail = dict()
-        avail["id"] = k
-        avail["name"] = v.drone_name
-        avail["type"] = v.drone_type
-        avail["topics"] = v.topics
-        avail["services"] = v.services
+        avail = {
+                "id" : k,
+                "name" : v.drone_name,
+                "type" : v.drone_type,
+                "topics" : v.topics,
+                "services" : v.services
+        }
         drones_available.append(avail)
 
     response["success"] = True
@@ -128,7 +126,7 @@ def set_speed(request, response):
     return True
 
 
-# includes startmission, pausemission, resume mission, landdrone, flyhome
+# includes startmission, pausemission, resumemission, landdrone, flyhome
 @custom_service
 def control_drone(request, response):
     print("Calling control_drone service...")
@@ -138,25 +136,20 @@ def control_drone(request, response):
         response["success"] = False
         response["message"] = "Invalid drone id"
         return False
-    if control_task == "start_mission":
-        print("Executing start_mission...")
-        response = drone.start_mission()
-    elif control_task == "pause_mission":
-        print("Executing pause_mission...")
-        response = drone.pause_mission()
-    elif control_task == "resume_mission":
-        print("Executing resume_mission...")
-        response = drone.resume_mission()
-    elif control_task == "land_drone":
-        print("Executing land_drone...")
-        response = drone.land_drone()
-    elif control_task == "fly_home":
-        print("Executing fly_home...")
-        response = drone.fly_home()
-    else:
+    tasks = {
+        "start_mission" : drone.start_mission,
+        "pause_mission" : drone.pause_mission,
+        "resume_mission" : drone.resume_mission,
+        "land_drone" : drone.land_drone,
+        "fly_home" : drone.fly_home
+    }
+    if control_task not in tasks:
         response["success"] = False
         response["message"] = "Invalid control task"
         return False
+    else:
+        print(f"Executing {control_task}...")
+        response = tasks.get(control_task)()
     print("Control_drone service finished!")
     return True
 
@@ -254,7 +247,7 @@ def shutdown_drone(request, response):
     '''
     Shuts down the drone. Please ensure that the drone is landed.
 
-    :param request: message that has a drone_id: std_msgs/Int32 and drone_subs: issacs_server/topic[]
+    :param request: message that has a id: std_msgs/Int32 and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_drone service...")
     id = request["id"]
@@ -344,7 +337,7 @@ def save_sensor_topics(request, response):
 @custom_service
 def shutdown_sensor(request, response):
     '''
-    :param request: message that has a sensor_id: std_msgs/Int32 and sensor_subs: issacs_server/topic[]
+    :param request: message that has a id: std_msgs/Int32 and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_sensor service...")
     sensor_id = request["id"]
