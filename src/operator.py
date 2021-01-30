@@ -149,6 +149,7 @@ def upload_mission(request, response):
         response["id"] = request["id"]
         return False
     response = d.upload_mission(request["waypoints"])
+    response["id"] = d.id
     print("Upload_mission service finished!")
     return True
 
@@ -164,6 +165,7 @@ def set_speed(request, response):
         return False
     print('Setting speed to {}...'.format(request['data']))
     response = d.set_speed(request["data"])
+    response["id"] = d.id
     print("Set_speed service finished!")
     return True
 
@@ -174,11 +176,13 @@ def control_drone(request, response):
     print("Calling control_drone service...")
     control_task = request["control_task"]
     drone = drones.get(request["id"])
+
     if not drone:
         response["success"] = False
         response["message"] = "Invalid drone id"
         response["id"] = request["id"]
         return False
+
     tasks = {
         "start_mission" : drone.start_mission,
         "pause_mission" : drone.pause_mission,
@@ -194,6 +198,7 @@ def control_drone(request, response):
     else:
         print(f"Executing {control_task}...")
         response = tasks.get(control_task)()
+        response["id"] = drone.id
     print("Control_drone service finished!")
     return True
 
