@@ -29,14 +29,18 @@ class DjiMatriceDrone(Drone):
     def upload_mission(self, waypoints):
         self.waypoints = waypoints
         self.mission_msg_list = []
+        # Remove condition if we want mid-flight mission updates
         if self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
             for i in range(len(self.waypoints)):
-                way_point_msg = waypoints[i]
-                self.mission_msg_list.append(way_point_msg)
-            way_point_task = way_point_msg
-            self.upload_waypoint_task(way_point_task)
-        return False
+                waypoint_msg = waypoints[i]
+                self.mission_msg_list.append(waypoint_msg)
+                self.upload_waypoint_task(waypoint_msg)
+            return True
+        else:
+            print("Must be in ON_GROUND_STANDBY to upload mission")
+            return False
 
+    # Helper function for upload_mission()
     def upload_waypoint_task(self, task):
         try:
             print("Attempting to upload waypoint task...")
@@ -77,8 +81,6 @@ class DjiMatriceDrone(Drone):
         return result
 
     def start_mission(self):
-        # TODO: Can start on this once waypoints are implemented
-
         # if (self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY):
         #     if (self.prev_flight_status == Drone.Flight_Status.NULL):
         #         self.flight_status = Drone.Flight_Status.FLYING
@@ -110,7 +112,7 @@ class DjiMatriceDrone(Drone):
 
     def start_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
         
     def stop_mission(self):
         try:
@@ -129,7 +131,7 @@ class DjiMatriceDrone(Drone):
 
     def stop_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
 
     def pause_mission(self):
         try:
@@ -147,7 +149,7 @@ class DjiMatriceDrone(Drone):
 
     def pause_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
 
     def resume_mission(self):
         try:
@@ -165,7 +167,7 @@ class DjiMatriceDrone(Drone):
     
     def resume_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
 
     # TODO Implement
     def land_drone(self):
@@ -187,7 +189,7 @@ class DjiMatriceDrone(Drone):
     
     def land_drone_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
 
     # TODO Implement
     def fly_home(self):
@@ -208,7 +210,7 @@ class DjiMatriceDrone(Drone):
 
     def fly_home_drone_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result["success"]
+        return result.get("success", False)
 
     #TODO Implement
     def update_mission_helper(self, action):

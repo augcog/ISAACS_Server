@@ -8,13 +8,23 @@ class MavrosDrone(Drone):
     drone_type = "Mavros"
 
     class MAV_CMD(Enum):
+        '''
+        Here are the numbers for the MAVLink messages. (Vary by task)
+        For more information, visit: https://mavlink.io/en/messages/common.html
+        '''
         NAVIGATE_TO_WAYPOINT = 16
         TAKEOFF = 22
         SET_SPEED = 178
 
     class FRAME_REFERENCE(Enum):
-        GLOBAL = 0 # Coordinate frame is global in terms of absolute GPS coords
-        RELATIVE_ALT = 3 # Global coordinates for lat and long, but altitude is relative
+        '''
+        Coordinate frame is global in terms of absolute GPS coords. 
+        This GLOBAL frame is used by latitude and longitude.
+        However, altitude uses the RELATIVE_ALT frame for takeoff purposes.
+        RELATIVE_ALT's value is arbitrary, but must be above 1 for simulation purposes.
+        '''
+        GLOBAL = 0 
+        RELATIVE_ALT = 3 
 
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
