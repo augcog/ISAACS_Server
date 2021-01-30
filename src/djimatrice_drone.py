@@ -12,6 +12,9 @@ class DjiMatriceDrone(Drone):
 
     drone_type = "DjiMatrice"
 
+    '''
+    This enum is used to reference control task numbers as hardcoded in the DJI SDK.
+    '''
     class DroneTaskControl(Enum):
         GO_HOME = 1
         TAKEOFF = 4
