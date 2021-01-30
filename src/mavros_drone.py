@@ -8,6 +8,10 @@ class MavrosDrone(Drone):
     drone_type = "Mavros"
 
     class MAV_CMD(Enum):
+        '''
+        Here are the numbers for the MAVLink messages. (Vary by task)
+        For more information, visit: https://mavlink.io/en/messages/common.html
+        '''
         NAVIGATE_TO_WAYPOINT = 16
         TAKEOFF = 22
         SET_SPEED = 178
