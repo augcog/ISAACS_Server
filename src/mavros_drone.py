@@ -36,9 +36,9 @@ class MavrosDrone(Drone):
         self.position= message
 
     def upload_mission(self, waypoints):
-        if not self.location:
+        if not self.position:
             return {"success": False, "message": "Failed to upload " +
-                    "waypoints. Drone location is unknown."}
+                    "waypoints. Drone position is unknown."}
         self.waypoints = waypoints
 
         # Converts all the NavSatFix messages to Waypoint so that
