@@ -3,5 +3,5 @@ string sensor_type
 string parent_drone_name
 ---
 bool success
-uint32 sensor_id
+uint32 id
 string message
