@@ -36,8 +36,7 @@ class Drone(ABC):
         self.mission_msg_list = []
         self.waypoints = []
         self.waypoints_count = 0
-        #TODO: define position structure i.e. (lat, long) or (x, y);
-        # tuple vs dictionary
+        # define position structure as dictionary: {latitude: int, longitude: int}
         self.position = None
         self.ROS_master_connection = ROS_master_connection
         # Speed of drone in flight; default set to 5
