@@ -29,7 +29,7 @@ class MavrosDrone(Drone):
     def __init__(self, drone_name, drone_type, id=False):
         super().__init__(drone_name, drone_type, id)
         assert(drone_type == self.drone_type)
-        self.location = None
+        self.position= None
         self.prev_flight_status = Drone.Flight_Status.NULL
 
     def received_position_update(self, message):
