@@ -153,7 +153,19 @@ class Drone(ABC):
             }
         '''
         pass
-
+@abstractmethod
+    def land_drone(self):
+        '''
+       Updates the current mission
+        Parameters:
+            None
+        Return:
+            dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
+        pass
     @abstractmethod
     def shutdown(self):
         '''
