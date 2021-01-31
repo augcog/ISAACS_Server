@@ -1,4 +1,0 @@
-uint32 task
----
-bool success
-string message
