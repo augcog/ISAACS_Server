@@ -152,10 +152,11 @@ class Drone(ABC):
             }
         '''
         pass
-@abstractmethod
-    def land_drone(self):
+
+    @abstractmethod
+    def update_mission(self):
         '''
-       Updates the current mission
+        Updates the current mission
         Parameters:
             None
         Return:
@@ -165,6 +166,7 @@ class Drone(ABC):
             }
         '''
         pass
+
     @abstractmethod
     def shutdown(self):
         '''
