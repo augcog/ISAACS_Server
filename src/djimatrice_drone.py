@@ -160,7 +160,6 @@ class DjiMatriceDrone(Drone):
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
             service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            # TODO check service type on drone aka check if 6 is correct
             request = roslibpy.ServiceRequest({"task": DroneTaskControl.LAND})
 
             print('Calling land_drone service...')
@@ -182,7 +181,6 @@ class DjiMatriceDrone(Drone):
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
             service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            # TODO check service type on drone aka check if 1 is correct
             request = roslibpy.ServiceRequest({"task": DroneTaskControl.GO_HOME})
 
             print('Calling fly_home service...')

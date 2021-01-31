@@ -25,6 +25,8 @@ You are now all set and can run the server node.
 
 Note that for roslibpy to work, the host IP should be the ROS master that is running rosbridge (multi-network) or roscore (local network). All ros connections are currently made to a static IP address (that probably isn't yours), so you will have to change all IP addresses to 'localhost' to run it locally, or to your static IP if you set up port forwarding. If you're confused about port forwarding, ask Kyle for more info.
 
+Host IP can be set in either `constants.py` or with the `--ip [ip]` argument via command line.
+
 
 ## Getting Started
 

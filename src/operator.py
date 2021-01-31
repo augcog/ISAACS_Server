@@ -163,14 +163,13 @@ def set_speed(request, response):
         response["message"] = "No drone with that id."
         response["id"] = request["id"]
         return False
-    print('Setting speed to {}...'.format(request['data']))
-    response = d.set_speed(request["data"])
+    print('Setting speed to {}...'.format(request['speed']))
+    response = d.set_speed(request["speed"])
     response["id"] = d.id
     print("Set_speed service finished!")
     return True
 
 
-# includes startmission, pausemission, resumemission, landdrone, flyhome
 @custom_service
 def control_drone(request, response):
     print("Calling control_drone service...")

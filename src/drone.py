@@ -49,7 +49,7 @@ class Drone(ABC):
         from mavros_drone import MavrosDrone
         drones = {
             "DjiMatrice": DjiMatriceDrone, 
-            "MavrosDrone": MavrosDrone
+            "Mavros": MavrosDrone
         }
         if drone_type not in drones:
             return False
