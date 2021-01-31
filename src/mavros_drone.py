@@ -33,7 +33,7 @@ class MavrosDrone(Drone):
         self.prev_flight_status = Drone.Flight_Status.NULL
 
     def received_position_update(self, message):
-        self.location = message
+        self.position= message
 
     def upload_mission(self, waypoints):
         if not self.location:
