@@ -222,5 +222,5 @@ class DjiMatriceDrone(Drone):
         return result
 
     def shutdown(self):
-        pass
+        raise NotImplementedError
     

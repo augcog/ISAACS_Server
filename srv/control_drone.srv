@@ -3,3 +3,4 @@ string control_task
 ---
 bool success
 string message
+uint32 id
