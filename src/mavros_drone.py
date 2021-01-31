@@ -53,8 +53,8 @@ class MavrosDrone(Drone):
             {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
             'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False,
             'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0,
-            'x_lat': self.location['latitude'],
-            'y_long': self.location['longitude'],
+            'x_lat': self.position['latitude'],
+            'y_long': self.position['longitude'],
             'z_alt': 10}
             ] + converted_waypoint_objects
         print(converted_waypoint_objects)
