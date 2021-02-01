@@ -1,0 +1,5 @@
+uint32 id
+isaacs_server/topic_types[] publishes
+---
+bool success
+string message

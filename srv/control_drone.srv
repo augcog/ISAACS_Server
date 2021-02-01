@@ -1,0 +1,6 @@
+uint32 id
+string control_task
+---
+bool success
+string message
+uint32 id

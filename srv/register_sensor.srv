@@ -1,0 +1,7 @@
+string sensor_name
+string sensor_type
+string parent_drone_name
+---
+bool success
+uint32 id
+string message

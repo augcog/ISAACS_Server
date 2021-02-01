@@ -1,3 +1,5 @@
+*.DS_Store
+
 devel/
 logs/
 build/
@@ -41,6 +43,9 @@ qtcreator-*
 /planning/cfg
 /planning/docs
 /planning/src
+
+# VSCode stuff
+.vscode
 
 *~
 

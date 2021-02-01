@@ -1,0 +1,6 @@
+uint32 id
+sensor_msgs/NavSatFix[] waypoints
+---
+uint32 id
+bool success
+string message
