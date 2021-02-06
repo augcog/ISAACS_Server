@@ -250,12 +250,12 @@ class TestMavrosCreation(unittest.TestCase):
         self.assertTrue(result["success"])
 
 
-class TestDjimatriceMethods(unittest.TestCase):
+class TestDjimatriceControl(unittest.TestCase):
 
     def test_upper(self):
         self.assertEqual('foo'.upper(), 'FO')
 
-class TestMavrosMethods(unittest.TestCase):
+class TestMavrosControl(unittest.TestCase):
 
     def test_upper(self):
         self.assertEqual('foo'.upper(), 'FO')
