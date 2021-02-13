@@ -248,6 +248,14 @@ def register_drone(request, response):
     print("Calling register_drone service...")
     drone_name = request["drone_name"]
     drone_type = request["drone_type"]
+
+    if drone_name in drone_names:
+        response["success"] = False
+        response["message"] = "A drone with this name already exists."
+        response["id"] = -1
+        print("A drone with this name already exists")
+        return True
+
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
     d=Drone.create(drone_name, drone_type, ROS_master_connection)
@@ -264,6 +272,7 @@ def register_drone(request, response):
     else:
         response["success"] = False
         response["message"] = "Failed to register drone"
+        response["id"] = -1
     print(drones)
     print(drone_names)
     print("Register_drone service finished!")
@@ -341,6 +350,14 @@ def register_sensor(request, response):
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
     parent_drone_name = request["parent_drone_name"]
+
+    if sensor_name in sensor_names:
+        response["success"] = False
+        response["message"] = "A sensor with this name already exists."
+        response["id"] = -1
+        print("A sensor with this name already exists")
+        return True
+
     s=None
     if parent_drone_name in drone_names:
         parent_drone_id = drone_names[parent_drone_name]
