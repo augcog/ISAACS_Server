@@ -252,7 +252,7 @@ def register_drone(request, response):
     if drone_name in drone_names:
         response["success"] = False
         response["message"] = "A drone with this name already exists."
-        response["id"] = -1
+        response["id"] = 0
         print("A drone with this name already exists")
         return True
 
@@ -354,7 +354,7 @@ def register_sensor(request, response):
     if sensor_name in sensor_names:
         response["success"] = False
         response["message"] = "A sensor with this name already exists."
-        response["id"] = -1
+        response["id"] = 0
         print("A sensor with this name already exists")
         return True
 
