@@ -8,7 +8,7 @@ import constants
 #####################
 # Global Parameters #
 #####################
-# Allows option to specify --ip of the server through the command line. 
+# Allows option to specify --ip of the server through the command line.
 # Ex: python3 operator.py --ip 0.0.0.0
 parser = argparse.ArgumentParser(
         description='Starts the operator of the server.')
@@ -36,16 +36,16 @@ services = [] # TODO list of all services
 ###################################
 
 ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
-# Use the @custom_service decorator on a handler method to have it 
+# Use the @custom_service decorator on a handler method to have it
 # automatically advertise as a Service.
 def custom_service(handler):
     """
-    This method is designed to be used as a decorator (@custom_service) 
+    This method is designed to be used as a decorator (@custom_service)
     to advertise the handler method as a service via the ROS_master_connection.
-    By default, the service can be found at `/isaacs_server/[handler_name]` 
+    By default, the service can be found at `/isaacs_server/[handler_name]`
     with a service type of `isaacs_server/[handler_name]`.
 
-    Exceptions for the handler name to service type mapping can be added 
+    Exceptions for the handler name to service type mapping can be added
     to the exceptions dictionary.
 
     parameter: handler(request, response) handles an incoming service request.
@@ -61,7 +61,7 @@ def custom_service(handler):
         serv_type = exceptions[handler.__name__]
     else:
         serv_type = f'isaacs_server/{handler.__name__}'
-    service = roslibpy.Service(ROS_master_connection, 
+    service = roslibpy.Service(ROS_master_connection,
             f'/isaacs_server/{handler.__name__}', serv_type)
     print(service.name)
     service.advertise(handler)
@@ -72,10 +72,10 @@ def get_id(client_type):
     '''
     Assigns an new ID to the client type inputted.
 
-    :param client_type: Expects the type of client that an id is assigned to 
+    :param client_type: Expects the type of client that an id is assigned to
     (either a Sensor or a Drone)
     This function assigns an id to a Drone or a Sensor.
-    The protocol for id assignment is that Drones are odd numbered and 
+    The protocol for id assignment is that Drones are odd numbered and
     Sensors are even numbered. (This way it is known what an id corresponds to)
     '''
     global next_id
@@ -94,7 +94,7 @@ def get_id(client_type):
 def is_drone(client_id):
     '''
     Verifies that the client_id is a drone ID or not.
-    
+
     :param client_id: id of client to identify
     '''
     if client_id % 2 == 1:
@@ -104,7 +104,7 @@ def is_drone(client_id):
 def is_sensor(client_id):
     '''
     Verifies that the client_id is a sensor ID or not.
-    
+
     :param client_id: id of client to identify
     '''
     if client_id % 2 == 0:
@@ -138,7 +138,7 @@ def all_drones_available(request, response):
 @custom_service
 def upload_mission(request, response):
     '''
-    :param request: {drone_id: int, waypoints: list of ints/strings --> pass
+    :param request: {id: int, waypoints: list of ints/strings --> pass
     these directly into the drone instance}
     '''
     print("Calling upload_mission service...")
@@ -268,7 +268,7 @@ def save_drone_topics(request, response):
     """
     Adds topics to the given drone.
 
-    :param request: message that has a drone id: std_msgs/Int32 
+    :param request: message that has a drone id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     This service saves all topics provided into the appropriate drone object.
     """
@@ -294,7 +294,7 @@ def shutdown_drone(request, response):
     '''
     Shuts down the drone. Please ensure that the drone is landed.
 
-    :param request: message that has a id: std_msgs/Int32 
+    :param request: message that has a id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_drone service...")
@@ -367,7 +367,7 @@ def register_sensor(request, response):
 @custom_service
 def save_sensor_topics(request, response):
     '''
-    :param request: message that has a sensor id: std_msgs/Int32 
+    :param request: message that has a sensor id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     This adds all of the sensor topics provided into the sensor object.
     This service is called by the sensor client.
@@ -393,7 +393,7 @@ def save_sensor_topics(request, response):
 @custom_service
 def shutdown_sensor(request, response):
     '''
-    :param request: message that has a id: std_msgs/Int32 
+    :param request: message that has a id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_sensor service...")
