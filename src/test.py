@@ -33,7 +33,7 @@ class TestVRConnection(unittest.TestCase):
         test_drone = {  "id" : uid,
                         "name" : "tester1",
                         "type" : "DjiMatrice",
-                        "topics" : {"name": "topicNameDji", "type": "topicType"},
+                        "topics" : [{"name": "topicNameDji", "type": "topicType"}],
                         "services" : []}
         self.assertTrue(result["success"])
         self.assertIn(test_drone, result['drones_available'])
@@ -75,7 +75,7 @@ class TestVRConnection(unittest.TestCase):
         test_drone = {  "id" : uid,
                         "name" : "tester1",
                         "type" : "Mavros",
-                        "topics" : {"name": "topicNameMavros", "type": "topicType"},
+                        "topics" : [{"name": "topicNameMavros", "type": "topicType"}],
                         "services" : []}
         self.assertTrue(result["success"])
         self.assertIn(test_drone, result['drones_available'])
@@ -127,8 +127,7 @@ class TestVRConnection(unittest.TestCase):
         service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = service.call(request)
-        self.assertTrue(result["success"])
-        self.assertNotIn({"name": "topicNameDji", "type": "topicType"}, result['all_topics'])
+        self.assertFalse(result["success"])
 
     def test_query_topics_mavros(self):
         # Register Mavros Drone
@@ -164,8 +163,7 @@ class TestVRConnection(unittest.TestCase):
         service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = service.call(request)
-        self.assertTrue(result["success"])
-        self.assertNotIn({"name": "topicNameMavros", "type": "topicType"}, result['all_topics'])
+        self.assertFalse(result["success"])
 
 
 class TestDjimatriceCreation(unittest.TestCase):

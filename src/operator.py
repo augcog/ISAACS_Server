@@ -228,6 +228,7 @@ def query_topics(request, response):
     response["message"] = "Successfully queried topics."
     print(all_topics_response)
     print("Query_topics service finished!")
+    print(response)
     return True
 
 ############################
@@ -303,13 +304,12 @@ def shutdown_drone(request, response):
     d = drones.pop(drone_id, None)
     if d:
         drone_names.pop(d.drone_name)
-        # for topic in d.topics:
         for topic in publishes:
             all_topics.pop(topic['name'])
         # TODO ensure that drone instance is completely terminated
-        response = d.shutdown() # Does this terminate the drone instance fully?
-        # TODO Remove drone_subs from global topics dict
-        raise NotImplementedError
+        d.shutdown()
+        response["success"] = True
+        response["message"] = "Drone shutdown"
     else:
         response["success"] = False
         response["message"] = "failed to shutdown drone"
