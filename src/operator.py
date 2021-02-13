@@ -294,7 +294,7 @@ def save_drone_topics(request, response):
     if not drone_id in drones:
         response["success"] = False
         response["message"] = "Drone id does not exist"
-        return False
+        return True
     for topic in publishes:
         all_topics[topic["name"]] = topic["type"]
         drones[drone_id].topics.append(topic)
