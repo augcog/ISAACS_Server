@@ -2,7 +2,8 @@ import unittest
 import roslibpy
 
 '''
-Make sure to run operator.py before running make
+Make sure to restart operator.py before running make
+Make sure to make each drone_name unique
 '''
 
 client = roslibpy.Ros(host='54.161.15.175', port=9090)
@@ -14,7 +15,7 @@ class TestVRConnection(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "all_drones_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -31,7 +32,7 @@ class TestVRConnection(unittest.TestCase):
         request = roslibpy.ServiceRequest({})
         result = service.call(request)
         test_drone = {  "id" : uid,
-                        "name" : "tester1",
+                        "name" : "all_drones_dji",
                         "type" : "DjiMatrice",
                         "topics" : [{"name": "topicNameDji", "type": "topicType"}],
                         "services" : []}
@@ -56,7 +57,7 @@ class TestVRConnection(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "all_drones_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -73,7 +74,7 @@ class TestVRConnection(unittest.TestCase):
         request = roslibpy.ServiceRequest({})
         result = service.call(request)
         test_drone = {  "id" : uid,
-                        "name" : "tester1",
+                        "name" : "all_drones_mavros",
                         "type" : "Mavros",
                         "topics" : [{"name": "topicNameMavros", "type": "topicType"}],
                         "services" : []}
@@ -98,7 +99,7 @@ class TestVRConnection(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "query_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -134,7 +135,7 @@ class TestVRConnection(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "query_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -173,7 +174,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "register_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
 
@@ -182,7 +183,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "topics_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
 
@@ -198,7 +199,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "shutdown_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -224,7 +225,7 @@ class TestMavrosCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "register_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
 
@@ -233,7 +234,7 @@ class TestMavrosCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "topics_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
 
@@ -249,7 +250,7 @@ class TestMavrosCreation(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "shutdown_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -275,7 +276,7 @@ class TestDjimatriceControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "start_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -305,7 +306,7 @@ class TestDjimatriceControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "pause_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -335,7 +336,7 @@ class TestDjimatriceControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "resume_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -365,7 +366,7 @@ class TestDjimatriceControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "land_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -395,7 +396,7 @@ class TestDjimatriceControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"DjiMatrice"})
+        request = roslibpy.ServiceRequest({'drone_name': "home_dji", "drone_type":"DjiMatrice"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -427,7 +428,7 @@ class TestMavrosControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "start_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -457,7 +458,7 @@ class TestMavrosControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "pause_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -487,7 +488,7 @@ class TestMavrosControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "resume_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -517,7 +518,7 @@ class TestMavrosControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "land_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
@@ -547,7 +548,7 @@ class TestMavrosControl(unittest.TestCase):
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-        request = roslibpy.ServiceRequest({'drone_name': "tester1", "drone_type":"Mavros"})
+        request = roslibpy.ServiceRequest({'drone_name': "home_mavros", "drone_type":"Mavros"})
         result = service.call(request)
         self.assertTrue(result["success"])
         uid = result["id"]
