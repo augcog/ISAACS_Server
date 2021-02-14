@@ -1,15 +1,19 @@
 import unittest
 import roslibpy
+import timeout_decorator
 
 '''
 Make sure to restart operator.py before running make
 Make sure to make each drone_name unique
 '''
 
+TIMEOUT = 30
+
 client = roslibpy.Ros(host='54.161.15.175', port=9090)
 
 class TestVRConnection(unittest.TestCase):
-
+    
+    @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_dji(self):
         # Register Dji Drone
         if not client.is_connected:
@@ -52,6 +56,7 @@ class TestVRConnection(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertNotIn(test_drone, result['drones_available'])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_mavros(self):
         # Register Mavros Drone
         if not client.is_connected:
@@ -94,6 +99,7 @@ class TestVRConnection(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertNotIn(test_drone, result['drones_available'])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_dji(self):
         # Register Dji Drone
         if not client.is_connected:
@@ -130,6 +136,7 @@ class TestVRConnection(unittest.TestCase):
         result = service.call(request)
         self.assertFalse(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_mavros(self):
         # Register Mavros Drone
         if not client.is_connected:
@@ -169,6 +176,7 @@ class TestVRConnection(unittest.TestCase):
 
 class TestDjimatriceCreation(unittest.TestCase):
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -178,6 +186,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_same_name(self):
         if not client.is_connected:
             client.run()
@@ -191,6 +200,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         result = service.call(request)
         self.assertFalse(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
         if not client.is_connected:
@@ -207,6 +217,7 @@ class TestDjimatriceCreation(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -233,6 +244,7 @@ class TestDjimatriceCreation(unittest.TestCase):
 
 class TestMavrosCreation(unittest.TestCase):
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -242,6 +254,7 @@ class TestMavrosCreation(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_same_name(self):
         if not client.is_connected:
             client.run()
@@ -255,6 +268,7 @@ class TestMavrosCreation(unittest.TestCase):
         result = service.call(request)
         self.assertFalse(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
         if not client.is_connected:
@@ -271,6 +285,7 @@ class TestMavrosCreation(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -297,6 +312,7 @@ class TestMavrosCreation(unittest.TestCase):
 
 class TestDjimatriceControl(unittest.TestCase):
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_start_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -327,6 +343,7 @@ class TestDjimatriceControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -357,6 +374,7 @@ class TestDjimatriceControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -387,6 +405,7 @@ class TestDjimatriceControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -417,6 +436,7 @@ class TestDjimatriceControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
         if not client.is_connected:
@@ -449,6 +469,7 @@ class TestDjimatriceControl(unittest.TestCase):
 
 class TestMavrosControl(unittest.TestCase):
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_start_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -479,6 +500,7 @@ class TestMavrosControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -509,6 +531,7 @@ class TestMavrosControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
         if not client.is_connected:
@@ -539,6 +562,7 @@ class TestMavrosControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
         if not client.is_connected:
@@ -569,6 +593,7 @@ class TestMavrosControl(unittest.TestCase):
         result = service.call(request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
         if not client.is_connected:
