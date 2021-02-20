@@ -1,0 +1,4 @@
+uint32 action
+---
+bool success
+string message
