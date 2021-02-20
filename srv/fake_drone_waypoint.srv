@@ -1,4 +1,4 @@
-uint32 task
+uint32 action
 ---
 bool success
 string message

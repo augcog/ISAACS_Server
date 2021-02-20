@@ -69,6 +69,7 @@ add_message_files(
    upload_mission.srv
    query_topics.srv
    fake_drone_control.srv
+   fake_drone_waypoint.srv
  )
 
 ## Generate actions in the 'action' folder
