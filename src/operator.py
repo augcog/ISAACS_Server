@@ -244,6 +244,7 @@ def control_drone(request, response):
         "start_mission" : drone.start_mission,
         "pause_mission" : drone.pause_mission,
         "resume_mission" : drone.resume_mission,
+        "stop_mission" : drone.stop_mission,
         "land_drone" : drone.land_drone,
         "fly_home" : drone.fly_home
     }

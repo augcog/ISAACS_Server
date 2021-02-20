@@ -83,7 +83,11 @@ class DjiMatriceDrone(Drone):
     def start_mission(self):
         try:
             print("Attempting to start drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            if not self.ROS_master_connection.is_connected:
+                self.ROS_master_connection.run()
+            print(self.ROS_master_connection.is_connected)
+            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
 
             print('Calling mission_waypoint_action start service...')
@@ -97,12 +101,14 @@ class DjiMatriceDrone(Drone):
 
     def start_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
+        print("executing callback")
+        return result
 
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
 
             print('Calling mission_waypoint_action stop service...')
@@ -121,7 +127,8 @@ class DjiMatriceDrone(Drone):
     def pause_mission(self):
         try:
             print("Attempting to pause drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.PAUSE})
 
             print('Calling mission_waypoint_action pause service...')
@@ -139,7 +146,8 @@ class DjiMatriceDrone(Drone):
     def resume_mission(self):
         try:
             print("Attempting to resume drone mission...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.RESUME})
 
             print('Calling mission_waypoint_action resume service...')
@@ -159,7 +167,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
             request = roslibpy.ServiceRequest({"task": DroneTaskControl.LAND})
 
             print('Calling land_drone service...')
@@ -180,7 +189,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             #TODO change to actual service call and type
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
             request = roslibpy.ServiceRequest({"task": DroneTaskControl.GO_HOME})
 
             print('Calling fly_home service...')
