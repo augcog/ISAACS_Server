@@ -253,7 +253,7 @@ def register_drone(request, response):
         response["success"] = False
         response["message"] = "A drone with this name already exists."
         response["id"] = 0
-        print("A drone with this name already exists")
+        print("A drone with the name", drone_name, "already exists")
         return True
 
     # Create new drone instance using base class constructor, which should then
