@@ -355,7 +355,7 @@ def register_sensor(request, response):
         response["success"] = False
         response["message"] = "A sensor with this name already exists."
         response["id"] = 0
-        print("A sensor with this name already exists")
+        print("A sensor with the name", sensor_name, "already exists")
         return True
 
     s=None
