@@ -1,6 +1,7 @@
 from drone import Drone
 from sensor import Sensor
 import roslibpy
+import roslibpy.actionlib
 import argparse
 import constants
 #roslaunch rosbridge_server rosbridge_websocket.launch
@@ -582,6 +583,7 @@ def execute(goal):
 
 
 server.start(execute)
+print("Start action.")
 
 
 ROS_master_connection.run_forever()

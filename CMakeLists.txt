@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     message_generation
     sensor_msgs
+    actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -83,6 +84,7 @@ generate_messages(
    DEPENDENCIES
    sensor_msgs
    std_msgs  # Or other packages containing msgs
+   actionlib_msgs
 )
 
 ################################################
@@ -117,7 +119,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES isaacs_server
-   CATKIN_DEPENDS message_runtime
+   CATKIN_DEPENDS actionlib_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
