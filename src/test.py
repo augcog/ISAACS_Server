@@ -1,5 +1,6 @@
 import unittest
 import roslibpy
+import roslibpy.actionlib
 import timeout_decorator
 
 '''
@@ -325,6 +326,38 @@ class TestDjimatriceControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
         self.assertEqual(result["id"], uid)
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_start_mission_action(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        request = roslibpy.ServiceRequest({'drone_name': "start_dji", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameDji", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Start Mission
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/drone_control",'isaacs_server/control_drone')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        action_client.dispose()
 
         # Shutdown Drone
         service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
