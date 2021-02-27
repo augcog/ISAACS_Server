@@ -1,0 +1,11 @@
+# Define the goal (parameter)
+uint32 id
+string control_task
+---
+# Define the result (return)
+bool success
+string message
+uint32 id
+---
+# Define a feedback message (progress)
+string progress

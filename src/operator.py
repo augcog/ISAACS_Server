@@ -554,5 +554,35 @@ def shutdown_sensor(request, response):
 
 print('Services advertised.')
 
+
+server = roslibpy.actionlib.SimpleActionServer(ROS_master_connection, 'isaacs_server/drone_control', 'isaacs_server/control_drone')
+
+def execute(goal):
+    print("Calling control_drone action...")
+    server.send_feedback({"progress": "Calling control_drone action..."})
+
+    control_task = goal["control_task"]
+    drone = drones.get(goal["id"])
+
+    tasks = {
+        "start_mission" : drone.start_mission,
+        "pause_mission" : drone.pause_mission,
+        "resume_mission" : drone.resume_mission,
+        "stop_mission" : drone.stop_mission,
+        "land_drone" : drone.land_drone,
+        "fly_home" : drone.fly_home
+    }
+    print(f"Executing {control_task}...")
+    callback = tasks.get(control_task)()
+    print("Control_drone service finished!")
+    server.send_feedback({"progress": "Control_drone action finished!"})
+    server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
+
+
+
+
+server.start(execute)
+
+
 ROS_master_connection.run_forever()
 ROS_master_connection.terminate()
