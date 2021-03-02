@@ -352,7 +352,7 @@ class TestDjimatriceControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Start Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/drone_control",'isaacs_server/control_drone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()

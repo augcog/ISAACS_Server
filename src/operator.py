@@ -556,7 +556,7 @@ def shutdown_sensor(request, response):
 print('Services advertised.')
 
 
-server = roslibpy.actionlib.SimpleActionServer(ROS_master_connection, 'isaacs_server/drone_control', 'isaacs_server/control_drone')
+server = roslibpy.actionlib.SimpleActionServer(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
 
 def execute(goal):
     print("Calling control_drone action...")
