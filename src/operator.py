@@ -122,7 +122,8 @@ def checkLatestService(request, serviceName):
     return False
 
 def saveLatestService(request, response, serviceName):
-    if len(latestService) == 0:
+    nonlocal latestService
+    latestService = [request, response, serviceName]
         latestService.append(request)
         latestService.append(response)
         latestService.append(serviceName)
