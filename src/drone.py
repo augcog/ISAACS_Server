@@ -41,6 +41,7 @@ class Drone(ABC):
         self.mission_msg_list = []
         self.waypoints = []
         self.waypoints_count = 0
+        self.drone_namespace = '/drone_' + str(self.id)
         # define position structure as dictionary: {latitude: int, longitude: int}
         self.position = None
         self.ROS_master_connection = ROS_master_connection
@@ -48,7 +49,7 @@ class Drone(ABC):
         self.speed = 5
 
     @staticmethod
-    def create(drone_name, drone_type, id=None):
+    def create(drone_name, drone_type, ROS_master_connection, id=None):
         from djimatrice_drone import DjiMatriceDrone
         from mavros_drone import MavrosDrone
         drones = {
@@ -58,7 +59,7 @@ class Drone(ABC):
         if drone_type not in drones:
             return False
         else:
-            return drones.get(drone_type)(drone_name, drone_type, id)
+            return drones.get(drone_type)(drone_name, drone_type, ROS_master_connection, id)
 
     @abstractmethod
     def upload_mission(self, waypoints):

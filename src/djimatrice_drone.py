@@ -20,8 +20,8 @@ class DjiMatriceDrone(Drone):
         TAKEOFF = 4
         LAND = 6
 
-    def __init__(self, drone_name, drone_type, id=False):
-        super().__init__(drone_name, drone_type, id)
+    def __init__(self, drone_name, drone_type, ROS_master_connection, id=False):
+        super().__init__(drone_name, drone_type, ROS_master_connection, id)
         assert(drone_type == self.drone_type)
         self.prev_flight_status = Drone.Flight_Status.NULL
 
