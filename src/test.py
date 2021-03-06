@@ -30,6 +30,22 @@ def wrapped_service_call(service, request):
 def callback(result):
     return result
 
+class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
+    def setCustomTopics(self):
+        # Sets topic to custom action topics
+        self.feedback_listener = roslibpy.Topic(self.ros, self.server_name + '/Actionfeedback', self.action_name + 'ActionFeedback')
+        self.result_listener = roslibpy.Topic(self.ros, self.server_name + '/Actionresult', self.action_name + 'ActionResult')
+        self.goal_topic = roslibpy.Topic(self.ros, self.server_name + '/Actiongoal', self.action_name + 'ActionGoal')
+        # Advertise the goal and cancel topics
+        self.goal_topic.advertise()
+        # Subscribe to the feedback topic
+        if not self.omit_feedback:
+            self.feedback_listener.subscribe(self._on_feedback_message)
+        # Subscribe to the result topic
+        if not self.omit_result:
+            self.result_listener.subscribe(self._on_result_message)
+
+
 class TestVRConnection(unittest.TestCase):
 
     @timeout_decorator.timeout(TIMEOUT)
@@ -353,11 +369,13 @@ class TestDjimatriceControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Start Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
+        print(result)
         action_client.dispose()
 
         # Shutdown Drone

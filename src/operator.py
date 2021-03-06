@@ -123,7 +123,6 @@ def checkLatestService(request, serviceName):
     return False
 
 def saveLatestService(request, response, serviceName):
-    nonlocal latestService
     latestService = [request, response, serviceName]
 
 ################################
@@ -549,8 +548,20 @@ def shutdown_sensor(request, response):
 
 print('Services advertised.')
 
+class ActionServerWorkaround(roslibpy.actionlib.SimpleActionServer):
+    def setCustomTopics(self):
+        # Sets topic to custom action topics
+        self.feedback_publisher = roslibpy.Topic(self.ros, self.server_name + '/Actionfeedback', self.action_name + 'ActionFeedback')
+        self.result_publisher = roslibpy.Topic(self.ros, self.server_name + '/Actionresult', self.action_name + 'ActionResult')
+        self.goal_listener = roslibpy.Topic(self.ros, self.server_name + '/Actiongoal', self.action_name + 'ActionGoal')
+        # Advertise all publishers
+        self.feedback_publisher.advertise()
+        self.result_publisher.advertise()
+        self.goal_listener.subscribe(self._on_goal_message)
 
-server = roslibpy.actionlib.SimpleActionServer(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
+
+server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
+server.setCustomTopics()
 
 def execute(goal):
     print("Calling control_drone action...")

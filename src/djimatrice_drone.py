@@ -1,7 +1,7 @@
 import roslibpy
 import numpy as np
 from drone import Drone
-from enum import Enum
+from enum import IntEnum
 
 class DjiMatriceDrone(Drone):
     '''
@@ -15,7 +15,7 @@ class DjiMatriceDrone(Drone):
     '''
     This enum is used to reference control task numbers as hardcoded in the DJI SDK.
     '''
-    class DroneTaskControl(Enum):
+    class DroneTaskControl(IntEnum):
         GO_HOME = 1
         TAKEOFF = 4
         LAND = 6
@@ -93,8 +93,9 @@ class DjiMatriceDrone(Drone):
             print('Calling mission_waypoint_action start service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
-        except:
+        except Exception as e:
             result = {"success":False, "message":"Mission failed to start"}
+            print(e)
         # self.start_mission_callback(result)
         # TODO: Upon failure, revert back to original setting
         return result
