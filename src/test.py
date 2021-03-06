@@ -753,5 +753,18 @@ class TestMavrosControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
+    def test_temp(self):
+        # Fly Home
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"fly_home"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
 if __name__ == '__main__':
     unittest.main()

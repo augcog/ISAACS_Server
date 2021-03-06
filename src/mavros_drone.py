@@ -36,9 +36,9 @@ class MavrosDrone(Drone):
         self.position= message
 
     def upload_mission(self, waypoints):
-        if not self.position:
-            return {"success": False, "message": "Failed to upload " +
-                    "waypoints. Drone position is unknown."}
+        # if not self.position:
+        #     return {"success": False, "message": "Failed to upload " +
+        #             "waypoints. Drone position is unknown."}
         self.waypoints = waypoints
 
         # Converts all the NavSatFix messages to Waypoint so that
@@ -49,14 +49,14 @@ class MavrosDrone(Drone):
                 self.convert_navsatfix_mavroswaypoint(navsatfix))
 
         # Two takeoff commands prepended to the waypoint list for safety
-        converted_waypoint_objects = 2 * [
-            {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
-            'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False,
-            'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0,
-            'x_lat': self.position['latitude'],
-            'y_long': self.position['longitude'],
-            'z_alt': 10}
-            ] + converted_waypoint_objects
+        # converted_waypoint_objects = 2 * [
+        #     {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
+        #     'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False,
+        #     'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0,
+        #     'x_lat': self.position['latitude'],
+        #     'y_long': self.position['longitude'],
+        #     'z_alt': 10}
+        #     ] + converted_waypoint_objects
         print(converted_waypoint_objects)
 
         try:
@@ -231,6 +231,7 @@ class MavrosDrone(Drone):
             print('Service response: {}'.format(result))
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING_HOME
+                result = {"success": True, "message": "Drone flying home"}
         except:
             result = {"success": False, "message": "Drone flying home failed"}
         return result
