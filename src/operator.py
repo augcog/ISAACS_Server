@@ -545,6 +545,21 @@ def shutdown_sensor(request, response):
     saveLatestService(request, response, "shutdown_sensor")
     return True
 
+@custom_service
+def reset(request, response):
+    drones = dict() # Global map between drone IDs and drone instances
+    sensors = dict() # Global map between sensor IDs and sensor instances
+    drone_names = dict() # Global map between drone names and drone IDs
+    sensor_names = dict() # Global map between sensor names and sensor IDs
+    all_topics = dict() # Global map of topic names to topic types
+    # If an id of 0 is passed in, it acts as a wild card.
+    next_id = 1 # ID to assign next drone or sensor
+    services = [] # TODO list of all services
+    latestService = [] # Remembers last service call
+    response["success"] = True
+    response["message"] = "Server successfully reset."
+    return True
+
 
 print('Services advertised.')
 
@@ -584,12 +599,8 @@ def execute(goal):
     server.send_feedback({"progress": "Control_drone action finished!"})
     server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
 
-
-
-
 server.start(execute)
 print("Start action.")
-
 
 ROS_master_connection.run_forever()
 ROS_master_connection.terminate()
