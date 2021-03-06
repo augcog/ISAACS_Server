@@ -69,6 +69,7 @@ add_message_files(
    type_to_topic.srv
    upload_mission.srv
    query_topics.srv
+   reset.srv
    fake_drone_control.srv
    fake_drone_waypoint.srv
  )

@@ -27,8 +27,10 @@ def wrapped_service_call(service, request):
             attempts += 1
     return result
 
-def callback(result):
-    return result
+def serverReset():
+    service = roslibpy.Service(client, 'isaacs_server/reset', 'isaacs_server/reset')
+    request = roslibpy.ServiceRequest({})
+    result = service.call(reset)
 
 class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
     def setCustomTopics(self):
@@ -51,6 +53,7 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_dji(self):
         # Register Dji Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -94,6 +97,7 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_mavros(self):
         # Register Mavros Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -137,6 +141,7 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_dji(self):
         # Register Dji Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -174,6 +179,7 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_mavros(self):
         # Register Mavros Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -214,6 +220,7 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -224,6 +231,7 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -241,6 +249,7 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -268,6 +277,7 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -278,6 +288,7 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -295,6 +306,7 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -319,40 +331,10 @@ class TestMavrosCreation(unittest.TestCase):
 
 class TestDjimatriceControl(unittest.TestCase):
 
-    # @timeout_decorator.timeout(TIMEOUT)
-    # def test_start_mission(self):
-    #     # Register Drone
-    #     if not client.is_connected:
-    #         client.run()
-    #     service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
-    #     request = roslibpy.ServiceRequest({'drone_name': "start_dji", "drone_type":"DjiMatrice"})
-    #     result = wrapped_service_call(service, request)
-    #     self.assertTrue(result["success"])
-    #     uid = result["id"]
-
-    #     # Save Topics
-    #     publishes = [{"name": "topicNameDji", "type": "topicType"}]
-    #     service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
-    #     request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
-    #     result = wrapped_service_call(service, request)
-    #     self.assertTrue(result["success"])
-
-    #     # Start Mission
-    #     service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-    #     request = roslibpy.ServiceRequest({"control_task": "start_mission", "id": uid})
-    #     result = wrapped_service_call(service, request)
-    #     self.assertTrue(result["success"])
-    #     self.assertEqual(result["id"], uid)
-
-    #     # Shutdown Drone
-    #     service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
-    #     request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
-    #     result = wrapped_service_call(service, request)
-    #     self.assertTrue(result["success"])
-
     @timeout_decorator.timeout(TIMEOUT)
-    def test_start_mission_action(self):
+    def test_start_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -375,7 +357,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -387,6 +369,7 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -409,7 +392,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -421,6 +404,7 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -443,7 +427,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -455,6 +439,7 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_stop_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -477,7 +462,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -489,6 +474,7 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -511,7 +497,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -523,6 +509,7 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -545,7 +532,7 @@ class TestDjimatriceControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -559,6 +546,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_start_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -581,7 +569,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -593,6 +581,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -615,7 +604,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -627,6 +616,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -649,7 +639,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -661,6 +651,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_stop_mission(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -683,7 +674,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -695,6 +686,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -717,7 +709,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
@@ -729,6 +721,7 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
+        serverReset()
         if not client.is_connected:
             client.run()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
@@ -751,7 +744,7 @@ class TestMavrosControl(unittest.TestCase):
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
-        print(result)
+        self.assertTrue(result["success"])
         action_client.dispose()
 
         # Shutdown Drone
