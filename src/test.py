@@ -30,7 +30,7 @@ def wrapped_service_call(service, request):
 def serverReset():
     service = roslibpy.Service(client, 'isaacs_server/reset', 'isaacs_server/reset')
     request = roslibpy.ServiceRequest({})
-    result = service.call(reset)
+    result = wrapped_service_call(service, request)
 
 class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
     def setCustomTopics(self):
@@ -53,9 +53,9 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_dji(self):
         # Register Dji Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "all_drones_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -97,9 +97,9 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_mavros(self):
         # Register Mavros Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "all_drones_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -141,9 +141,9 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_dji(self):
         # Register Dji Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "query_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -179,9 +179,9 @@ class TestVRConnection(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_query_topics_mavros(self):
         # Register Mavros Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "query_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -220,9 +220,9 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "register_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -231,9 +231,9 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "topics_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -249,9 +249,9 @@ class TestDjimatriceCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "shutdown_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -277,9 +277,9 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_register_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "register_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -288,9 +288,9 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_save_drone_topics(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "topics_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -306,9 +306,9 @@ class TestMavrosCreation(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_shutdown_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "shutdown_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -334,9 +334,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_start_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "start_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -369,9 +369,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "pause_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -404,9 +404,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "resume_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -439,9 +439,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_stop_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "stop_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -474,9 +474,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "land_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -509,9 +509,9 @@ class TestDjimatriceControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "home_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
@@ -546,9 +546,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_start_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "start_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -581,9 +581,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_pause_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "pause_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -616,9 +616,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_resume_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "resume_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -651,9 +651,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_stop_mission(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "stop_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -686,9 +686,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_land_drone(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "land_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
@@ -721,9 +721,9 @@ class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_fly_home(self):
         # Register Drone
-        serverReset()
         if not client.is_connected:
             client.run()
+        serverReset()
         service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
         request = roslibpy.ServiceRequest({'drone_name': "home_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)

@@ -170,14 +170,15 @@ class DjiMatriceDrone(Drone):
             #TODO change to actual service call and type
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
-            request = roslibpy.ServiceRequest({"task": DroneTaskControl.LAND})
+            request = roslibpy.ServiceRequest({"task": Drone.TaskControl.LAND})
 
             print('Calling land_drone service...')
             #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
-        except:
+        except Exception as e:
             result = {"success":False, "message":"Drone landing failed"}
+            print(e)
         # self.land_drone_callback(result)
         return result
 
@@ -192,14 +193,15 @@ class DjiMatriceDrone(Drone):
             #TODO change to actual service call and type
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
-            request = roslibpy.ServiceRequest({"task": DroneTaskControl.GO_HOME})
+            request = roslibpy.ServiceRequest({"task": Drone.TaskControl.GO_HOME})
 
             print('Calling fly_home service...')
             #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
-        except:
+        except Exception as e:
             result = {"success":False, "message":"Drone flying home failed"}
+            print(e)
         return result
 
     def fly_home_drone_callback(self, result):

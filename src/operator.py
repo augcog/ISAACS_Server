@@ -123,6 +123,7 @@ def checkLatestService(request, serviceName):
     return False
 
 def saveLatestService(request, response, serviceName):
+    global latestService
     latestService = [request, response, serviceName]
 
 ################################
@@ -547,6 +548,15 @@ def shutdown_sensor(request, response):
 
 @custom_service
 def reset(request, response):
+    print("Resetting server")
+    global drones
+    global sensor
+    global drone_names
+    global sensor_names
+    global all_topics
+    global next_id
+    global services
+    global latestService
     drones = dict() # Global map between drone IDs and drone instances
     sensors = dict() # Global map between sensor IDs and sensor instances
     drone_names = dict() # Global map between drone names and drone IDs
@@ -558,6 +568,7 @@ def reset(request, response):
     latestService = [] # Remembers last service call
     response["success"] = True
     response["message"] = "Server successfully reset."
+    print("Server Reset")
     return True
 
 

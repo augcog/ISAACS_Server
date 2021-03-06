@@ -24,6 +24,11 @@ class Drone(ABC):
         PAUSE = 2
         RESUME = 3
 
+    class TaskControl(IntEnum):
+        LAND = 6
+        GO_HOME = 1
+        TAKEOFF = 4
+
     def __init__(self, drone_name, drone_type, ROS_master_connection, id=None):
         self.id = id
         self.drone_type = drone_type
