@@ -123,14 +123,8 @@ def checkLatestService(request, serviceName):
     return False
 
 def saveLatestService(request, response, serviceName):
-    if len(latestService) == 0:
-        latestService.append(request)
-        latestService.append(response)
-        latestService.append(serviceName)
-    else:
-        latestService[0] = request
-        latestService[1] = response
-        latestService[2] = serviceName
+    nonlocal latestService
+    latestService = [request, response, serviceName]
 
 ################################
 # Interface -> Server Handlers #

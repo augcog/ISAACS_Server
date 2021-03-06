@@ -2,6 +2,7 @@ import unittest
 import roslibpy
 import roslibpy.actionlib
 import timeout_decorator
+import constants
 
 '''
 Make sure to restart operator.py before running make
@@ -10,7 +11,7 @@ Make sure to make each drone_name unique
 
 TIMEOUT = 30
 
-client = roslibpy.Ros(host='54.161.15.175', port=9090)
+client = roslibpy.Ros(host=constants.IP_ADDRESS, port=9090)
 #client = roslibpy.Ros(host='0.0.0.0', port=9090)
 
 def wrapped_service_call(service, request):
