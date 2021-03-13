@@ -623,7 +623,7 @@ def upload_mission(goal):
     if not d:
         server2.set_succeeded({"id":drone.id, "success":False, "message":"No drone with that id."})
     else:
-        callback = d.upload_mission(request["waypoints"])
+        callback = d.upload_mission(goal["waypoints"])
         print("Upload_mission action finished!")
         server2.send_feedback({"progress": "Upload_mission action finished!"})
         server2.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
