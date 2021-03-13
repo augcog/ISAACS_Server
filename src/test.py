@@ -57,8 +57,8 @@ def navsatfix(lat, long, alt):
     ret["altitude"] = alt
     ret["position_covariance"] = [0,0,0,0,0,0,0,0,0]
     ret["position_covariance_type"] = 0
-    return ret
-    #return roslibpy.message(ret)
+    #return ret
+    return roslibpy.Message(ret)
 
 
 class TestVRConnection(unittest.TestCase):
