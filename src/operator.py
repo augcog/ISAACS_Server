@@ -158,7 +158,7 @@ def all_drones_available(request, response):
     saveLatestService(request, response, "all_drones_available")
     return True
 
-
+"""
 @custom_service
 def upload_mission(request, response):
     '''
@@ -187,7 +187,7 @@ def upload_mission(request, response):
     print("Upload_mission service finished!")
     saveLatestService(request, response, "upload_mission")
     return True
-
+"""
 
 @custom_service
 def set_speed(request, response):
@@ -215,7 +215,7 @@ def set_speed(request, response):
     saveLatestService(request, response, "set_speed")
     return True
 
-
+"""
 @custom_service
 def control_drone(request, response):
     print("Calling control_drone service...")
@@ -259,7 +259,7 @@ def control_drone(request, response):
     print("Control_drone service finished!")
     saveLatestService(request, response, "control_drone")
     return True
-
+"""
 
 @custom_service
 def query_topics(request, response):
@@ -589,7 +589,7 @@ class ActionServerWorkaround(roslibpy.actionlib.SimpleActionServer):
 server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
 server.setCustomTopics()
 
-def execute(goal):
+def control_drone(goal):
     print("Calling control_drone action...")
     server.send_feedback({"progress": "Calling control_drone action..."})
 
@@ -610,8 +610,27 @@ def execute(goal):
     server.send_feedback({"progress": "Control_drone action finished!"})
     server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
 
-server.start(execute)
-print("Start action.")
+server.start(control_drone)
+
+server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/upload_mission')
+server2.setCustomTopics()
+
+def upload_mission(goal):
+    print("Calling upload_mission action...")
+    server2.send_feedback({"progress": "Calling upload_mission action..."})
+
+    d = drones.get(goal["id"])
+    if not d:
+        server2.set_succeeded({"id":drone.id, "success":False, "message":"No drone with that id."})
+    else:
+        callback = d.upload_mission(request["waypoints"])
+        print("Upload_mission action finished!")
+        server2.send_feedback({"progress": "Upload_mission action finished!"})
+        server2.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
+
+server2.start(upload_mission)
+
+print("Starting actions...")
 
 ROS_master_connection.run_forever()
 ROS_master_connection.terminate()

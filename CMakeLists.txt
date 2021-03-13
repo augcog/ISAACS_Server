@@ -78,6 +78,7 @@ add_message_files(
 add_action_files(
    FILES
    control_drone.action
+   upload_mission.action
 )
 
 ## Generate added messages and services with any dependencies listed here

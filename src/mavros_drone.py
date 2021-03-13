@@ -142,6 +142,7 @@ class MavrosDrone(Drone):
             print('Service response: {}'.format(result))
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING
+                result = {"success": True, "message": "Mission starting"}
         except:
             result = {"success": False, "message": "Mission failed to start"}
         return result
@@ -160,6 +161,7 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.IN_AIR_STANDBY
+                result = {"success": True, "message": "Mission stopped"}
         except:
             result = {"success": False, "message": "Mission failed to stop"}
         return result
@@ -178,6 +180,7 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.PAUSED_IN_AIR
+                result = {"success": True, "message": "Mission paused"}
         except:
             result = {"success": False, "message": "Mission failed to pause"}
         return result
@@ -196,6 +199,7 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING
+                result = {"success": True, "message": "Mission resuming"}
         except:
             result = {"success": False, "message": "Mission failed to resume"}
         return result
@@ -211,8 +215,9 @@ class MavrosDrone(Drone):
             print('Calling mavros_land_drone service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
-            if result['success']:
+            if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.LANDING
+                result = {"success": True, "message": "Drone lading"}
         except:
             result = {"success": False, "message": "Drone landing failed"}
         return result

@@ -47,6 +47,19 @@ class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
         if not self.omit_result:
             self.result_listener.subscribe(self._on_result_message)
 
+#Returns a navsatfix given a lat, long, alt
+def navsatfix(lat, long, alt):
+    ret = {}
+    ret["header"] = None
+    ret["stats"] = None
+    ret["latitude"] = lat
+    ret["longitude"] = long
+    ret["altitude"] = alt
+    ret["position_covariance"] = [0,0,0,0,0,0,0,0,0]
+    ret["position_covariance_type"] = 0
+    return ret
+    #return roslibpy.message(ret)
+
 
 class TestVRConnection(unittest.TestCase):
 
@@ -753,13 +766,114 @@ class TestMavrosControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
-    def test_temp(self):
+    def test_upload_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        request = roslibpy.ServiceRequest({'drone_name': "upload_mavros", "drone_type":"Mavros"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Upload_mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/upload_mission')
+        action_client.setCustomTopics()
+        waypoints = [navsatfix(0,0,0), navsatfix(1,1,1)]
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+class TestIsolatedControl(unittest.TestCase):
+    def test_isolated_fly_home(self):
         # Fly Home
         if not client.is_connected:
             client.run()
         action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
         action_client.setCustomTopics()
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"fly_home"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+    def test_isolated_land_drone(self):
+        # Land Drone
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"land_drone"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+    def test_isolated_pause_mission(self):
+        # Pause Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"pause_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+    def test_isolated_stop_mission(self):
+        # Stop Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"stop_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+    def test_isolated_resume_mission(self):
+        # Resume Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"resume_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        action_client.dispose()
+
+    def test_isolated_start_mission(self):
+        # Start Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/control_drone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
