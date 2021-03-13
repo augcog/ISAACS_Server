@@ -70,6 +70,10 @@ class MavrosDrone(Drone):
             print('Calling /mavros/mission/push service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result['success']:
+                result = {"success": True, "message": "Mission uploaded"}
+            else:
+                result = {"success": False, "message": "Mission failed to uploaded"}
         except:
             result = {"success": False,
                       "message": "Failed to upload waypoints"}
