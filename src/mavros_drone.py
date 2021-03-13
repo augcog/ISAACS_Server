@@ -233,3 +233,11 @@ class MavrosDrone(Drone):
         except:
             result = {"success": False, "message": "Drone flying home failed"}
         return result
+
+    #TODO
+    def shutdown(self):
+        return {"success": True, "message": "Drone shutdown"}
+
+    #TODO
+    def update_mission(self):
+        raise NotImplementedError
