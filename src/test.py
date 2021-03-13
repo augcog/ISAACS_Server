@@ -46,17 +46,6 @@ class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
         # Subscribe to the result topic
         if not self.omit_result:
             self.result_listener.subscribe(self._on_result_message)
-    def dispose(self):
-        """Unsubscribe and unadvertise all topics associated with this action client."""
-        # self.goal_topic.unadvertise()
-        # self.cancel_topic.unadvertise()
-
-        if not self.omit_status:
-            self.status_listener.unsubscribe()
-        if not self.omit_feedback:
-            self.feedback_listener.unsubscribe()
-        if not self.omit_result:
-            self.result_listener.unsubscribe()
 
 #Returns a navsatfix given a lat, long, alt
 def navsatfix(lat, long, alt):
