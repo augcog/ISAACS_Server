@@ -50,15 +50,14 @@ class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
 #Returns a navsatfix given a lat, long, alt
 def navsatfix(lat, long, alt):
     ret = {}
-    ret["header"] = None
-    ret["stats"] = None
+    ret["header"] = {'seq': 885, 'stamp': {'secs' : 1552399290, 'nsecs': 267234086}, 'frame_id': "/wgs84"}
+    ret["status"] = {"status": 0, "service": 1}
     ret["latitude"] = lat
     ret["longitude"] = long
     ret["altitude"] = alt
     ret["position_covariance"] = [0,0,0,0,0,0,0,0,0]
     ret["position_covariance_type"] = 0
     return ret
-    #return roslibpy.message(ret)
 
 
 class TestVRConnection(unittest.TestCase):
