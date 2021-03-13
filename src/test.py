@@ -811,7 +811,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"fly_home"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
@@ -824,7 +824,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"land_drone"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
@@ -837,7 +837,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"pause_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
@@ -850,7 +850,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"stop_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
@@ -863,7 +863,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"resume_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
@@ -876,7 +876,7 @@ class TestIsolatedControl(unittest.TestCase):
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
-        result = goal.wait(10)
+        result = goal.wait(30)
         self.assertTrue(result["success"])
         action_client.dispose()
 
