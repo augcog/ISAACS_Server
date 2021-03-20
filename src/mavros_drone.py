@@ -26,8 +26,8 @@ class MavrosDrone(Drone):
         GLOBAL = 0
         RELATIVE_ALT = 3
 
-    def __init__(self, drone_name, drone_type, id=False):
-        super().__init__(drone_name, drone_type, id)
+    def __init__(self, drone_name, drone_type, ROS_master_connection, id=False):
+        super().__init__(drone_name, drone_type, ROS_master_connection, id)
         assert(drone_type == self.drone_type)
         self.position= None
         self.prev_flight_status = Drone.Flight_Status.NULL
@@ -62,7 +62,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to upload mission...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/mission/push',
+                                       self.drone_namespace + '/mavros/mission/push',
                                        'mavros_msgs/WaypointPush')
             request = roslibpy.ServiceRequest(
                 {'waypoints': converted_waypoint_objects})
@@ -95,7 +95,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to set speed...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/cmd/command',
+                                       self.drone_namespace + '/mavros/cmd/command',
                                        'mavros_msgs/CommandLong')
             request = roslibpy.ServiceRequest(
                 {"command": MavrosDrone.MAV_CMD.SET_SPEED.value,
@@ -112,28 +112,28 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to set to loiter...")
             guided_service = roslibpy.Service(self.ROS_master_connection,
-                                              '/mavros/set_mode',
+                                              self.drone_namespace + '/mavros/set_mode',
                                               'mavros_msgs/SetMode')
             guided_request = roslibpy.ServiceRequest({"custom_mode": "LOITER"})
             guided_service.call(guided_request)
 
             print("Attempting to arm...")
             arm_service = roslibpy.Service(self.ROS_master_connection,
-                                           '/mavros/cmd/arming',
+                                           self.drone_namespace + '/mavros/cmd/arming',
                                            'mavros_msgs/CommandBool')
             arm_request = roslibpy.ServiceRequest({'value': True})
             arm_service.call(arm_request)
 
             print("Attempting to takeoff...")
             takeoff_service = roslibpy.Service(self.ROS_master_connection,
-                                               '/mavros/cmd/takeoff',
+                                               self.drone_namespace + '/mavros/cmd/takeoff',
                                                'mavros_msgs/CommandTOL')
             takeoff_request = roslibpy.ServiceRequest({'altitude': 3})
             takeoff_service.call(takeoff_request)
 
             mission_start_service = roslibpy.Service(
                 self.ROS_master_connection,
-                '/mavros/set_mode',
+                self.drone_namespace + '/mavros/set_mode',
                 'mavros_msgs/SetMode')
             mission_start_request = roslibpy.ServiceRequest(
                 {"custom_mode": "AUTO"})
@@ -150,7 +150,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to stop drone mission...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/mission/clear',
+                                       self.drone_namespace + '/mavros/mission/clear',
                                        'mavros_msgs/WaypointClear')
             request = roslibpy.ServiceRequest()
 
@@ -168,7 +168,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to pause drone mission...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/set_mode',
+                                       self.drone_namespace + '/mavros/set_mode',
                                        'mavros_msgs/SetMode')
             request = roslibpy.ServiceRequest({"custom_mode": "GUIDED"})
 
@@ -186,7 +186,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to resume drone mission...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/set_mode',
+                                       self.drone_namespace + '/mavros/set_mode',
                                        'mavros_msgs/SetMode')
             request = roslibpy.ServiceRequest({"custom_mode": "AUTO"})
 
@@ -204,7 +204,7 @@ class MavrosDrone(Drone):
         try:
             print("Attempting to call mavros drone specific service...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/cmd/land',
+                                       self.drone_namespace + '/mavros/cmd/land',
                                        'mavros_msgs/CommandTOL')
             request = roslibpy.ServiceRequest()
 
@@ -218,10 +218,11 @@ class MavrosDrone(Drone):
         return result
 
     def fly_home(self):
+        print(self.drone_namespace + '/mavros/set_mode')
         try:
             print("Attempting to make drone fly_home...")
             service = roslibpy.Service(self.ROS_master_connection,
-                                       '/mavros/set_mode',
+                                       self.drone_namespace + '/mavros/set_mode',
                                        'mavros_msgs/SetMode')
             request = roslibpy.ServiceRequest({"custom_mode": "RTL"})
 
@@ -233,3 +234,9 @@ class MavrosDrone(Drone):
         except:
             result = {"success": False, "message": "Drone flying home failed"}
         return result
+
+    def shutdown(self):
+        raise NotImplementedError
+    
+    def update_mission(self):
+        raise NotImplementedError

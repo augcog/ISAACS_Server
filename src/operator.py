@@ -244,11 +244,11 @@ def register_drone(request, response):
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
     d=Drone.create(drone_name, drone_type, ROS_master_connection)
-
     if d:
         drone_id = get_id(Drone)
         print(f"Adding drone {id} to global drones map...")
         d.id = drone_id
+        d.drone_namespace = '/drone_' + str(drone_id)
         drones[drone_id] = d
         drone_names[drone_name] = drone_id
         response["success"] = True
