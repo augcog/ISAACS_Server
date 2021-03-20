@@ -1,5 +1,5 @@
 uint32 id
-isaacs_server/topic_types[] publishes
+isaacs_server/TopicTypes[] publishes
 ---
 bool success
 string message
