@@ -36,6 +36,13 @@ services = [] # TODO list of all services
 ###################################
 
 ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
+
+def to_camel_case(snake_str):
+    components = snake_str.split('_')
+    # We capitalize the first letter of each component     
+    # with the 'title' method and join them together.
+    return ''.join(x.title() for x in components)
+
 # Use the @custom_service decorator on a handler method to have it 
 # automatically advertise as a Service.
 def custom_service(handler):
@@ -52,15 +59,15 @@ def custom_service(handler):
     returns: handler
     """
     exceptions = {
-        'save_drone_topics': 'isaacs_server/type_to_topic',
-        'save_sensor_topics': 'isaacs_server/type_to_topic',
-        'shutdown_drone': 'isaacs_server/type_to_topic',
-        'shutdown_sensor': 'isaacs_server/type_to_topic'
+        'save_drone_topics': 'isaacs_server/TypeToType',
+        'save_sensor_topics': 'isaacs_server/TypeToType',
+        'shutdown_drone': 'isaacs_server/TypeToType',
+        'shutdown_sensor': 'isaacs_server/TypeToType'
     }
     if handler.__name__ in exceptions:
         serv_type = exceptions[handler.__name__]
     else:
-        serv_type = f'isaacs_server/{handler.__name__}'
+        serv_type = f'isaacs_server/{to_camel_case(handler.__name__)}'
     service = roslibpy.Service(ROS_master_connection, 
             f'/isaacs_server/{handler.__name__}', serv_type)
     print(service.name)
