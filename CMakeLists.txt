@@ -51,23 +51,23 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
-   drone.msg
-   sensor.msg
-   topic_types.msg
+   Drone.msg
+   Sensor.msg
+   TopicTypes.msg
  )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   all_drones_available.srv
-   all_sensors_available.srv
-   register_drone.srv
-   register_sensor.srv
-   control_drone.srv
-   set_speed.srv
-   type_to_topic.srv
-   upload_mission.srv
-   query_topics.srv
+   AllDronesAvailable.srv
+   AllSensorsAvailable.srv
+   RegisterDrone.srv
+   RegisterSensor.srv
+   ControlDrone.srv
+   SetSpeed.srv
+   TypeToTopic.srv
+   UploadMission.srv
+   QueryTopics.srv
  )
 
 ## Generate actions in the 'action' folder
