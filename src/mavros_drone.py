@@ -224,7 +224,6 @@ class MavrosDrone(Drone):
         return result
 
     def fly_home(self):
-        print(self.drone_namespace + '/mavros/set_mode')
         try:
             print("Attempting to make drone fly_home...")
             service = roslibpy.Service(self.ROS_master_connection,
@@ -243,7 +242,20 @@ class MavrosDrone(Drone):
         return result
 
     def shutdown(self):
-        raise NotImplementedError
+        try:
+            print("Attempting to shutdown drone...")
+            service = roslibpy.Service(self.ROS_master_connection,
+                                       self.drone_namespace + '/shutdown')
+            request = roslibpy.ServiceRequest({})
+
+            print('Calling shutdown service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+            if result['success']:
+                result = {"success": True, "message": "Drone shutdown successful"}
+        except:
+            result = {"success": False, "message": "Drone failed to shutdown"}
+        return result
 
     def update_mission(self):
         raise NotImplementedError
