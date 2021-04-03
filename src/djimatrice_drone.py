@@ -108,7 +108,6 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Failed to set new drone speed"}
         return result
 
-    # Todo
     def get_speed(self):
         try:
             print("Attempting to fetch speed...")
