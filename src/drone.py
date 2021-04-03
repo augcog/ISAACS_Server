@@ -90,6 +90,20 @@ class Drone(ABC):
         pass
 
     @abstractmethod
+    def get_speed(self, speed):
+        '''
+        Sets the speed of the drone
+        Parameters:
+        Return:
+            dictionary {
+                speed: float32 representing speed gotten
+                success: boolean
+                message: descriptive string
+            }
+        '''
+        pass
+
+    @abstractmethod
     def start_mission(self):
         '''
         Starts waypoint mission
