@@ -235,8 +235,10 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Drone flying home failed"}
         return result
 
+    #TODO
     def shutdown(self):
-        raise NotImplementedError
-    
+        return {"success": True, "message": "Drone shutdown"}
+
+    #TODO
     def update_mission(self):
         raise NotImplementedError

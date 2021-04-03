@@ -8,7 +8,7 @@ import constants
 #####################
 # Global Parameters #
 #####################
-# Allows option to specify --ip of the server through the command line. 
+# Allows option to specify --ip of the server through the command line.
 # Ex: python3 operator.py --ip 0.0.0.0
 parser = argparse.ArgumentParser(
         description='Starts the operator of the server.')
@@ -30,6 +30,8 @@ all_topics = dict() # Global map of topic names to topic types
 # If an id of 0 is passed in, it acts as a wild card.
 next_id = 1 # ID to assign next drone or sensor
 services = [] # TODO list of all services
+latestService = [] # Remembers last service call
+#first element is request, second element is response, third element is servicename
 
 ###################################
 # Set up and boot Roslibpy server #
@@ -47,12 +49,12 @@ def to_camel_case(snake_str):
 # automatically advertise as a Service.
 def custom_service(handler):
     """
-    This method is designed to be used as a decorator (@custom_service) 
+    This method is designed to be used as a decorator (@custom_service)
     to advertise the handler method as a service via the ROS_master_connection.
-    By default, the service can be found at `/isaacs_server/[handler_name]` 
+    By default, the service can be found at `/isaacs_server/[handler_name]`
     with a service type of `isaacs_server/[handler_name]`.
 
-    Exceptions for the handler name to service type mapping can be added 
+    Exceptions for the handler name to service type mapping can be added
     to the exceptions dictionary.
 
     parameter: handler(request, response) handles an incoming service request.
@@ -79,10 +81,10 @@ def get_id(client_type):
     '''
     Assigns an new ID to the client type inputted.
 
-    :param client_type: Expects the type of client that an id is assigned to 
+    :param client_type: Expects the type of client that an id is assigned to
     (either a Sensor or a Drone)
     This function assigns an id to a Drone or a Sensor.
-    The protocol for id assignment is that Drones are odd numbered and 
+    The protocol for id assignment is that Drones are odd numbered and
     Sensors are even numbered. (This way it is known what an id corresponds to)
     '''
     global next_id
@@ -101,7 +103,7 @@ def get_id(client_type):
 def is_drone(client_id):
     '''
     Verifies that the client_id is a drone ID or not.
-    
+
     :param client_id: id of client to identify
     '''
     if client_id % 2 == 1:
@@ -111,20 +113,39 @@ def is_drone(client_id):
 def is_sensor(client_id):
     '''
     Verifies that the client_id is a sensor ID or not.
-    
+
     :param client_id: id of client to identify
     '''
     if client_id % 2 == 0:
         return True
     return False
 
+def checkLatestService(request, serviceName):
+    if len(latestService) == 3 and serviceName == latestService[2] and request == latestService[0]:
+        print("Repeat service call")
+        print(latestService[1])
+        print(latestService[1]["success"])
+        return True
+    return False
+
+def saveLatestService(request, response, serviceName):
+    nonlocal latestService
+    latestService = [request, response, serviceName]
+
 ################################
 # Interface -> Server Handlers #
 ################################
 @custom_service
 def all_drones_available(request, response):
-    drones_available = []
+
     print("Calling all_drones_available service...")
+    if checkLatestService(request, "all_drones_available"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["drones_available"] = latestService[1]["drones_available"]
+        return True
+
+    drones_available = []
     for k, v in drones.items():
         avail = {
                 "id" : k,
@@ -139,47 +160,77 @@ def all_drones_available(request, response):
     response["message"] = "Successfully sent all available drones to VR"
     response['drones_available'] = drones_available
     print("All_drones_available service finished!", response)
+
+    saveLatestService(request, response, "all_drones_available")
     return True
 
 
 @custom_service
 def upload_mission(request, response):
     '''
-    :param request: {drone_id: int, waypoints: list of ints/strings --> pass
+    :param request: {id: int, waypoints: list of ints/strings --> pass
     these directly into the drone instance}
     '''
     print("Calling upload_mission service...")
+    if checkLatestService(request, "upload_mission"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     d = drones.get(request["id"])
     if not d:
         response["success"] = False
         response["message"] = "No drone with that id."
         response["id"] = request["id"]
-        return False
-    response = d.upload_mission(request["waypoints"])
+        saveLatestService(request, response, "upload_mission")
+        return True
+
+    callback = d.upload_mission(request["waypoints"])
     response["id"] = d.id
+    response["success"] = callback["success"]
+    response["message"] = callback["message"]
     print("Upload_mission service finished!")
+    saveLatestService(request, response, "upload_mission")
     return True
 
 
 @custom_service
 def set_speed(request, response):
     print("Calling set_speed service...")
+    if checkLatestService(request, "set_speed"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     d = drones.get(request["id"])
     if not d:
         response["success"] = False
         response["message"] = "No drone with that id."
         response["id"] = request["id"]
-        return False
+        saveLatestService(request, response, "set_speed")
+        return True
+
     print('Setting speed to {}...'.format(request['speed']))
-    response = d.set_speed(request["speed"])
+    callback = d.set_speed(request["speed"])
     response["id"] = d.id
+    response["success"] = callback["success"]
+    response["message"] = callback["message"]
     print("Set_speed service finished!")
+    saveLatestService(request, response, "set_speed")
     return True
 
 
 @custom_service
 def control_drone(request, response):
     print("Calling control_drone service...")
+    if checkLatestService(request, "control_drone"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     control_task = request["control_task"]
     drone = drones.get(request["id"])
 
@@ -187,7 +238,8 @@ def control_drone(request, response):
         response["success"] = False
         response["message"] = "Invalid drone id"
         response["id"] = request["id"]
-        return False
+        saveLatestService(request, response, "control_drone")
+        return True
 
     tasks = {
         "start_mission" : drone.start_mission,
@@ -200,18 +252,29 @@ def control_drone(request, response):
         response["success"] = False
         response["message"] = "Invalid control task: " + str(control_task)
         response["id"] = request["id"]
-        return False
+        saveLatestService(request, response, "control_drone")
+        return True
+
     else:
         print(f"Executing {control_task}...")
-        response = tasks.get(control_task)()
+        callback = tasks.get(control_task)()
         response["id"] = drone.id
+        response["success"] = callback["success"]
+        response["message"] = callback["message"]
     print("Control_drone service finished!")
+    saveLatestService(request, response, "control_drone")
     return True
 
 
 @custom_service
 def query_topics(request, response):
     print("Calling query_topics service...")
+    if checkLatestService(request, "query_topics"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     client_id = request["id"]
     response["id"] = client_id
     all_topics_response = []
@@ -228,13 +291,16 @@ def query_topics(request, response):
         else:
             response["success"] = False
             response["message"] = "No drone or sensor with that id."
-            return False
+            saveLatestService(request, response, "query_topics")
+            return True
 
     response["all_topics"] = all_topics_response
     response["success"] = True
     response["message"] = "Successfully queried topics."
     print(all_topics_response)
     print("Query_topics service finished!")
+    print(response)
+    saveLatestService(request, response, "query_topics")
     return True
 
 ############################
@@ -246,8 +312,23 @@ def register_drone(request, response):
     :param request: dict of {drone_name: string, drone_type: string}
     '''
     print("Calling register_drone service...")
+    if checkLatestService(request, "register_drone"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     drone_name = request["drone_name"]
     drone_type = request["drone_type"]
+
+    if drone_name in drone_names:
+        response["success"] = False
+        response["message"] = "A drone with this name already exists."
+        response["id"] = 0
+        print("A drone with the name", drone_name, "already exists")
+        saveLatestService(request, response, "register_drone")
+        return True
+
     # Create new drone instance using base class constructor, which should then
     # call child constructor corresponding to the drone_type
     d=Drone.create(drone_name, drone_type, ROS_master_connection)
@@ -264,9 +345,11 @@ def register_drone(request, response):
     else:
         response["success"] = False
         response["message"] = "Failed to register drone"
+        response["id"] = -1
     print(drones)
     print(drone_names)
     print("Register_drone service finished!")
+    saveLatestService(request, response, "register_drone")
     return True
 
 
@@ -275,17 +358,22 @@ def save_drone_topics(request, response):
     """
     Adds topics to the given drone.
 
-    :param request: message that has a drone id: std_msgs/Int32 
+    :param request: message that has a drone id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     This service saves all topics provided into the appropriate drone object.
     """
     print("Calling save_drone_topics...")
+    if checkLatestService(request, "save_drone_topics"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        return True
+
     publishes = request["publishes"]
     drone_id = request["id"]
     if not drone_id in drones:
         response["success"] = False
         response["message"] = "Drone id does not exist"
-        return False
+        return True
     for topic in publishes:
         all_topics[topic["name"]] = topic["type"]
         drones[drone_id].topics.append(topic)
@@ -293,6 +381,7 @@ def save_drone_topics(request, response):
     response["message"] = "Successfully saved drone topics"
     print(all_topics)
     print("Save_drone_topics service finished!")
+    saveLatestService(request, response, "save_drone_topics")
     return True
 
 
@@ -301,31 +390,37 @@ def shutdown_drone(request, response):
     '''
     Shuts down the drone. Please ensure that the drone is landed.
 
-    :param request: message that has a id: std_msgs/Int32 
+    :param request: message that has a id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_drone service...")
+    if checkLatestService(request, "shutdown_drone"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        return True
+
     drone_id = request["id"]
     publishes = request["publishes"]
     d = drones.pop(drone_id, None)
     if d:
         drone_names.pop(d.drone_name)
-        # for topic in d.topics:
         for topic in publishes:
             all_topics.pop(topic['name'])
         # TODO ensure that drone instance is completely terminated
-        response = d.shutdown() # Does this terminate the drone instance fully?
-        # TODO Remove drone_subs from global topics dict
-        raise NotImplementedError
+        d.shutdown()
+        response["success"] = True
+        response["message"] = "Drone shutdown"
     else:
         response["success"] = False
         response["message"] = "failed to shutdown drone"
         print("Failed to shutdown drone. ID", drone_id, "not found")
-        return False
+        saveLatestService(request, response, "shutdown_drone")
+        return True
 
     print(drone_names)
     print(drones)
     print("Shutdown_drone service finished!")
+    saveLatestService(request, response, "shutdown_drone")
     return True
 
 
@@ -339,9 +434,24 @@ def register_sensor(request, response):
     Parent drone must be initiated before sensors are registered.
     '''
     print("Calling register_sensor service...")
+    if checkLatestService(request, "register_sensor"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        return True
+
     sensor_name = request["sensor_name"]
     sensor_type = request["sensor_type"]
     parent_drone_name = request["parent_drone_name"]
+
+    if sensor_name in sensor_names:
+        response["success"] = False
+        response["message"] = "A sensor with this name already exists."
+        response["id"] = 0
+        print("A sensor with the name", sensor_name, "already exists")
+        saveLatestService(request, response, "register_sensor")
+        return True
+
     s=None
     if parent_drone_name in drone_names:
         parent_drone_id = drone_names[parent_drone_name]
@@ -368,25 +478,32 @@ def register_sensor(request, response):
     print(sensor_names)
     print(sensors)
     print("Register_sensor service finished!")
+    saveLatestService(request, response, "register_sensor")
     return True
 
 
 @custom_service
 def save_sensor_topics(request, response):
     '''
-    :param request: message that has a sensor id: std_msgs/Int32 
+    :param request: message that has a sensor id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     This adds all of the sensor topics provided into the sensor object.
     This service is called by the sensor client.
     '''
     print("Calling save_sensor_topics service...")
+    if checkLatestService(request, "save_sensor_topics"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        return True
+
     publishes = request["publishes"]
     sensor_id = request["id"]
     sensor = sensors.get(sensor_id)
     if not sensor:
         response["success"] = False
         response["message"] = "Sensor id does not exist"
-        return False
+        saveLatestService(request, response, "save_sensor_topics")
+        return True
     for topic in publishes:
         all_topics[topic["name"]] = topic["type"]
         sensor.topics.append(topic)
@@ -394,16 +511,22 @@ def save_sensor_topics(request, response):
     response["message"] = "Successfully saved sensor topics"
     print(all_topics)
     print("Save_sensor_topics service finished!")
+    saveLatestService(request, response, "save_sensor_topics")
     return True
 
 
 @custom_service
 def shutdown_sensor(request, response):
     '''
-    :param request: message that has a id: std_msgs/Int32 
+    :param request: message that has a id: std_msgs/Int32
         and publishes: issacs_server/topic[]
     '''
     print("Calling shutdown_sensor service...")
+    if checkLatestService(request, "shutdown_sensor"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        return True
+
     sensor_id = request["id"]
     publishes = request["publishes"]
     successful = False
@@ -424,6 +547,8 @@ def shutdown_sensor(request, response):
     print(sensor_names)
     print(sensors)
     print("Shutdown_sensor service finished!")
+
+    saveLatestService(request, response, "shutdown_sensor")
     return True
 
 

@@ -5,7 +5,7 @@ from enum import Enum
 
 class DjiMatriceDrone(Drone):
     '''
-    DJI Matrice API translator layer. 
+    DJI Matrice API translator layer.
     Please see https://github.com/dji-sdk/Onboard-SDK-ROS for more information about the DJI SDK.
     To use this, please install [TODO] on the DJI drone's onboard computer.
     '''
@@ -98,7 +98,7 @@ class DjiMatriceDrone(Drone):
     def start_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
         return result.get("success", False)
-        
+
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
@@ -149,7 +149,7 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Mission failed to resume"}
         # TODO: Upon failure, revert back to original setting
         return result
-    
+
     def resume_mission_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
         return result.get("success", False)
@@ -170,7 +170,7 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Drone landing failed"}
         # self.land_drone_callback(result)
         return result
-    
+
     def land_drone_callback(self, result):
         # TODO: Add more after figuring out what callback is used to update
         return result.get("success", False)
@@ -207,7 +207,7 @@ class DjiMatriceDrone(Drone):
             # Call corresponding service and return result
             result = {"success":True, "message":"Vacuously true for testing"}
         return result
-    
+
     # TODO: Need to implement update_mission_helper to work
     def update_mission(self):
         if self.flight_status == Drone.Flight_Status.FLYING_HOME:
@@ -221,6 +221,6 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Invalid Request: Could not update mission"}
         return result
 
+    #TODO
     def shutdown(self):
-        raise NotImplementedError
-    
+        return {"success": True, "message": "Drone shutdown"}
