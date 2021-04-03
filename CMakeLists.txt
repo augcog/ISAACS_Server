@@ -76,6 +76,8 @@ add_message_files(
    fake_drone_control.srv
    fake_drone_waypoint.srv
    fake_mission_waypoint_upload.srv
+   fake_set_speed.srv
+   fake_get_speed.srv
  )
 
 ## Generate actions in the 'action' folder

@@ -93,20 +93,27 @@ class DjiMatriceDrone(Drone):
     def set_speed(self, speed):
         try:
             print("Attempting to set speed...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
+            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed', 'isaacs_server/fake_set_speed')
             request = roslibpy.ServiceRequest({"speed": speed})
 
             print('Calling mission_waypoint_setSpeed service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","New drone speed set"}
+            else:
+                result = {"success":False, "message":"Failed to set new drone speed"}
         except:
             result = {"success":False, "message":"Failed to set new drone speed"}
         return result
 
+    # Todo
     def fetch_speed(self):
         try:
             print("Attempting to fetch speed...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
+            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed', 'isaacs_server/fake_get_speed')
             request = roslibpy.ServiceRequest()
 
             print('Calling mission_waypoint_setSpeed service...')
@@ -124,9 +131,12 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
 
             print('Calling mission_waypoint_action start service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Start mission successful"}
+            else:
+                result = {"success":False, "message":"Mission failed to start"}
         except Exception as e:
             result = {"success":False, "message":"Mission failed to start"}
             print(e)
@@ -140,9 +150,12 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
 
             print('Calling mission_waypoint_action stop service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Stop mission successful"}
+            else:
+                result = {"success":False, "message":"Mission failed to stop"}
         except:
             result = {"success":False, "message":"Mission failed to stop"}
         return result
@@ -155,9 +168,12 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.PAUSE})
 
             print('Calling mission_waypoint_action pause service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Pause mission successful"}
+            else:
+                result = {"success":False, "message":"Mission failed to pause"}
         except:
             result = {"success":False, "message":"Mission failed to pause"}
         return result
@@ -170,9 +186,12 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.RESUME})
 
             print('Calling mission_waypoint_action resume service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Resume mission successful"}
+            else:
+                result = {"success":False, "message":"Mission failed to resume"}
         except:
             result = {"success":False, "message":"Mission failed to resume"}
         return result
@@ -180,15 +199,17 @@ class DjiMatriceDrone(Drone):
     def land_drone(self):
         try:
             print("Attempting to call drone specific service...")
-            #TODO change to actual service call and type
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.LAND})
 
             print('Calling land_drone service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Land drone successful"}
+            else:
+                result = {"success":False, "message":"Drone failed to land"}
         except Exception as e:
             result = {"success":False, "message":"Drone landing failed"}
             print(e)
@@ -197,15 +218,17 @@ class DjiMatriceDrone(Drone):
     def fly_home(self):
         try:
             print("Attempting to call drone specific service...")
-            #TODO change to actual service call and type
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.GO_HOME})
 
             print('Calling fly_home service...')
-            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","Fly home successful"}
+            else:
+                result = {"success":False, "message":"Drone failed to fly home"}
         except Exception as e:
             result = {"success":False, "message":"Drone flying home failed"}
             print(e)

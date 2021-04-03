@@ -16,15 +16,19 @@ We might not need to actually implement each case, depending on how precise we w
 def drone_control(request, response):
     print("Control task service is being simulated")
     print(f"Performing task: {request['task']}")
-    response["success"] = True
-    response["message"] = f"Control task {request['task']} completed"
+    response["result"] = True
+    response["cmd_set"] = 0
+    response["cmd_id"] = 0
+    response["ack_data"] = 0
     return True
 
 def drone_waypoint(request, response):
     print("Drone waypoint service is being simulated")
     print(f"Performing action: {request['action']}")
-    response["success"] = True
-    response["message"] = f"Waypoint action: {request['action']} completed"
+    response["result"] = True
+    response["cmd_set"] = 0
+    response["cmd_id"] = 0
+    response["ack_data"] = 0
     return True
 
 service = roslibpy.Service(client, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
