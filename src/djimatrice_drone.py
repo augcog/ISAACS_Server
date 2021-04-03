@@ -25,18 +25,12 @@ class DjiMatriceDrone(Drone):
         assert(drone_type == self.drone_type)
         self.prev_flight_status = Drone.Flight_Status.NULL
 
-    # TODO Implement
     def upload_mission(self, waypoints):
         self.waypoints = waypoints
         self.mission_msg_list = []
-        # Remove condition if we want mid-flight mission updates
-        if self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
-            waypointTask = self.create_waypoint_task(waypoints)
-            self.upload_waypoint_task(waypointTask)
-            return True
-        else:
-            print("Must be in ON_GROUND_STANDBY to upload mission")
-            return False
+        waypointTask = self.create_waypoint_task(waypoints)
+        result = self.upload_waypoint_task(waypointTask)
+        return result
 
     # Helper function for upload_mission()
     def create_waypoint_task(self, waypoints):
@@ -67,15 +61,15 @@ class DjiMatriceDrone(Drone):
 
         #Mission Waypoint Task
         missionWaypointTask = dict()
-        missionWaypointsntTask["velocity_range"] = 15
-        missionWaypointsntTask["idle_velocity"] = 15
-        missionWaypointsntTask["action_on_finish"] = 0
-        missionWaypointsntTask["mission_exec_times"] = 1
-        missionWaypointsntTask["yaw_mode"] = 0
-        missionWaypointsntTask["trace_mode"] = 0
-        missionWaypointsntTask["action_on_rc_lost"] = 0
-        missionWaypointsntTask["gimbal_pitch_mode"] = 0
-        missionWaypointsntTask["mission_waypoint"] = missionWaypoints
+        missionWaypointTask["velocity_range"] = 15
+        missionWaypointTask["idle_velocity"] = 15
+        missionWaypointTask["action_on_finish"] = 0
+        missionWaypointTask["mission_exec_times"] = 1
+        missionWaypointTask["yaw_mode"] = 0
+        missionWaypointTask["trace_mode"] = 0
+        missionWaypointTask["action_on_rc_lost"] = 0
+        missionWaypointTask["gimbal_pitch_mode"] = 0
+        missionWaypointTask["mission_waypoint"] = missionWaypoints
 
         return missionWaypointTask
 
@@ -125,26 +119,17 @@ class DjiMatriceDrone(Drone):
     def start_mission(self):
         try:
             print("Attempting to start drone mission...")
-            if not self.ROS_master_connection.is_connected:
-                self.ROS_master_connection.run()
-            print(self.ROS_master_connection.is_connected)
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
 
             print('Calling mission_waypoint_action start service...')
+            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
         except Exception as e:
             result = {"success":False, "message":"Mission failed to start"}
             print(e)
-        # self.start_mission_callback(result)
-        # TODO: Upon failure, revert back to original setting
-        return result
-
-    def start_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        print("executing callback")
         return result
 
     def stop_mission(self):
@@ -155,17 +140,13 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
 
             print('Calling mission_waypoint_action stop service...')
+            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to stop"}
         self.stop_mission_callback(result)
-        # TODO: Upon failure, revert back to original setting
         return result
-
-    def stop_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
 
     def pause_mission(self):
         try:
@@ -175,16 +156,12 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.PAUSE})
 
             print('Calling mission_waypoint_action pause service...')
+            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to pause"}
-        # TODO: Upon failure, revert back to original setting
         return result
-
-    def pause_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
 
     def resume_mission(self):
         try:
@@ -194,18 +171,13 @@ class DjiMatriceDrone(Drone):
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.RESUME})
 
             print('Calling mission_waypoint_action resume service...')
+            #TODO parse service.call(request)
             result = service.call(request)
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to resume"}
-        # TODO: Upon failure, revert back to original setting
         return result
 
-    def resume_mission_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
-
-    # TODO Implement
     def land_drone(self):
         try:
             print("Attempting to call drone specific service...")
@@ -221,14 +193,8 @@ class DjiMatriceDrone(Drone):
         except Exception as e:
             result = {"success":False, "message":"Drone landing failed"}
             print(e)
-        # self.land_drone_callback(result)
         return result
 
-    def land_drone_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
-
-    # TODO Implement
     def fly_home(self):
         try:
             print("Attempting to call drone specific service...")
@@ -245,10 +211,6 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Drone flying home failed"}
             print(e)
         return result
-
-    def fly_home_drone_callback(self, result):
-        # TODO: Add more after figuring out what callback is used to update
-        return result.get("success", False)
 
     #TODO Implement
     def update_mission_helper(self, action):

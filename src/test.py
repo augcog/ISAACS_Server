@@ -553,6 +553,42 @@ class TestDjimatriceControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_upload_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        request = roslibpy.ServiceRequest({'drone_name': "upload_dji", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Upload_mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/upload_mission')
+        action_client.setCustomTopics()
+        waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
 class TestMavrosControl(unittest.TestCase):
 
     @timeout_decorator.timeout(TIMEOUT)
@@ -786,7 +822,7 @@ class TestMavrosControl(unittest.TestCase):
         # Upload_mission
         action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/upload_mission')
         action_client.setCustomTopics()
-        waypoints = [navsatfix(0,0,0), navsatfix(1,1,1)]
+        waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
