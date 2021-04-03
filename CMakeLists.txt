@@ -55,6 +55,9 @@ add_message_files(
    drone.msg
    sensor.msg
    topic_types.msg
+   fake_MissionWaypoint.msg
+   fake_MissionWaypointTask.msg
+   fake_MissionWaypointAction.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -72,6 +75,7 @@ add_message_files(
    reset.srv
    fake_drone_control.srv
    fake_drone_waypoint.srv
+   fake_mission_waypoint_upload.srv
  )
 
 ## Generate actions in the 'action' folder

@@ -31,27 +31,69 @@ class DjiMatriceDrone(Drone):
         self.mission_msg_list = []
         # Remove condition if we want mid-flight mission updates
         if self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
-            for i in range(len(self.waypoints)):
-                waypoint_msg = waypoints[i]
-                self.mission_msg_list.append(waypoint_msg)
-                self.upload_waypoint_task(waypoint_msg)
+            waypointTask = self.create_waypoint_task(waypoints)
+            self.upload_waypoint_task(waypointTask)
             return True
         else:
             print("Must be in ON_GROUND_STANDBY to upload mission")
             return False
 
     # Helper function for upload_mission()
+    def create_waypoint_task(self, waypoints):
+        command_list = [];
+        command_params = [];
+        for i in range(16):
+            command_list.append(0)
+            command_params.append(0)
+
+        # Mission Waypoint Action
+        missionWaypointActionMsg = {"action_repeat":0, "command_list":command_list, "command_parameter":command_params}
+        missionWaypoints = []
+
+        #Mission Waypoint
+        for wp in waypoints:
+            missionWp = dict()
+            missionWp["latitude"] = wp["latitude"]
+            missionWp["longitude"] = wp["longitude"]
+            missionWp["altitude"] = wp["altitude"]
+            missionWp["damping_distance"] = 3
+            missionWp["target_yaw"] = 0
+            missionWp["target_gimbal_pitch"] = 0
+            missionWp["turn_mode"] = 0
+            missionWp["has_action"] = 0
+            missionWp["action_time_limit"] = 30
+            missionWp["waypoint_action"] = missionWaypointActionMsg
+            missionWaypoints.append(missionWp)
+
+        #Mission Waypoint Task
+        missionWaypointTask = dict()
+        missionWaypointsntTask["velocity_range"] = 15
+        missionWaypointsntTask["idle_velocity"] = 15
+        missionWaypointsntTask["action_on_finish"] = 0
+        missionWaypointsntTask["mission_exec_times"] = 1
+        missionWaypointsntTask["yaw_mode"] = 0
+        missionWaypointsntTask["trace_mode"] = 0
+        missionWaypointsntTask["action_on_rc_lost"] = 0
+        missionWaypointsntTask["gimbal_pitch_mode"] = 0
+        missionWaypointsntTask["mission_waypoint"] = missionWaypoints
+
+        return missionWaypointTask
+
+    # Helper function for upload_mission()
     def upload_waypoint_task(self, task):
         try:
             print("Attempting to upload waypoint task...")
-            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
+            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload', 'isaacs_server/fake_mission_waypoint_upload')
             request = roslibpy.ServiceRequest({"waypoint_task": task})
 
             print('Calling mission_waypoint_upload service...')
             result = service.call(request)
+            if result["result"]:
+                result = {"success":True, "message":"Upload mission successful"}
             print('Service response: {}'.format(result))
         except:
-            result = {"success":False, "message":"Drone landing failed"}
+            result = {"success":False, "message":"Upload mission failed"}
         return result
 
     def set_speed(self, speed):
