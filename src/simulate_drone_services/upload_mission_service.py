@@ -13,11 +13,14 @@ Simulates advertising the service upload_mission from the drone.
 '''
 def handler(request, response):
     print("Upload mission service is being simulated")
-    response["success"] = True
-    response["message"] = "Mission uploaded"
+    print(request["waypoint_task"])
+    response["result"] = True
+    response["cmd_set"] = 0
+    response["cmd_id"] = 0
+    response["ack_data"] = 0
     return True
 
-service = roslibpy.Service(client, '/fake_drone_upload_mission', 'isaacs_server/fake_drone_upload_mission')
+service = roslibpy.Service(client, 'isaacs_server/fake_mission_waypoint_upload', 'isaacs_server/fake_mission_waypoint_upload')
 service.advertise(handler)
 
 print("Upload mission service advertised...")
