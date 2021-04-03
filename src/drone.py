@@ -160,20 +160,6 @@ class Drone(ABC):
         pass
 
     @abstractmethod
-    def update_mission(self):
-        '''
-        Updates the current mission
-        Parameters:
-            None
-        Return:
-            dictionary {
-                success: boolean
-                message: descriptive string
-            }
-        '''
-        pass
-
-    @abstractmethod
     def shutdown(self):
         '''
         Shuts down the drone and disconnects from ROSBridge.

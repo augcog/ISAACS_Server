@@ -211,32 +211,6 @@ class DjiMatriceDrone(Drone):
             print(e)
         return result
 
-    #TODO Implement
-    def update_mission_helper(self, action):
-        if action == Drone.UpdateMissionAction.CONTINUE_MISSION:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        elif action == Drone.UpdateMissionAction.UPDATE_CURRENT_MISSION:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        elif action == Drone.UpdateMissionAction.END_AND_HOVER:
-            # Call corresponding service and return result
-            result = {"success":True, "message":"Vacuously true for testing"}
-        return result
-
-    # TODO: Need to implement update_mission_helper to work
-    def update_mission(self):
-        if self.flight_status == Drone.Flight_Status.FLYING_HOME:
-            result = self.update_mission_helper(Drone.UpdateMissionAction.UPDATE_CURRENT_MISSION)
-        elif self.flight_status == Drone.Flight_Status.ON_GROUND_STANDBY:
-            if self.prev_flight_status != Drone.Flight_Status.NULL:
-                result = self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-        elif self.flight_status == Drone.Flight_Status.IN_AIR_STANDBY:
-            result = self.update_mission_helper(Drone.UpdateMissionAction.CONTINUE_MISSION)
-        else:
-            result = {"success":False, "message":"Invalid Request: Could not update mission"}
-        return result
-
     #TODO
     def shutdown(self):
         try:

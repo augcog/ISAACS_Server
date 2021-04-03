@@ -257,5 +257,3 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Drone failed to shutdown"}
         return result
 
-    def update_mission(self):
-        raise NotImplementedError
