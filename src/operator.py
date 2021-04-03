@@ -61,10 +61,10 @@ def custom_service(handler):
     returns: handler
     """
     exceptions = {
-        'save_drone_topics': 'isaacs_server/TypeToType',
-        'save_sensor_topics': 'isaacs_server/TypeToType',
-        'shutdown_drone': 'isaacs_server/TypeToType',
-        'shutdown_sensor': 'isaacs_server/TypeToType'
+        'save_drone_topics': 'isaacs_server/TypeToTopic',
+        'save_sensor_topics': 'isaacs_server/TypeToTopic',
+        'shutdown_drone': 'isaacs_server/TypeToTopic',
+        'shutdown_sensor': 'isaacs_server/TypeToTopic'
     }
     if handler.__name__ in exceptions:
         serv_type = exceptions[handler.__name__]
@@ -129,7 +129,7 @@ def checkLatestService(request, serviceName):
     return False
 
 def saveLatestService(request, response, serviceName):
-    nonlocal latestService
+    global latestService
     latestService = [request, response, serviceName]
 
 ################################
