@@ -158,37 +158,6 @@ def all_drones_available(request, response):
     saveLatestService(request, response, "all_drones_available")
     return True
 
-"""
-@custom_service
-def upload_mission(request, response):
-    '''
-    :param request: {id: int, waypoints: list of ints/strings --> pass
-    these directly into the drone instance}
-    '''
-    print("Calling upload_mission service...")
-    if checkLatestService(request, "upload_mission"):
-        response["message"] = latestService[1]["message"]
-        response["success"] = latestService[1]["success"]
-        response["id"] = latestService[1]["id"]
-        return True
-
-    d = drones.get(request["id"])
-    if not d:
-        response["success"] = False
-        response["message"] = "No drone with that id."
-        response["id"] = request["id"]
-        saveLatestService(request, response, "upload_mission")
-        return True
-
-    callback = d.upload_mission(request["waypoints"])
-    response["id"] = d.id
-    response["success"] = callback["success"]
-    response["message"] = callback["message"]
-    print("Upload_mission service finished!")
-    saveLatestService(request, response, "upload_mission")
-    return True
-"""
-
 @custom_service
 def set_speed(request, response):
     print("Calling set_speed service...")
@@ -214,52 +183,6 @@ def set_speed(request, response):
     print("Set_speed service finished!")
     saveLatestService(request, response, "set_speed")
     return True
-
-"""
-@custom_service
-def control_drone(request, response):
-    print("Calling control_drone service...")
-    if checkLatestService(request, "control_drone"):
-        response["message"] = latestService[1]["message"]
-        response["success"] = latestService[1]["success"]
-        response["id"] = latestService[1]["id"]
-        return True
-
-    control_task = request["control_task"]
-    drone = drones.get(request["id"])
-
-    if not drone:
-        response["success"] = False
-        response["message"] = "Invalid drone id"
-        response["id"] = request["id"]
-        saveLatestService(request, response, "control_drone")
-        return True
-
-    tasks = {
-        "start_mission" : drone.start_mission,
-        "pause_mission" : drone.pause_mission,
-        "resume_mission" : drone.resume_mission,
-        "stop_mission" : drone.stop_mission,
-        "land_drone" : drone.land_drone,
-        "fly_home" : drone.fly_home
-    }
-    if control_task not in tasks:
-        response["success"] = False
-        response["message"] = "Invalid control task: " + str(control_task)
-        response["id"] = request["id"]
-        saveLatestService(request, response, "control_drone")
-        return True
-
-    else:
-        print(f"Executing {control_task}...")
-        callback = tasks.get(control_task)()
-        response["id"] = drone.id
-        response["success"] = callback["success"]
-        response["message"] = callback["message"]
-    print("Control_drone service finished!")
-    saveLatestService(request, response, "control_drone")
-    return True
-"""
 
 @custom_service
 def query_topics(request, response):
@@ -586,9 +509,6 @@ class ActionServerWorkaround(roslibpy.actionlib.SimpleActionServer):
         self.goal_listener.subscribe(self._on_goal_message)
 
 
-server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-server.setCustomTopics()
-
 def control_drone(goal):
     print("Calling control_drone action...")
     server.send_feedback({"progress": "Calling control_drone action..."})
@@ -610,10 +530,6 @@ def control_drone(goal):
     server.send_feedback({"progress": "Control_drone action finished!"})
     server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
 
-server.start(control_drone)
-
-server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/upload_mission')
-server2.setCustomTopics()
 
 def upload_mission(goal):
     print("Calling upload_mission action...")
@@ -629,6 +545,12 @@ def upload_mission(goal):
         server2.send_feedback({"progress": "Upload_mission action finished!"})
         server2.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
 
+server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
+server.setCustomTopics()
+server.start(control_drone)
+
+server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/upload_mission')
+server2.setCustomTopics()
 server2.start(upload_mission)
 
 print("Starting actions...")
