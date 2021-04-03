@@ -145,7 +145,6 @@ class DjiMatriceDrone(Drone):
             print('Service response: {}'.format(result))
         except:
             result = {"success":False, "message":"Mission failed to stop"}
-        self.stop_mission_callback(result)
         return result
 
     def pause_mission(self):
@@ -240,4 +239,20 @@ class DjiMatriceDrone(Drone):
 
     #TODO
     def shutdown(self):
-        return {"success": True, "message": "Drone shutdown"}
+        try:
+            print("Attempting to shutdown drone ...")
+            # TODO: No shutdown in dji_sdk, running stop mission, land, disable arm control,  for now
+            result_stop_mission = self.stop_mission()
+            result_land = self.land_drone()
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_arm_control', 'dji_sdk/DroneArmControl')
+            request = roslibpy.ServiceRequest({"arm": 0})
+
+            print('Calling disable arm control service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+            if result['success']:
+                # Drone arm control successfully disabled
+                result = {"success": True, "message": "Drone shutdown successful"}
+        except:
+            result = {"success":False, "message":"Drone failed to shutdown"}
+        return result
