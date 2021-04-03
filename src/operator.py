@@ -185,6 +185,35 @@ def set_speed(request, response):
     return True
 
 @custom_service
+def get_speed(request, response):
+    print("Calling get_speed service...")
+    if checkLatestService(request, "set_speed"):
+        response["message"] = latestService[1]["message"]
+        response["success"] = latestService[1]["success"]
+        response["id"] = latestService[1]["id"]
+        response["speed"] = latestService[1]["speed"]
+        return True
+
+    d = drones.get(request["id"])
+    if not d:
+        response["success"] = False
+        response["message"] = "No drone with that id."
+        response["id"] = request["id"]
+        response["speed"] = 0
+        saveLatestService(request, response, "get_speed")
+        return True
+
+    print('Getting speed')
+    callback = d.get_speed()
+    response["id"] = d.id
+    response["success"] = callback["success"]
+    response["message"] = callback["message"]
+    response["speed"] = callback["speed"]
+    print("get_speed service finished!")
+    saveLatestService(request, response, "get_speed")
+    return True
+
+@custom_service
 def query_topics(request, response):
     print("Calling query_topics service...")
     if checkLatestService(request, "query_topics"):

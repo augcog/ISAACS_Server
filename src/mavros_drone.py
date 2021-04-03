@@ -109,6 +109,9 @@ class MavrosDrone(Drone):
                       "message": "Failed to set new drone speed"}
         return result
 
+    def get_speed(self):
+        raise NotImplementedError
+
     def start_mission(self):
         try:
             print("Attempting to set to loiter...")
@@ -256,4 +259,3 @@ class MavrosDrone(Drone):
         except:
             result = {"success": False, "message": "Drone failed to shutdown"}
         return result
-

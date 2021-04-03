@@ -109,7 +109,7 @@ class DjiMatriceDrone(Drone):
         return result
 
     # Todo
-    def fetch_speed(self):
+    def get_speed(self):
         try:
             print("Attempting to fetch speed...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
@@ -119,8 +119,12 @@ class DjiMatriceDrone(Drone):
             print('Calling mission_waypoint_setSpeed service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result["result"]:
+                result = {"success":True, "message","New drone speed set", "speed": result["speed"]}
+            else:
+                result = {"success":False, "message":"Failed to set new drone speed", "speed":0}
         except:
-            result = {"success":False, "message":"Failed to fetch drone speed"}
+            result = {"success":False, "message":"Failed to fetch drone speed", "speed":0}
         return result
 
     def start_mission(self):

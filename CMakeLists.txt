@@ -69,6 +69,7 @@ add_message_files(
    register_sensor.srv
    control_drone.srv
    set_speed.srv
+   get_speed.srv
    type_to_topic.srv
    upload_mission.srv
    query_topics.srv
