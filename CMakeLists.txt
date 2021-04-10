@@ -84,8 +84,8 @@ add_message_files(
 ## Generate actions in the 'action' folder
 add_action_files(
    FILES
-   control_drone.action
-   upload_mission.action
+   ControlDrone.action
+   UploadMission.action
 )
 
 ## Generate added messages and services with any dependencies listed here
