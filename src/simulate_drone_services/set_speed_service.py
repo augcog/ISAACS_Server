@@ -25,9 +25,9 @@ def get_speed(request, response):
     response["ack_data"] = 0
     return True
 
-service = roslibpy.Service(client, 'isaacs_server/fake_set_speed', 'isaacs_server/fake_set_speed')
+service = roslibpy.Service(client, 'isaacs_server/fake_set_speed', 'isaacs_server/FakeSetSpeed')
 service.advertise(set_speed)
-service2 = roslibpy.Service(client, 'isaacs_server/fake_get_speed', 'isaacs_server/fake_get_speed')
+service2 = roslibpy.Service(client, 'isaacs_server/fake_get_speed', 'isaacs_server/FakeGetSpeed')
 service2.advertise(get_speed)
 
 print("Set speed service advertised...")
