@@ -165,63 +165,6 @@ def all_drones_available(request, response):
     saveLatestService(request, response, "all_drones_available")
     return True
 
-'''
-@custom_service
-def set_speed(request, response):
-    print("Calling set_speed service...")
-    if checkLatestService(request, "set_speed"):
-        response["message"] = latestService[1]["message"]
-        response["success"] = latestService[1]["success"]
-        response["id"] = latestService[1]["id"]
-        return True
-
-    d = drones.get(request["id"])
-    if not d:
-        response["success"] = False
-        response["message"] = "No drone with that id."
-        response["id"] = request["id"]
-        saveLatestService(request, response, "set_speed")
-        return True
-
-    print('Setting speed to {}...'.format(request['speed']))
-    callback = d.set_speed(request["speed"])
-    response["id"] = d.id
-    response["success"] = callback["success"]
-    response["message"] = callback["message"]
-    print("Set_speed service finished!")
-    saveLatestService(request, response, "set_speed")
-    return True
-
-@custom_service
-def get_speed(request, response):
-    print("Calling get_speed service...")
-    if checkLatestService(request, "set_speed"):
-        response["message"] = latestService[1]["message"]
-        response["success"] = latestService[1]["success"]
-        response["id"] = latestService[1]["id"]
-        response["speed"] = latestService[1]["speed"]
-        return True
-
-    d = drones.get(request["id"])
-    if not d:
-        response["success"] = False
-        response["message"] = "No drone with that id."
-        response["id"] = request["id"]
-        response["speed"] = 0
-        saveLatestService(request, response, "get_speed")
-        return True
-
-    print('Getting speed')
-    callback = d.get_speed()
-    response["id"] = d.id
-    response["success"] = callback["success"]
-    response["message"] = callback["message"]
-    response["speed"] = callback["speed"]
-    print("get_speed service finished!")
-    saveLatestService(request, response, "get_speed")
-    return True
-'''
-
 @custom_service
 def query_topics(request, response):
     print("Calling query_topics service...")
