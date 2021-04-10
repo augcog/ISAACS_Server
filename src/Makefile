@@ -11,3 +11,5 @@ working:
 	python3 -m unittest -v test.TestMavrosCreation
 	@echo "Running TestDjimatriceCreation..."
 	python3 -m unittest -v test.TestDjimatriceCreation
+	@echo "Running TestDjimatriceControl..."
+	python3 -m unittest -v test.TestDjimatriceControl

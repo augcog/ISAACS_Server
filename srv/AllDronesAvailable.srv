@@ -1,0 +1,4 @@
+---
+isaacs_server/Drone[] drones_available
+string message
+bool success

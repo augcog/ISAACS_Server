@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     message_generation
     sensor_msgs
+    actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,37 +52,46 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
-   drone.msg
-   sensor.msg
-   topic_types.msg
+   Drone.msg
+   Sensor.msg
+   TopicTypes.msg
+   FakeMissionWaypoint.msg
+   FakeMissionWaypointTask.msg
+   FakeMissionWaypointAction.msg
  )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   all_drones_available.srv
-   all_sensors_available.srv
-   register_drone.srv
-   register_sensor.srv
-   control_drone.srv
-   set_speed.srv
-   type_to_topic.srv
-   upload_mission.srv
-   query_topics.srv
+   AllDronesAvailable.srv
+   AllSensorsAvailable.srv
+   RegisterDrone.srv
+   RegisterSensor.srv
+   SetSpeed.srv
+   GetSpeed.srv
+   TypeToTopic.srv
+   QueryTopics.srv
+   Reset.srv
+   FakeDroneControl.srv
+   FakeDroneWaypoint.srv
+   FakeMissionWaypointUpload.srv
+   FakeSetSpeed.srv
+   FakeGetSpeed.srv
  )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+   FILES
+   ControlDrone.action
+   UploadMission.action
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
    sensor_msgs
    std_msgs  # Or other packages containing msgs
+   actionlib_msgs
 )
 
 ################################################
@@ -116,7 +126,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES isaacs_server
-   CATKIN_DEPENDS message_runtime
+   CATKIN_DEPENDS actionlib_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 )
 

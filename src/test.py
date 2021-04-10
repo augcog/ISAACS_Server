@@ -1,5 +1,6 @@
 import unittest
 import roslibpy
+import roslibpy.actionlib
 import timeout_decorator
 import constants
 
@@ -26,6 +27,39 @@ def wrapped_service_call(service, request):
             attempts += 1
     return result
 
+def serverReset():
+    service = roslibpy.Service(client, 'isaacs_server/reset', 'isaacs_server/Reset')
+    request = roslibpy.ServiceRequest({})
+    result = wrapped_service_call(service, request)
+
+class ActionClientWorkaround(roslibpy.actionlib.ActionClient):
+    def setCustomTopics(self):
+        # Sets topic to custom action topics
+        self.feedback_listener = roslibpy.Topic(self.ros, self.server_name + '/Actionfeedback', self.action_name + 'ActionFeedback')
+        self.result_listener = roslibpy.Topic(self.ros, self.server_name + '/Actionresult', self.action_name + 'ActionResult')
+        self.goal_topic = roslibpy.Topic(self.ros, self.server_name + '/Actiongoal', self.action_name + 'ActionGoal')
+        # Advertise the goal and cancel topics
+        self.goal_topic.advertise()
+        # Subscribe to the feedback topic
+        if not self.omit_feedback:
+            self.feedback_listener.subscribe(self._on_feedback_message)
+        # Subscribe to the result topic
+        if not self.omit_result:
+            self.result_listener.subscribe(self._on_result_message)
+
+#Returns a navsatfix given a lat, long, alt
+def navsatfix(lat, long, alt):
+    ret = {}
+    ret["header"] = {'seq': 885, 'stamp': {'secs' : 1552399290, 'nsecs': 267234086}, 'frame_id': "/wgs84"}
+    ret["status"] = {"status": 0, "service": 1}
+    ret["latitude"] = lat
+    ret["longitude"] = long
+    ret["altitude"] = alt
+    ret["position_covariance"] = [0,0,0,0,0,0,0,0,0]
+    ret["position_covariance_type"] = 0
+    return ret
+
+
 class TestVRConnection(unittest.TestCase):
 
     @timeout_decorator.timeout(TIMEOUT)
@@ -33,7 +67,8 @@ class TestVRConnection(unittest.TestCase):
         # Register Dji Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "all_drones_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -41,13 +76,13 @@ class TestVRConnection(unittest.TestCase):
 
         # Save Dji Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # All Drones Available
-        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/all_drones_available')
+        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/AllDronesAvailable')
         request = roslibpy.ServiceRequest({})
         result = wrapped_service_call(service, request)
         test_drone = {  "id" : uid,
@@ -59,13 +94,13 @@ class TestVRConnection(unittest.TestCase):
         self.assertIn(test_drone, result['drones_available'])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # All Drones Available
-        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/all_drones_available')
+        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/AllDronesAvailable')
         request = roslibpy.ServiceRequest({})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -76,7 +111,8 @@ class TestVRConnection(unittest.TestCase):
         # Register Mavros Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "all_drones_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -84,13 +120,13 @@ class TestVRConnection(unittest.TestCase):
 
         # Save Mavros Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # All Drones Available
-        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/all_drones_available')
+        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/AllDronesAvailable')
         request = roslibpy.ServiceRequest({})
         result = wrapped_service_call(service, request)
         test_drone = {  "id" : uid,
@@ -102,13 +138,13 @@ class TestVRConnection(unittest.TestCase):
         self.assertIn(test_drone, result['drones_available'])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # All Drones Available
-        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/all_drones_available')
+        service = roslibpy.Service(client, 'isaacs_server/all_drones_available', 'isaacs_server/AllDronesAvailable')
         request = roslibpy.ServiceRequest({})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -119,7 +155,8 @@ class TestVRConnection(unittest.TestCase):
         # Register Dji Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "query_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -127,26 +164,26 @@ class TestVRConnection(unittest.TestCase):
 
         # Save Dji Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Query Topics
-        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
+        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/QueryTopics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
         self.assertIn({"name": "topicNameDji", "type": "topicType"}, result['all_topics'])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Query Topics
-        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
+        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/QueryTopics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = wrapped_service_call(service, request)
         self.assertFalse(result["success"])
@@ -156,7 +193,8 @@ class TestVRConnection(unittest.TestCase):
         # Register Mavros Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "query_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -164,26 +202,26 @@ class TestVRConnection(unittest.TestCase):
 
         # Save Mavros Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Query Topics
-        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
+        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/QueryTopics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
         self.assertIn({"name": "topicNameMavros", "type": "topicType"}, result['all_topics'])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Query Topics
-        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/query_topics')
+        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/QueryTopics')
         request = roslibpy.ServiceRequest({"id": uid})
         result = wrapped_service_call(service, request)
         self.assertFalse(result["success"])
@@ -196,7 +234,8 @@ class TestDjimatriceCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "register_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -206,14 +245,16 @@ class TestDjimatriceCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "topics_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": result["id"]})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -223,7 +264,8 @@ class TestDjimatriceCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "shutdown_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -231,13 +273,13 @@ class TestDjimatriceCreation(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -250,7 +292,8 @@ class TestMavrosCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "register_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -260,14 +303,15 @@ class TestMavrosCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "topics_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": result["id"]})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -277,7 +321,8 @@ class TestMavrosCreation(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "shutdown_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -285,13 +330,13 @@ class TestMavrosCreation(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -304,7 +349,8 @@ class TestDjimatriceControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "start_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -312,20 +358,23 @@ class TestDjimatriceControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Start Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "start_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -335,7 +384,9 @@ class TestDjimatriceControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "pause_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -343,20 +394,23 @@ class TestDjimatriceControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Pause Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "pause_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"pause_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -366,7 +420,9 @@ class TestDjimatriceControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "resume_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -374,20 +430,58 @@ class TestDjimatriceControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Resume Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "resume_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"resume_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_stop_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "stop_dji", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameDji", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Stop Mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"stop_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -397,7 +491,8 @@ class TestDjimatriceControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "land_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -405,20 +500,23 @@ class TestDjimatriceControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Land Drone
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "land_drone", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"land_drone"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -428,7 +526,8 @@ class TestDjimatriceControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "home_dji", "drone_type":"DjiMatrice"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -436,20 +535,59 @@ class TestDjimatriceControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Fly Home
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "fly_home", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"fly_home"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_upload_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "upload_dji", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Upload_mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/UploadMission')
+        action_client.setCustomTopics()
+        waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -461,7 +599,8 @@ class TestMavrosControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "start_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -469,20 +608,23 @@ class TestMavrosControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Start Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "start_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -492,7 +634,8 @@ class TestMavrosControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "pause_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -500,20 +643,23 @@ class TestMavrosControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Pause Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "pause_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"pause_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -523,7 +669,8 @@ class TestMavrosControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "resume_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -531,20 +678,58 @@ class TestMavrosControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Resume Mission
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "resume_mission", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"resume_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_stop_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "stop_mavros", "drone_type":"Mavros"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Stop Mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"stop_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -554,7 +739,8 @@ class TestMavrosControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "land_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -562,20 +748,23 @@ class TestMavrosControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Land Drone
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "land_drone", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"land_drone"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -585,7 +774,8 @@ class TestMavrosControl(unittest.TestCase):
         # Register Drone
         if not client.is_connected:
             client.run()
-        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/register_drone')
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
         request = roslibpy.ServiceRequest({'drone_name': "home_mavros", "drone_type":"Mavros"})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
@@ -593,23 +783,154 @@ class TestMavrosControl(unittest.TestCase):
 
         # Save Topics
         publishes = [{"name": "topicNameMavros", "type": "topicType"}]
-        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
         # Fly Home
-        service = roslibpy.Service(client, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
-        request = roslibpy.ServiceRequest({"control_task": "fly_home", "id": uid})
-        result = wrapped_service_call(service, request)
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"fly_home"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
         self.assertTrue(result["success"])
-        self.assertEqual(result["id"], uid)
+        #action_client.dispose()
 
         # Shutdown Drone
-        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/type_to_topic')
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
+
+    def test_upload_mission(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "upload_mavros", "drone_type":"Mavros"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Upload_mission
+        action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/UploadMission')
+        action_client.setCustomTopics()
+        waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+class TestIsolatedControl(unittest.TestCase):
+    def test_isolated_fly_home(self):
+        # Fly Home
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "control_task":"fly_home"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_land_drone(self):
+        # Land Drone
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"land_drone"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_pause_mission(self):
+        # Pause Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"pause_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_stop_mission(self):
+        # Stop Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"stop_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_resume_mission(self):
+        # Resume Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"resume_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_start_mission(self):
+        # Start Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "control_task":"start_mission"}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(30)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
+
+    def test_isolated_upload_mission(self):
+        # Start Mission
+        if not client.is_connected:
+            client.run()
+        action_client = ActionClientWorkaround(client,"isaacs_server/upload_mission",'isaacs_server/UploadMission')
+        action_client.setCustomTopics()
+        waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "waypoints":waypoints}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        #action_client.dispose()
 
 if __name__ == '__main__':
     unittest.main()

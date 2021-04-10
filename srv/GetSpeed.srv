@@ -1,6 +1,6 @@
 uint32 id
-string control_task
 ---
+float32 speed
+uint32 id
 bool success
 string message
-uint32 id
