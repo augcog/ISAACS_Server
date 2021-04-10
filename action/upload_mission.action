@@ -1,0 +1,11 @@
+# Define the goal (parameter)
+uint32 id
+sensor_msgs/NavSatFix[] waypoints
+---
+# Define the result (return)
+uint32 id
+bool success
+string message
+---
+# Define a feedback message (progress)
+string progress

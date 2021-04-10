@@ -1,10 +1,10 @@
 import roslibpy
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import IntEnum
 
 class Drone(ABC):
 
-    class Flight_Status(Enum):
+    class Flight_Status(IntEnum):
         ON_GROUND_STANDBY = 1
         IN_AIR_STANDBY = 2
         FLYING = 3
@@ -13,17 +13,22 @@ class Drone(ABC):
         LANDING = 6
         NULL = 7
 
-    class UpdateMissionAction(Enum):
+    class UpdateMissionAction(IntEnum):
         CONTINUE_MISSION = 0,
         UPDATE_CURRENT_MISSION = 1,
         END_AND_HOVER = 2
 
-    class WaypointActions(Enum):
+    class WaypointActions(IntEnum):
         START = 0
         STOP = 1
         PAUSE = 2
         RESUME = 3
-    
+
+    class TaskControl(IntEnum):
+        LAND = 6
+        GO_HOME = 1
+        TAKEOFF = 4
+
     def __init__(self, drone_name, drone_type, ROS_master_connection, id=None):
         self.id = id
         self.drone_type = drone_type
@@ -48,7 +53,7 @@ class Drone(ABC):
         from djimatrice_drone import DjiMatriceDrone
         from mavros_drone import MavrosDrone
         drones = {
-            "DjiMatrice": DjiMatriceDrone, 
+            "DjiMatrice": DjiMatriceDrone,
             "Mavros": MavrosDrone
         }
         if drone_type not in drones:
@@ -78,6 +83,20 @@ class Drone(ABC):
             speed: float32 representing speed to set
         Return:
             dictionary {
+                success: boolean
+                message: descriptive string
+            }
+        '''
+        pass
+
+    @abstractmethod
+    def get_speed(self, speed):
+        '''
+        Sets the speed of the drone
+        Parameters:
+        Return:
+            dictionary {
+                speed: float32 representing speed gotten
                 success: boolean
                 message: descriptive string
             }
@@ -155,20 +174,6 @@ class Drone(ABC):
         pass
 
     @abstractmethod
-    def update_mission(self):
-        '''
-        Updates the current mission
-        Parameters:
-            None
-        Return:
-            dictionary {
-                success: boolean
-                message: descriptive string
-            }
-        '''
-        pass
-
-    @abstractmethod
     def shutdown(self):
         '''
         Shuts down the drone and disconnects from ROSBridge.
@@ -180,4 +185,4 @@ class Drone(ABC):
                 message: descriptive string
             }
         '''
-        pass 
+        pass

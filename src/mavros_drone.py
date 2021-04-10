@@ -36,9 +36,6 @@ class MavrosDrone(Drone):
         self.position= message
 
     def upload_mission(self, waypoints):
-        if not self.position:
-            return {"success": False, "message": "Failed to upload " +
-                    "waypoints. Drone position is unknown."}
         self.waypoints = waypoints
 
         # Converts all the NavSatFix messages to Waypoint so that
@@ -49,14 +46,14 @@ class MavrosDrone(Drone):
                 self.convert_navsatfix_mavroswaypoint(navsatfix))
 
         # Two takeoff commands prepended to the waypoint list for safety
-        converted_waypoint_objects = 2 * [
-            {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
-            'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False,
-            'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0,
-            'x_lat': self.position['latitude'],
-            'y_long': self.position['longitude'],
-            'z_alt': 10}
-            ] + converted_waypoint_objects
+        # converted_waypoint_objects = 2 * [
+        #     {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
+        #     'command': MavrosDrone.MAV_CMD.TAKEOFF.value, 'is_current': False,
+        #     'autocontinue': True, 'param1': 0, 'param2': 0, 'param3': 0,
+        #     'x_lat': self.position['latitude'],
+        #     'y_long': self.position['longitude'],
+        #     'z_alt': 10}
+        #     ] + converted_waypoint_objects
         print(converted_waypoint_objects)
 
         try:
@@ -70,12 +67,17 @@ class MavrosDrone(Drone):
             print('Calling /mavros/mission/push service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
+            if result['success']:
+                result = {"success": True, "message": "Mission uploaded"}
+            else:
+                result = {"success": False, "message": "Mission failed to uploaded"}
         except:
             result = {"success": False,
                       "message": "Failed to upload waypoints"}
 
         return result
 
+    # Helper method for upload_mission()
     def convert_navsatfix_mavroswaypoint(self, navsatfix):
         '''
         Takes in a NavSatFix message and returns a
@@ -89,7 +91,6 @@ class MavrosDrone(Drone):
                     'z_alt': navsatfix['altitude']}
 
         return waypoint
-
 
     def set_speed(self, speed):
         try:
@@ -107,6 +108,9 @@ class MavrosDrone(Drone):
             result = {"success": False,
                       "message": "Failed to set new drone speed"}
         return result
+
+    def get_speed(self):
+        raise NotImplementedError
 
     def start_mission(self):
         try:
@@ -142,6 +146,9 @@ class MavrosDrone(Drone):
             print('Service response: {}'.format(result))
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING
+                result = {"success": True, "message": "Mission starting"}
+            else:
+                result = {"success": False, "message": "Mission failed to start"}
         except:
             result = {"success": False, "message": "Mission failed to start"}
         return result
@@ -160,6 +167,9 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.IN_AIR_STANDBY
+                result = {"success": True, "message": "Mission stopped"}
+            else:
+                result = {"success": False, "message": "Mission failed to stop"}
         except:
             result = {"success": False, "message": "Mission failed to stop"}
         return result
@@ -178,6 +188,9 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.PAUSED_IN_AIR
+                result = {"success": True, "message": "Mission paused"}
+            else:
+                result = {"success": False, "message": "Mission failed to pause"}
         except:
             result = {"success": False, "message": "Mission failed to pause"}
         return result
@@ -196,6 +209,9 @@ class MavrosDrone(Drone):
 
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING
+                result = {"success": True, "message": "Mission resuming"}
+            else:
+                result = {"success": False, "message": "Mission failed to resume"}
         except:
             result = {"success": False, "message": "Mission failed to resume"}
         return result
@@ -211,8 +227,11 @@ class MavrosDrone(Drone):
             print('Calling mavros_land_drone service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
-            if result['success']:
+            if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.LANDING
+                result = {"success": True, "message": "Drone lading"}
+            else:
+                result = {"success": False, "message": "Drone failed to land"}
         except:
             result = {"success": False, "message": "Drone landing failed"}
         return result
@@ -231,14 +250,27 @@ class MavrosDrone(Drone):
             print('Service response: {}'.format(result))
             if result['mode_sent']:
                 self.prev_flight_status = Drone.Flight_Status.FLYING_HOME
+                result = {"success": True, "message": "Drone flying home"}
+            else:
+                result = {"success": False, "message": "Drone failed to fly home"}
         except:
             result = {"success": False, "message": "Drone flying home failed"}
         return result
 
-    #TODO
     def shutdown(self):
-        return {"success": True, "message": "Drone shutdown"}
+        try:
+            print("Attempting to shutdown drone...")
+            service = roslibpy.Service(self.ROS_master_connection,
+                                       self.drone_namespace + '/shutdown')
+            request = roslibpy.ServiceRequest({})
 
-    #TODO
-    def update_mission(self):
-        raise NotImplementedError
+            print('Calling shutdown service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+            if result['success']:
+                result = {"success": True, "message": "Drone shutdown successful"}
+            else:
+                result = {"success": False, "message": "Drone failed to shutdown"}
+        except:
+            result = {"success": False, "message": "Drone failed to shutdown"}
+        return result

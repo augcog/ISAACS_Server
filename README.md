@@ -18,7 +18,7 @@ ROS package that acts as a server for the Immersive Semi-Autonomous Aerial Comma
 
 You are now all set and can run the server node.
 
-8. To start the server, run `roslaunch rosbridge_server rosbridge_websocket.launch`. (To test locally, you should 
+8. To start the server, run `roslaunch rosbridge_server rosbridge_websocket.launch`. To edit the parameters, run `roslaunch rosbridge_server rosbridge_websocket.launch {arg}:={value}` (for example, `roslaunch rosbridge_server rosbridge_websocket.launch unregister_timeout:= 600`). To test locally, you should 
 9. To run the operator node, run `python3 operator.py` from isaacs_server/src in a new terminal window.
 10. You can now make service calls. These will eventually be made from the VR interface, but you can also test our services by running `python3 service_test/[test_name].py` from isaacs_server/src in a new terminal window.
 
