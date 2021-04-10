@@ -78,7 +78,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to upload waypoint task...")
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload', 'isaacs_server/fake_mission_waypoint_upload')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload',
+                    'isaacs_server/FakeWaypointMissionUpload')
             request = roslibpy.ServiceRequest({"waypoint_task": task})
 
             print('Calling mission_waypoint_upload service...')
@@ -94,7 +95,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to set speed...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed', 'isaacs_server/fake_set_speed')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed',
+                    'isaacs_server/FakeSetSpeed')
             request = roslibpy.ServiceRequest({"speed": speed})
 
             print('Calling mission_waypoint_setSpeed service...')
@@ -112,7 +114,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to fetch speed...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed', 'isaacs_server/fake_get_speed')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed',
+                    'isaacs_server/FakeGetSpeed')
             request = roslibpy.ServiceRequest()
 
             print('Calling mission_waypoint_setSpeed service...')
@@ -130,7 +133,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to start drone mission...")
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+                    'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
 
             print('Calling mission_waypoint_action start service...')
@@ -149,7 +153,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to stop drone mission...")
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+                    'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
 
             print('Calling mission_waypoint_action stop service...')
@@ -167,7 +172,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to pause drone mission...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+                    'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.PAUSE})
 
             print('Calling mission_waypoint_action pause service...')
@@ -185,7 +191,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to resume drone mission...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+                    'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.RESUME})
 
             print('Calling mission_waypoint_action resume service...')
@@ -203,7 +210,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
+                    'isaacs_server/FakeDroneControl')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.LAND})
 
             print('Calling land_drone service...')
@@ -222,7 +230,8 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
+            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
+                    'isaacs_server/FakeDroneControl')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.GO_HOME})
 
             print('Calling fly_home service...')
