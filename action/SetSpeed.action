@@ -1,0 +1,9 @@
+uint32 id
+float32 speed
+---
+bool success
+uint32 id
+string message
+---
+# Define a feedback message (progress)
+string progress

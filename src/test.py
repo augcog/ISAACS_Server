@@ -592,6 +592,67 @@ class TestDjimatriceControl(unittest.TestCase):
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
+        
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_get_set_speed(self):
+        # Register Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "speed_dji", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Topics
+        publishes = [{"name": "topicNameMavros", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # get speed
+        action_client = ActionClientWorkaround(client,"isaacs_server/get_speed",'isaacs_server/GetSpeed')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        self.assertTrue(uid == result["id"])
+        speed = result["speed"]
+        newSpeed = speed + 1
+        #action_client.dispose()
+        
+        # set speed
+        action_client = ActionClientWorkaround(client,"isaacs_server/set_speed",'isaacs_server/SetSpeed')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "speed":newSpeed}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        self.assertTrue(uid == result["id"])
+        #action_client.dispose()
+        
+        # get speed
+        action_client = ActionClientWorkaround(client,"isaacs_server/get_speed",'isaacs_server/GetSpeed')
+        action_client.setCustomTopics()
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid}))
+        goal.on('feedback', lambda f: print(f['progress']))
+        goal.send()
+        result = goal.wait(10)
+        self.assertTrue(result["success"])
+        self.assertTrue(uid == result["id"])
+        self.assertTrue(newSpeed == result["speed"])
+        #action_client.dispose()
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
 
 class TestMavrosControl(unittest.TestCase):
 

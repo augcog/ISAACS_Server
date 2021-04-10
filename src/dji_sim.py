@@ -41,15 +41,18 @@ service2.advertise(drone_waypoint)
 '''
 Simulates advertising the service set_speed from the drone.
 '''
+speed = 5
+
 def set_speed(request, response):
     print("Set speed service is being simulated")
     print(f"Speed set to {request['speed']}")
+    speed = request['speed']
     response["result"] = True
     return True
 
 def get_speed(request, response):
     print("Get speed service is being simulated")
-    response["speed"] = 420.69
+    response["speed"] = speed
     response["cmd_set"] = 0
     response["cmd_id"] = 0
     response["ack_data"] = 0
