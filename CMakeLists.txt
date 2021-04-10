@@ -67,11 +67,9 @@ add_message_files(
    AllSensorsAvailable.srv
    RegisterDrone.srv
    RegisterSensor.srv
-   ControlDrone.srv
    SetSpeed.srv
    GetSpeed.srv
    TypeToTopic.srv
-   UploadMission.srv
    QueryTopics.srv
    Reset.srv
    FakeDroneControl.srv
