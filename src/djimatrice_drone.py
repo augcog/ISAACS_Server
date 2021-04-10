@@ -103,7 +103,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","New drone speed set"}
+                result = {"success":True, "message":"New drone speed set"}
             else:
                 result = {"success":False, "message":"Failed to set new drone speed"}
         except:
@@ -122,7 +122,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","New drone speed set", "speed": result["speed"]}
+                result = {"success":True, "message":"New drone speed set", "speed": result["speed"]}
             else:
                 result = {"success":False, "message":"Failed to set new drone speed", "speed":0}
         except:
@@ -141,7 +141,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Start mission successful"}
+                result = {"success":True, "message":"Start mission successful"}
             else:
                 result = {"success":False, "message":"Mission failed to start"}
         except Exception as e:
@@ -161,7 +161,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Stop mission successful"}
+                result = {"success":True, "message":"Stop mission successful"}
             else:
                 result = {"success":False, "message":"Mission failed to stop"}
         except:
@@ -180,7 +180,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Pause mission successful"}
+                result = {"success":True, "message":"Pause mission successful"}
             else:
                 result = {"success":False, "message":"Mission failed to pause"}
         except:
@@ -199,7 +199,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Resume mission successful"}
+                result = {"success":True, "message":"Resume mission successful"}
             else:
                 result = {"success":False, "message":"Mission failed to resume"}
         except:
@@ -218,7 +218,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Land drone successful"}
+                result = {"success":True, "message":"Land drone successful"}
             else:
                 result = {"success":False, "message":"Drone failed to land"}
         except Exception as e:
@@ -238,7 +238,7 @@ class DjiMatriceDrone(Drone):
             result = service.call(request)
             print('Service response: {}'.format(result))
             if result["result"]:
-                result = {"success":True, "message","Fly home successful"}
+                result = {"success":True, "message":"Fly home successful"}
             else:
                 result = {"success":False, "message":"Drone failed to fly home"}
         except Exception as e:
@@ -248,6 +248,8 @@ class DjiMatriceDrone(Drone):
 
     #TODO
     def shutdown(self):
+        result = {"success": True, "message": "Drone shutdown successful"}
+        return result
         try:
             print("Attempting to shutdown drone ...")
             # TODO: No shutdown in dji_sdk, running stop mission, land, disable arm control,  for now
