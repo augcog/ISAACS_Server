@@ -20,7 +20,7 @@ def handler(request, response):
     response["ack_data"] = 0
     return True
 
-service = roslibpy.Service(client, 'isaacs_server/fake_mission_waypoint_upload', 'isaacs_server/fake_mission_waypoint_upload')
+service = roslibpy.Service(client, 'isaacs_server/fake_mission_waypoint_upload', 'isaacs_server/FakeMissionWaypointUpload')
 service.advertise(handler)
 
 print("Upload mission service advertised...")
