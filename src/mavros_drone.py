@@ -237,6 +237,7 @@ class MavrosDrone(Drone):
         return result
 
     def fly_home(self):
+        print(self.drone_namespace + '/mavros/set_mode')
         try:
             print("Attempting to make drone fly_home...")
             service = roslibpy.Service(self.ROS_master_connection,

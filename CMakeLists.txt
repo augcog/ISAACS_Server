@@ -52,40 +52,38 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
-   drone.msg
-   sensor.msg
-   topic_types.msg
-   fake_MissionWaypoint.msg
-   fake_MissionWaypointTask.msg
-   fake_MissionWaypointAction.msg
+   Drone.msg
+   Sensor.msg
+   TopicTypes.msg
+   FakeMissionWaypoint.msg
+   FakeMissionWaypointTask.msg
+   FakeMissionWaypointAction.msg
  )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   all_drones_available.srv
-   all_sensors_available.srv
-   register_drone.srv
-   register_sensor.srv
-   control_drone.srv
-   set_speed.srv
-   get_speed.srv
-   type_to_topic.srv
-   upload_mission.srv
-   query_topics.srv
-   reset.srv
-   fake_drone_control.srv
-   fake_drone_waypoint.srv
-   fake_mission_waypoint_upload.srv
-   fake_set_speed.srv
-   fake_get_speed.srv
+   AllDronesAvailable.srv
+   AllSensorsAvailable.srv
+   RegisterDrone.srv
+   RegisterSensor.srv
+   SetSpeed.srv
+   GetSpeed.srv
+   TypeToTopic.srv
+   QueryTopics.srv
+   Reset.srv
+   FakeDroneControl.srv
+   FakeDroneWaypoint.srv
+   FakeMissionWaypointUpload.srv
+   FakeSetSpeed.srv
+   FakeGetSpeed.srv
  )
 
 ## Generate actions in the 'action' folder
 add_action_files(
    FILES
-   control_drone.action
-   upload_mission.action
+   ControlDrone.action
+   UploadMission.action
 )
 
 ## Generate added messages and services with any dependencies listed here

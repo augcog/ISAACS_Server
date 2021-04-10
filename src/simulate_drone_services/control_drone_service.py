@@ -28,13 +28,13 @@ def drone_waypoint(request, response):
     response["result"] = True
     response["cmd_set"] = 0
     response["cmd_id"] = 0
-    response["ack_data"] = 0
+    response["ack_datas"] = 0
     return True
 
-service = roslibpy.Service(client, 'isaacs_server/fake_drone_control', 'isaacs_server/fake_drone_control')
+service = roslibpy.Service(client, 'isaacs_server/fake_drone_control', 'isaacs_server/FakeDroneControl')
 service.advertise(drone_control)
 
-service2 = roslibpy.Service(client, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/fake_drone_waypoint')
+service2 = roslibpy.Service(client, 'isaacs_server/fake_drone_waypoint', 'isaacs_server/FakeDroneWaypoint')
 service2.advertise(drone_waypoint)
 
 print("Fake drone services advertised...")
