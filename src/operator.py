@@ -581,11 +581,11 @@ def upload_mission(goal):
         server2.send_feedback({"progress": "Upload_mission action finished!"})
         server2.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
 
-server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/control_drone')
+server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/ControlDrone')
 server.setCustomTopics()
 server.start(control_drone)
 
-server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/upload_mission')
+server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/UploadMission')
 server2.setCustomTopics()
 server2.start(upload_mission)
 
