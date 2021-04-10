@@ -1,4 +1,4 @@
-fake_MissionWaypointTask waypoint_task   # see msg/MissionWaypointTask.msg
+FakeMissionWaypointTask waypoint_task   # see msg/MissionWaypointTask.msg
 ---
 bool result
 # for debugging usage

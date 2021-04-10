@@ -31,4 +31,4 @@ uint8 yaw_mode            # see constants above for possible yaw modes
 uint8 trace_mode          # see constants above for possible trace modes
 uint8 action_on_rc_lost   # see constants above for possible actions
 uint8 gimbal_pitch_mode   # see constants above for pissible gimbal modes
-fake_MissionWaypoint[] mission_waypoint  # a vector of waypoints
+FakeMissionWaypoint[] mission_waypoint  # a vector of waypoints
