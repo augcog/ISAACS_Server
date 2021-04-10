@@ -165,6 +165,7 @@ def all_drones_available(request, response):
     saveLatestService(request, response, "all_drones_available")
     return True
 
+'''
 @custom_service
 def set_speed(request, response):
     print("Calling set_speed service...")
@@ -219,6 +220,7 @@ def get_speed(request, response):
     print("get_speed service finished!")
     saveLatestService(request, response, "get_speed")
     return True
+'''
 
 @custom_service
 def query_topics(request, response):
@@ -580,6 +582,33 @@ def upload_mission(goal):
         print("Upload_mission action finished!")
         server2.send_feedback({"progress": "Upload_mission action finished!"})
         server2.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
+        
+        
+def set_speed(goal):
+    print("Calling set_speed action...")
+
+    d = drones.get(request["id"])
+    if not d:
+        server3.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id."})
+    else:
+        print('Setting speed to {}...'.format(goal['speed']))
+        callback = d.set_speed(goal["speed"])
+        print("Set_speed service finished!")
+        server3.send_feedback({"progress": "Set_speed service finished!"})   
+        server3.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
+
+def get_speed(goal):
+    print("Calling get_speed service...")
+
+    d = drones.get(request["id"])
+    if not d:
+        server4.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id.", "speed":0})
+    else:
+        print('Getting speed')
+        callback = d.get_speed()
+        print("Get_speed service finished!")
+        server4.send_feedback({"progress": "Get_speed service finished!"})   
+        server4.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"], "speed":callback["speed"]})
 
 server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/ControlDrone')
 server.setCustomTopics()
@@ -588,6 +617,14 @@ server.start(control_drone)
 server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/UploadMission')
 server2.setCustomTopics()
 server2.start(upload_mission)
+
+server3 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/set_speed', 'isaacs_server/SetSpeed')
+server3.setCustomTopics()
+server3.start(set_speed)
+
+server4 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/get_speed', 'isaacs_server/GetSpeed')
+server4.setCustomTopics()
+server4.start(get_speed)
 
 print("Starting actions...")
 

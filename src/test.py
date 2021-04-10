@@ -105,6 +105,7 @@ class TestVRConnection(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
         self.assertNotIn(test_drone, result['drones_available'])
+        
 
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_mavros(self):
