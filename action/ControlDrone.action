@@ -4,6 +4,7 @@ string control_task
 ---
 # Define the result (return)
 bool success
+string control_task
 string message
 uint32 id
 ---

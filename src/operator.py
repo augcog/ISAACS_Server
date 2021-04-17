@@ -522,7 +522,7 @@ def control_drone(server):
             callback = tasks.get(control_task)()
             print("Control_drone service finished!")
             server.send_feedback({"progress": "Control_drone action finished!"})
-            server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
+            server.set_succeeded({"id":drone.id, "control_task": control_task, "success":callback["success"], "message":callback["message"]})
     return control_drone
 
 @custom_action
