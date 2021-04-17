@@ -31,6 +31,7 @@ all_topics = dict() # Global map of topic names to topic types
 # If an id of 0 is passed in, it acts as a wild card.
 next_id = 1 # ID to assign next drone or sensor
 services = [] # TODO list of all services
+actions = [] # TODO list of all actions
 latestService = [] # Remembers last service call
 #first element is request, second element is response, third element is servicename
 
@@ -76,6 +77,35 @@ def custom_service(handler):
     print(service.name)
     service.advertise(handler)
     services.append(service)
+    return handler
+
+# Use the @custom_action decorator on a handler method to have it
+# automatically advertise as an Action.
+def custom_action(handler):
+    """
+    This method is designed to be used as a decorator (@custom_action)
+    to advertise the handler method as a service via the ROS_master_connection.
+    By default, the service can be found at `/isaacs_server/[handler_name]/Action`
+    with a service type of `isaacs_server/[handler_name]Action`.
+
+    Exceptions for the handler name to service type mapping can be added
+    to the exceptions dictionary.
+
+    parameter: handler(request, response) handles an incoming action request.
+    returns: handler
+    """
+    exceptions = {}
+    if handler.__name__ in exceptions:
+        action_type = exceptions[handler.__name__]
+    else:
+        action_type = f'isaacs_server/{to_camel_case(handler.__name__)}Action'
+    
+    print(action_type)
+    server = roslibpy.actionlib.SimpleActionServer(ROS_master_connection,
+            f'isaacs_server/{handler.__name__}', action_type)
+    handler = handler(server)
+    server.start(handler)
+    actions.append(server)
     return handler
 
 def get_id(client_type):
@@ -468,96 +498,84 @@ def reset(request, response):
 
 print('Services advertised.')
 
-class ActionServerWorkaround(roslibpy.actionlib.SimpleActionServer):
-    def setCustomTopics(self):
-        # Sets topic to custom action topics
-        self.feedback_publisher = roslibpy.Topic(self.ros, self.server_name + '/Actionfeedback', self.action_name + 'ActionFeedback')
-        self.result_publisher = roslibpy.Topic(self.ros, self.server_name + '/Actionresult', self.action_name + 'ActionResult')
-        self.goal_listener = roslibpy.Topic(self.ros, self.server_name + '/Actiongoal', self.action_name + 'ActionGoal')
-        # Advertise all publishers
-        self.feedback_publisher.advertise()
-        self.result_publisher.advertise()
-        self.goal_listener.subscribe(self._on_goal_message)
+@custom_action
+def control_drone(server):
+    def control_drone(goal):
+        print("Calling control_drone action...")
+        server.send_feedback({"progress": "Calling control_drone action..."})
 
+        control_task = goal["control_task"]
+        drone = drones.get(goal["id"])
+        if not drone:
+            print(f"could not find drone with id {goal['id']}")
+            server.set_succeeded({"id":goal["id"], "success":False, "message":"No drone with that id."})
+        else:
+            tasks = {
+                "start_mission" : drone.start_mission,
+                "pause_mission" : drone.pause_mission,
+                "resume_mission" : drone.resume_mission,
+                "stop_mission" : drone.stop_mission,
+                "land_drone" : drone.land_drone,
+                "fly_home" : drone.fly_home
+            }
+            print(f"Executing {control_task}...")
+            callback = tasks.get(control_task)()
+            print("Control_drone service finished!")
+            server.send_feedback({"progress": "Control_drone action finished!"})
+            server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
+    return control_drone
 
-def control_drone(goal):
-    print("Calling control_drone action...")
-    server.send_feedback({"progress": "Calling control_drone action..."})
+@custom_action
+def upload_mission(server):
+    def upload_mission(goal):
+        print("Calling upload_mission action...")
+        server.send_feedback({"progress": "Calling upload_mission action..."})
 
-    control_task = goal["control_task"]
-    drone = drones.get(goal["id"])
+        d = drones.get(goal["id"])
+        if not d:
+            print(f"could not find drone with id {goal['id']}")
+            server.set_succeeded({"id":goal["id"], "success":False, "message":"No drone with that id."})
+        else:
+            print("id: ", goal["id"], "waypoints: ", goal["waypoints"])
+            callback = d.upload_mission(goal["waypoints"])
+            print("Upload_mission action finished!")
+            server.send_feedback({"progress": "Upload_mission action finished!"})
+            server.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
+    return upload_mission
 
-    tasks = {
-        "start_mission" : drone.start_mission,
-        "pause_mission" : drone.pause_mission,
-        "resume_mission" : drone.resume_mission,
-        "stop_mission" : drone.stop_mission,
-        "land_drone" : drone.land_drone,
-        "fly_home" : drone.fly_home
-    }
-    print(f"Executing {control_task}...")
-    callback = tasks.get(control_task)()
-    print("Control_drone service finished!")
-    server.send_feedback({"progress": "Control_drone action finished!"})
-    server.set_succeeded({"id":drone.id, "success":callback["success"], "message":callback["message"]})
+@custom_action
+def set_speed(server):
+    def set_speed(goal):
+        print("Calling set_speed action...")
 
+        d = drones.get(goal["id"])
+        if not d:
+            print(f"could not find drone with id {goal['id']}")
+            server.set_succeeded({"id":goal["id"], "success":False, "message":"No drone with that id."})
+        else:
+            print('Setting speed to {}...'.format(goal['speed']))
+            callback = d.set_speed(goal["speed"])
+            print("Set_speed service finished!")
+            server.send_feedback({"progress": "Set_speed service finished!"})
+            server.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
+    return set_speed
 
-def upload_mission(goal):
-    print("Calling upload_mission action...")
-    server2.send_feedback({"progress": "Calling upload_mission action..."})
+@custom_action
+def get_speed(server):
+    def get_speed(goal):
+        print("Calling get_speed service...")
 
-    d = drones.get(goal["id"])
-    if not d:
-        server2.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id."})
-    else:
-        print("id: ", goal["id"], "waypoints: ", goal["waypoints"])
-        callback = d.upload_mission(goal["waypoints"])
-        print("Upload_mission action finished!")
-        server2.send_feedback({"progress": "Upload_mission action finished!"})
-        server2.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
-
-
-def set_speed(goal):
-    print("Calling set_speed action...")
-
-    d = drones.get(goal["id"])
-    if not d:
-        server3.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id."})
-    else:
-        print('Setting speed to {}...'.format(goal['speed']))
-        callback = d.set_speed(goal["speed"])
-        print("Set_speed service finished!")
-        server3.send_feedback({"progress": "Set_speed service finished!"})
-        server3.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
-
-def get_speed(goal):
-    print("Calling get_speed service...")
-
-    d = drones.get(goal["id"])
-    if not d:
-        server4.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id.", "speed":0})
-    else:
-        print('Getting speed')
-        callback = d.get_speed()
-        print("Get_speed service finished!")
-        server4.send_feedback({"progress": "Get_speed service finished!"})
-        server4.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"], "speed":callback["speed"]})
-
-server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/ControlDrone')
-server.setCustomTopics()
-server.start(control_drone)
-
-server2 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/upload_mission', 'isaacs_server/UploadMission')
-server2.setCustomTopics()
-server2.start(upload_mission)
-
-server3 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/set_speed', 'isaacs_server/SetSpeed')
-server3.setCustomTopics()
-server3.start(set_speed)
-
-server4 = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/get_speed', 'isaacs_server/GetSpeed')
-server4.setCustomTopics()
-server4.start(get_speed)
+        d = drones.get(goal["id"])
+        if not d:
+            print(f"could not find drone with id {goal['id']}")
+            server.set_succeeded({"id":goal["id"], "success":False, "message":"No drone with that id.", "speed":0})
+        else:
+            print('Getting speed')
+            callback = d.get_speed()
+            print("Get_speed service finished!")
+            server.send_feedback({"progress": "Get_speed service finished!"})
+            server.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"], "speed":callback["speed"]})
+    return get_speed
 
 print("Starting actions...")
 
