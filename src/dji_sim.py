@@ -46,6 +46,7 @@ speed = 5
 def set_speed(request, response):
     print("Set speed service is being simulated")
     print(f"Speed set to {request['speed']}")
+    global speed
     speed = request['speed']
     response["result"] = True
     return True

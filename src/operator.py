@@ -42,11 +42,11 @@ ROS_master_connection = roslibpy.Ros(host=HOST, port=9090)
 
 def to_camel_case(snake_str):
     components = snake_str.split('_')
-    # We capitalize the first letter of each component     
+    # We capitalize the first letter of each component
     # with the 'title' method and join them together.
     return ''.join(x.title() for x in components)
 
-# Use the @custom_service decorator on a handler method to have it 
+# Use the @custom_service decorator on a handler method to have it
 # automatically advertise as a Service.
 def custom_service(handler):
     """
@@ -71,7 +71,7 @@ def custom_service(handler):
         serv_type = exceptions[handler.__name__]
     else:
         serv_type = f'isaacs_server/{to_camel_case(handler.__name__)}'
-    service = roslibpy.Service(ROS_master_connection, 
+    service = roslibpy.Service(ROS_master_connection,
             f'/isaacs_server/{handler.__name__}', serv_type)
     print(service.name)
     service.advertise(handler)
@@ -305,7 +305,6 @@ def shutdown_drone(request, response):
         drone_names.pop(d.drone_name)
         for topic in publishes:
             all_topics.pop(topic['name'])
-        # TODO ensure that drone instance is completely terminated
         d.shutdown()
         response["success"] = True
         response["message"] = "Drone shutdown"
@@ -351,29 +350,22 @@ def register_sensor(request, response):
         saveLatestService(request, response, "register_sensor")
         return True
 
-    s=None
+    s = None
     if parent_drone_name in drone_names:
         parent_drone_id = drone_names[parent_drone_name]
-        if parent_drone_id in drones:
-            parent_drone_type = drones[parent_drone_id].drone_type
-            s = Sensor.create(
-                    parent_drone_name, parent_drone_type, parent_drone_id)
-    successful = False
-
-    if s:
-        sensor_id = get_id(Sensor)
+        s = Sensor.create(sensor_name, sensor_type, parent_drone_id, get_id(Sensor))
         print(f"Adding sensor {id} to global sensor map.")
-        s.id=sensor_id
         sensors[sensor_id] = s
         sensor_names[sensor_name] = sensor_id
-        successful = True
-        response["success"] = successful
-        response["id"] = sensor_id
-
-    if successful:
-        response["message"] = "Registering sensor"
+        drones.get(parent_drone_id).sensors.append(s)
+        response["success"] = True
+        response["id"] = s.id
+        response["message"] = "Sensor registered"
     else:
-        response["message"] = "Failed to register sensor"
+        response["success"] = False
+        response["id"] = 0
+        response["message"] = "No drone with that name."
+
     print(sensor_names)
     print(sensors)
     print("Register_sensor service finished!")
@@ -428,25 +420,22 @@ def shutdown_sensor(request, response):
 
     sensor_id = request["id"]
     publishes = request["publishes"]
-    successful = False
-    if sensor_id in sensors:
+    s = sensors.pop(sensor_id, None)
+    if s:
         sensor_names.pop(sensors[sensor_id].sensor_name)
-        sensors.pop(sensor_id)
         for topic in publishes:
             all_topics.pop(topic['name'])
-        # TODO ensure that sensor instance is completely terminated
-        # TODO Remove sensor_subs from global topics dict
-        successful = True
-        raise NotImplementedError
-    response["success"] = successful
-    if successful:
+        drones.get(s.parent_drone_id).sensors.pop(s)
+        s.shutdown()
+        response["success"] = True
         response["message"] = "Sensor successfully shutdown"
     else:
+        response["success"] = False
         response["message"] = "Failed to shutdown sensor"
+
     print(sensor_names)
     print(sensors)
     print("Shutdown_sensor service finished!")
-
     saveLatestService(request, response, "shutdown_sensor")
     return True
 
@@ -525,32 +514,32 @@ def upload_mission(goal):
         print("Upload_mission action finished!")
         server2.send_feedback({"progress": "Upload_mission action finished!"})
         server2.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
-        
-        
+
+
 def set_speed(goal):
     print("Calling set_speed action...")
 
-    d = drones.get(request["id"])
+    d = drones.get(goal["id"])
     if not d:
         server3.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id."})
     else:
         print('Setting speed to {}...'.format(goal['speed']))
         callback = d.set_speed(goal["speed"])
         print("Set_speed service finished!")
-        server3.send_feedback({"progress": "Set_speed service finished!"})   
+        server3.send_feedback({"progress": "Set_speed service finished!"})
         server3.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"]})
 
 def get_speed(goal):
     print("Calling get_speed service...")
 
-    d = drones.get(request["id"])
+    d = drones.get(goal["id"])
     if not d:
         server4.set_succeeded({"id":d.id, "success":False, "message":"No drone with that id.", "speed":0})
     else:
         print('Getting speed')
         callback = d.get_speed()
         print("Get_speed service finished!")
-        server4.send_feedback({"progress": "Get_speed service finished!"})   
+        server4.send_feedback({"progress": "Get_speed service finished!"})
         server4.set_succeeded({"id":d.id, "success":callback["success"], "message":callback["message"], "speed":callback["speed"]})
 
 server = ActionServerWorkaround(ROS_master_connection, 'isaacs_server/control_drone', 'isaacs_server/ControlDrone')

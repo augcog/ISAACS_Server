@@ -105,7 +105,7 @@ class TestVRConnection(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
         self.assertNotIn(test_drone, result['drones_available'])
-        
+
 
     @timeout_decorator.timeout(TIMEOUT)
     def test_all_drones_available_mavros(self):
@@ -226,6 +226,58 @@ class TestVRConnection(unittest.TestCase):
         request = roslibpy.ServiceRequest({"id": uid})
         result = wrapped_service_call(service, request)
         self.assertFalse(result["success"])
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def test_query_topics_depth_camera(self):
+        # Register Dji Drone
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': "query_dji_camera", "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+
+        # Save Dji Topics
+        publishes = [{"name": "topicNameDji", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Register Depth Camera Sesnor
+        service = roslibpy.Service(client, 'isaacs_server/register_sensor', 'isaacs_server/RegisterSensor')
+        request = roslibpy.ServiceRequest({'sensor_name': "query_depth_camera", "sensor_type":"Depth Camera", "parent_drone_name":"query_dji_camera"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        suid = result["id"]
+
+        # Save Sensor Topics
+        spublishes = [{"name": "depthCamera", "type": "topicType"}]
+        service = roslibpy.Service(client, 'isaacs_server/save_sensor_topics', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": suid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Query Topics
+        service = roslibpy.Service(client, 'isaacs_server/query_topics', 'isaacs_server/QueryTopics')
+        request = roslibpy.ServiceRequest({"id": suid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        self.assertIn({"name": "depthCamera", "type": "topicType"}, result['all_topics'])
+
+        # Shutdown Sensor
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_sensor', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": spublishes, "id": suid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+
+        # Shutdown Drone
+        service = roslibpy.Service(client, 'isaacs_server/shutdown_drone', 'isaacs_server/TypeToTopic')
+        request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
 
 
 class TestDjimatriceCreation(unittest.TestCase):
@@ -592,7 +644,7 @@ class TestDjimatriceControl(unittest.TestCase):
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
-        
+
     @timeout_decorator.timeout(TIMEOUT)
     def test_get_set_speed(self):
         # Register Drone
@@ -624,7 +676,7 @@ class TestDjimatriceControl(unittest.TestCase):
         speed = result["speed"]
         newSpeed = speed + 1
         #action_client.dispose()
-        
+
         # set speed
         action_client = ActionClientWorkaround(client,"isaacs_server/set_speed",'isaacs_server/SetSpeed')
         action_client.setCustomTopics()
@@ -635,7 +687,7 @@ class TestDjimatriceControl(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertTrue(uid == result["id"])
         #action_client.dispose()
-        
+
         # get speed
         action_client = ActionClientWorkaround(client,"isaacs_server/get_speed",'isaacs_server/GetSpeed')
         action_client.setCustomTopics()
