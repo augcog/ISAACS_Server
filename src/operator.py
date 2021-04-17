@@ -353,7 +353,8 @@ def register_sensor(request, response):
     s = None
     if parent_drone_name in drone_names:
         parent_drone_id = drone_names[parent_drone_name]
-        s = Sensor.create(sensor_name, sensor_type, parent_drone_id, get_id(Sensor))
+        sensor_id = get_id(Sensor)
+        s = Sensor.create(sensor_name, sensor_type, ROS_master_connection, parent_drone_id, sensor_id)
         print(f"Adding sensor {id} to global sensor map.")
         sensors[sensor_id] = s
         sensor_names[sensor_name] = sensor_id
@@ -422,10 +423,10 @@ def shutdown_sensor(request, response):
     publishes = request["publishes"]
     s = sensors.pop(sensor_id, None)
     if s:
-        sensor_names.pop(sensors[sensor_id].sensor_name)
+        sensor_names.pop(s.sensor_name)
         for topic in publishes:
             all_topics.pop(topic['name'])
-        drones.get(s.parent_drone_id).sensors.pop(s)
+        drones.get(s.parent_drone_id).sensors.remove(s)
         s.shutdown()
         response["success"] = True
         response["message"] = "Sensor successfully shutdown"

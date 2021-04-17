@@ -256,7 +256,7 @@ class TestVRConnection(unittest.TestCase):
         # Save Sensor Topics
         spublishes = [{"name": "depthCamera", "type": "topicType"}]
         service = roslibpy.Service(client, 'isaacs_server/save_sensor_topics', 'isaacs_server/TypeToTopic')
-        request = roslibpy.ServiceRequest({"publishes": publishes, "id": suid})
+        request = roslibpy.ServiceRequest({"publishes": spublishes, "id": suid})
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
