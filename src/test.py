@@ -802,6 +802,35 @@ class TestMavrosControl(unittest.TestCase):
         self.shutdown_mavros_drone(publishes, uid)
 
 class TestIsolatedControl(unittest.TestCase):
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def register_mavros_drone(self, drone_name):
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': drone_name, "drone_type":"Mavros"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+        return uid
+
+    @timeout_decorator.timeout(TIMEOUT)
+    def register_DJI_drone(self, drone_name):
+        service = roslibpy.Service(client, 'isaacs_server/register_drone', 'isaacs_server/RegisterDrone')
+        request = roslibpy.ServiceRequest({'drone_name': drone_name, "drone_type":"DjiMatrice"})
+        result = wrapped_service_call(service, request)
+        self.assertTrue(result["success"])
+        uid = result["id"]
+        return uid
+
+    def test_isolated_register(self):
+        if not client.is_connected:
+            client.run()
+        serverReset()
+        # Register Drone
+        uid = self.register_DJI_drone("DJI1")
+        # Register Drone
+        uid2 = self.register_DJI_drone("DJI2")
+
+
     def test_isolated_fly_home(self):
         # Fly Home
         if not client.is_connected:
