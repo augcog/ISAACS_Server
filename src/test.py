@@ -693,7 +693,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Start Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -726,7 +726,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Pause Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"pause_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -759,7 +759,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Resume Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"resume_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -792,7 +792,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Stop Mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"stop_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -825,7 +825,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Land Drone
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"land_drone"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -858,7 +858,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Fly Home
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "control_task":"fly_home"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
@@ -890,7 +890,7 @@ class TestMavrosControl(unittest.TestCase):
         self.assertTrue(result["success"])
 
         # Upload_mission
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/upload_mission",'isaacs_server/UploadMission')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/upload_mission",'isaacs_server/UploadMissionAction')
         waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
         goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': uid, "waypoints":waypoints}))
         goal.on('feedback', lambda f: print(f['progress']))
@@ -909,8 +909,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Fly Home
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "control_task":"fly_home"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 3, "control_task":"fly_home"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -920,8 +920,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Land Drone
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"land_drone"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 3, "control_task":"land_drone"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -931,8 +931,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Pause Mission
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"pause_mission"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 3, "control_task":"pause_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -942,8 +942,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Stop Mission
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"stop_mission"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 3, "control_task":"stop_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -953,8 +953,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Resume Mission
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"resume_mission"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 3, "control_task":"resume_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -964,8 +964,8 @@ class TestIsolatedControl(unittest.TestCase):
         # Start Mission
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDrone')
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "control_task":"start_mission"}))
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/control_drone",'isaacs_server/ControlDroneAction')
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "control_task":"start_mission"}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(30)
@@ -975,9 +975,9 @@ class TestIsolatedControl(unittest.TestCase):
         # Start Mission
         if not client.is_connected:
             client.run()
-        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/upload_mission",'isaacs_server/UploadMission')
+        action_client = roslibpy.actionlib.ActionClient(client,"isaacs_server/upload_mission",'isaacs_server/UploadMissionAction')
         waypoints = [navsatfix(-35.362881,149.165222,0), navsatfix(-35.362881,149.163501,40)]
-        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 5, "waypoints":waypoints}))
+        goal = roslibpy.actionlib.Goal(action_client, roslibpy.Message({'id': 1, "waypoints":waypoints}))
         goal.on('feedback', lambda f: print(f['progress']))
         goal.send()
         result = goal.wait(10)
