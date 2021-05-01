@@ -14,7 +14,9 @@ ROS package that acts as a server for the Immersive Semi-Autonomous Aerial Comma
 4. from within catkin_ws/src, run `git clone -b operator https://github.com/immersive-command-system/isaacs_server.git` (Or you can use the ssh uri). The "-b operator" argument ensures you clone the operator branch, which contains our most up-to-date (and probably buggy) code.
 5. `cd ..`
 6. `catkin_make`
-7. `source devel/setup.bash`   
+7. `source devel/setup.bash` (this needs to be run every time)
+   * Alternatively for this to be done automatically, you can add the following line into `~/.bashrc`: `source ~/catkin_ws/devel/setup.bash`
+   * `source ~/.bashrc`
 
 You are now all set and can run the server node.
 
