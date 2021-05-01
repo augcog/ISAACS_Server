@@ -43,13 +43,29 @@ Make sure you `git pull` to ensure you have the latest code before you make any 
     * **src/djimatrice.py** implements the drone abstract class, using the Dji SDK. All abstract methods have been implemented from drone.py except shutdown since DJI SDK does not have a built in service call for shutdown.
     * **src/mavros.py** implements the drone abstract class, using the mavros SDK. All abstract methods have been implemented from drone.py except get_speed.
     * **src/service_test/** contains various tests for all service calls. These are used for testing and debugging our services without needing the VR interface. Tests should include both proper service calls, and service calls with bad inputs. For bad inputs, error messages should be back-propagated to the node that called the service, explaining what error occurred (ex: "Drone type Pixhawk has not been implemented yet")
-     * **src/test.py** Primary driver for all tests. Tests have been written for both MAVROS and DJI_SDK drone classes and their corresponding methods. Ensure you are conncted to the AWS server in order to run the tests. Directions to connect to the AWS Server can be found on the landing page.
+    * **src/test.py** Primary driver for all tests. Tests have been written for both MAVROS and DJI_SDK drone classes and their corresponding methods. Ensure you are conncted to the AWS server in order to run the tests. Directions to connect to the AWS Server can be found on the landing page.
 
+
+### Message Definitions
+* **msg/** contains all message type definitions.
 * **srv/** contains all service type definitions.
     * **To add a new service type**, create a new file named [service_name].srv (within the isaacs_server/srv/ directory). srv files are simple text files that have two parts: a request and response. The 2 parts are separated by a "---". Each part describes the fields (parameters) for the request/response. To describe a field, simply include the field type and field name, with one field per line. See srv/add_drone.srv for an example. 
     * Before we can actually use the service type we just defined, we must make sure the srv file is turned into source code. To do this, closely follow [this link](http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv). You'll need to make changes to isaacs_server/CMakeLists.txt (not catkin_ws/src/CMakeLists.txt) and isaacs_server/package.xml. Following section 4.1 should be enough, but read through the whole thing at least once to understand how messages and services work.
-    * Don't forget to run `catkin_make` and `source devel/setup.bash` from catkin_ws/ to compile the package with the new service types. This must be done before you can use these new service types.
+* **action/** contains all action type definitions.
     
+Don't forget to run `catkin_make` and `source devel/setup.bash` from catkin_ws/ to compile the package with the new service types. This must be done before you can use these new service types.
+
+## Testing
+
+### Setup
+1. `roslaunch rosbridge_server rosbridge_websocket.launch unregister_timeout:= 600`
+1. `python3 operator.py`
+1. `python3 dji_sim.py` this fakes the physical DJI drone / the DJI SDK.
+1. Start up Mavros endpoints.
+
+### Test Suites
+Run `make working` to test currently available features. Note that this set tends to lag behind the actual codebase.
+
 ## Using Roslipby
 
 You'll need to `pip install roslibpy` before you can use it. Make sure you're using python3, as python2 will run into errors. You might have to pip3 install roslibpy if python2 is your default python version, and python3 file_name.py to run it with python3.
