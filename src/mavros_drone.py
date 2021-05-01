@@ -97,7 +97,7 @@ class MavrosDrone(Drone):
 
         return waypoint
 
-    # Takes a float32 numbers as the speed to set drone too
+    # Takes a float32 numbers as the speed to set drone to
     # Makes a service call to MAVROS mavros_msgs/CommandLong
     # Returns dictionary describing if service call was successful
     def set_speed(self, speed):
