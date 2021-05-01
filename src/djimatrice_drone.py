@@ -25,6 +25,10 @@ class DjiMatriceDrone(Drone):
         assert(drone_type == self.drone_type)
         self.prev_flight_status = Drone.Flight_Status.NULL
 
+    # Takes a list of waypoints for drone to follow.
+    # Converts waypoints to DJI format(Waypoint Mission Task)
+    # Makes a service call to DJI_SDK mission_waypoint_upload.
+    # Returns dictionary describing if service call was successful.
     def upload_mission(self, waypoints):
         self.waypoints = waypoints
         self.mission_msg_list = []
@@ -33,6 +37,9 @@ class DjiMatriceDrone(Drone):
         return result
 
     # Helper function for upload_mission()
+    # Converts Waypoints to Mission Waypoint Task
+    # Mission Waypoint Task is the Proper Format for DJI Service Requests
+    # Returns the Mission Waypoint Task
     def create_waypoint_task(self, waypoints):
         command_list = [];
         command_params = [];
@@ -73,10 +80,13 @@ class DjiMatriceDrone(Drone):
 
         return missionWaypointTask
 
-    # Helper function for upload_mission()
+    # Helper function for upload_mission().
+    # Make a Service Call to DJI_SDK upload_mission
+    # Return a dictionary revealing whether the call was successful or not
     def upload_waypoint_task(self, task):
         try:
             print("Attempting to upload waypoint task...")
+            # fake_mission_waypoint_upload found in srv folder. Copied directly from DJI SDK for local testing. 
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload',
                     'isaacs_server/FakeWaypointMissionUpload')
@@ -91,9 +101,13 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Upload mission failed"}
         return result
 
+    # Takes a float32 number as the speed to set drone too
+    # Makes a service call to mission_waypoint_setSpeed in DJI SDK
+    # Returns a dictionary describing whether service call was successful
     def set_speed(self, speed):
         try:
             print("Attempting to set speed...")
+            # fake_set_speed found in srv folder. Copied directly from DJI SDK for local testing. 
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed',
                     'isaacs_server/FakeSetSpeed')
@@ -110,9 +124,14 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Failed to set new drone speed"}
         return result
 
+    # Gets the Speed of the drone at its current waypoint.
+    # Makes a service call to DJI SDK mission_waypoint_getSpeed
+    # Returns a dictionary describing if service call was successful.
+    # Dictionary has a key "speed" which is a float32 of the current speed. This param is 0 if service call failed.
     def get_speed(self):
         try:
             print("Attempting to fetch speed...")
+            # fake_get_speed found in srv folder. Copied directly from DJI SDK for local testing.
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed',
                     'isaacs_server/FakeGetSpeed')
@@ -129,9 +148,15 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Failed to fetch drone speed", "speed":0}
         return result
 
+
+    # Starts a Waypoint Mission
+    # Makes a service call to mission_waypoint_action in DJI SDK
+    # Pass Drone.WaypointActions.START as the action.
+    # Returns a dictionary describing whether service call was successful
     def start_mission(self):
         try:
             print("Attempting to start drone mission...")
+            # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
                     'isaacs_server/FakeDroneWaypoint')
@@ -149,10 +174,16 @@ class DjiMatriceDrone(Drone):
             print(e)
         return result
 
+    # Stops a Waypoint Mission
+    # Makes a service call to mission_waypoint_action in DJI SDK
+    # Pass Drone.Waypoint.Actions.STOP as the action.
+    # Returns a dictionary describing whether service call was successful
+    
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
                     'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
@@ -168,9 +199,14 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Mission failed to stop"}
         return result
 
+    # Pauses a Waypoint Mission
+    # Makes a service call to mission_waypoint_action in DJI SDK
+    # Pass Drone.Waypoint.Actions.Pause as the action.
+    # Returns a dictionary describing whether service call was successful
     def pause_mission(self):
         try:
             print("Attempting to pause drone mission...")
+            # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
                     'isaacs_server/FakeDroneWaypoint')
@@ -187,9 +223,15 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Mission failed to pause"}
         return result
 
+
+    # Resumes a Waypoint Mission
+    # Makes a service call to mission_waypoint_action in DJI SDK
+    # Pass Drone.Waypoint.Actions.Resume as the action.
+    # Returns a dictionary describing whether service call was successful
     def resume_mission(self):
         try:
             print("Attempting to resume drone mission...")
+            # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
                     'isaacs_server/FakeDroneWaypoint')
@@ -206,9 +248,15 @@ class DjiMatriceDrone(Drone):
             result = {"success":False, "message":"Mission failed to resume"}
         return result
 
+
+    # Tells Drone to Land
+    # Makes a service call to drone_task_control in DJI SDK
+    # Pass Drone.TaskControl.Land as the predefined task.
+    # Returns a dictionary describing whether service call was successful
     def land_drone(self):
         try:
             print("Attempting to call drone specific service...")
+            # fake_drone_control found in srv folder. Copied directly from DJI SDK for local testing.
             # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
                     'isaacs_server/FakeDroneControl')
@@ -226,9 +274,14 @@ class DjiMatriceDrone(Drone):
             print(e)
         return result
 
+    # Tells Drone to Fly Home(home is predefined)
+    # Makes a service call to drone_task_control in DJI SDK
+    # Pass Drone.TaskControl.GO_HOME as the predefined task.
+    # Returns a dictionary describing whether service call was successful
     def fly_home(self):
         try:
             print("Attempting to call drone specific service...")
+            # fake_drone_control found in srv folder. Copied directly from DJI SDK for local testing.
             #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
             service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
                     'isaacs_server/FakeDroneControl')
