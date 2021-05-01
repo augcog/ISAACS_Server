@@ -14,6 +14,10 @@ TIMEOUT = 30
 client = roslibpy.Ros(host=constants.IP_ADDRESS, port=9090)
 #client = roslibpy.Ros(host='0.0.0.0', port=9090)
 
+
+# Primary Way of Making Service Calls and calling the appropriate DJI/MAVROS Methods in all tests.
+# Service should be a roslib service likely defined in the srv folder.
+# Request should be a roslib service request that requests the appropriate action.
 def wrapped_service_call(service, request):
     result = None
     attempts = 0
@@ -27,12 +31,12 @@ def wrapped_service_call(service, request):
             attempts += 1
     return result
 
+# Helper method test that resets the server.
 def serverReset():
     service = roslibpy.Service(client, 'isaacs_server/reset', 'isaacs_server/Reset')
     request = roslibpy.ServiceRequest({})
     result = wrapped_service_call(service, request)
 
-#Returns a navsatfix given a lat, long, alt
 def navsatfix(lat, long, alt):
     ret = {}
     ret["header"] = {'seq': 885, 'stamp': {'secs' : 1552399290, 'nsecs': 267234086}, 'frame_id': "/wgs84"}
@@ -59,7 +63,7 @@ class TestVRConnection(unittest.TestCase):
         self.assertTrue(result["success"])
         uid = result["id"]
 
-        # Save Dji Topics
+        # Dji Save Topics
         publishes = [{"name": "topicNameDji", "type": "topicType"}]
         service = roslibpy.Service(client, 'isaacs_server/save_drone_topics', 'isaacs_server/TypeToTopic')
         request = roslibpy.ServiceRequest({"publishes": publishes, "id": uid})
@@ -379,7 +383,8 @@ class TestMavrosCreation(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
-
+# Tests all the methods that are implemented in the djimatrice.py function.
+# Utilizes wrapped service calls and defining the drone_type in the service Request to let the wrapped service call know to use djimatrice.py functions.
 class TestDjimatriceControl(unittest.TestCase):
     # Helper Method that rejisters a DJI drone with drone_name and returns its UID if successful
     @timeout_decorator.timeout(TIMEOUT)
@@ -566,6 +571,10 @@ class TestDjimatriceControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
+
+# Tests all the methods that are implemented in the mavros.py function.
+# Utilizes wrapped service calls and defining the drone_type in the service Request to let the wrapped service call know to use mavros.py functions.
+class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_get_set_speed(self):
         # Register Drone

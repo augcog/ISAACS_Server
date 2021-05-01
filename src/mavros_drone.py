@@ -35,6 +35,10 @@ class MavrosDrone(Drone):
     def received_position_update(self, message):
         self.position= message
 
+    # Takes a list of waypoints for drone to follow
+    # Converts waypoints to MAVROS compattible format
+    # Makes a service call to MAVROS mavros_msgs/WaypointPush
+    # Returns dictionary describing if service call was successful
     def upload_mission(self, waypoints):
         self.waypoints = waypoints
 
@@ -78,6 +82,7 @@ class MavrosDrone(Drone):
         return result
 
     # Helper method for upload_mission()
+    # Converts the given waypoints in NavSatFix format and converts to mavros friendly format
     def convert_navsatfix_mavroswaypoint(self, navsatfix):
         '''
         Takes in a NavSatFix message and returns a
@@ -92,6 +97,9 @@ class MavrosDrone(Drone):
 
         return waypoint
 
+    # Takes a float32 numbers as the speed to set drone to
+    # Makes a service call to MAVROS mavros_msgs/CommandLong
+    # Returns dictionary describing if service call was successful
     def set_speed(self, speed):
         try:
             print("Attempting to set speed...")
@@ -112,6 +120,9 @@ class MavrosDrone(Drone):
     def get_speed(self):
         raise NotImplementedError
 
+    # Starts a Waypoint Mission
+    # Makes appropriate MAVROS Service calls that lead to start_mission and takeoff 
+    # Returns dictionary describing if service call was successful
     def start_mission(self):
         try:
             print("Attempting to set to loiter...")
@@ -153,6 +164,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Mission failed to start"}
         return result
 
+    # Stops a Waypoint Mission
+    # Makes a service call to MAVROS mavros_msgs/WaypointClear
+    # Returns dictionary describing if service call was successful
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
@@ -174,6 +188,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Mission failed to stop"}
         return result
 
+    # Pauses a Waypoint Mission
+    # Makes a service call to MAVROS mavros_msgs/SetMode and sets it to GUIDED
+    # Returns dictionary describing if service call was successful
     def pause_mission(self):
         try:
             print("Attempting to pause drone mission...")
@@ -195,6 +212,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Mission failed to pause"}
         return result
 
+    # Resumes a Waypoint Mission
+    # Makes a service call to MAVROS mavros_msgs/SetMode
+    # Returns dictionary describing if service call was successful
     def resume_mission(self):
         try:
             print("Attempting to resume drone mission...")
@@ -216,6 +236,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Mission failed to resume"}
         return result
 
+    # Tells Drone to Land
+    # Makes a service call to MAVROS mavros_msgs/WaypointClear
+    # Returns dictionary describing if service call was successful
     def land_drone(self):
         try:
             print("Attempting to call mavros drone specific service...")
@@ -236,6 +259,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Drone landing failed"}
         return result
 
+    # Tells Drone to fly-home(home is predefined)
+    # Makes a service call to MAVROS mavros_msgs/SetMode
+    # Returns dictionary describing if service call was successful
     def fly_home(self):
         print(self.drone_namespace + '/mavros/set_mode')
         try:
@@ -257,6 +283,9 @@ class MavrosDrone(Drone):
             result = {"success": False, "message": "Drone flying home failed"}
         return result
 
+    # Shutsdown Drone
+    # Shutsdown the ROS connection and the drone.
+    # Returns dictionary describing if service call was successful
     def shutdown(self):
         try:
             print("Attempting to shutdown drone...")
