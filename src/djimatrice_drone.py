@@ -20,7 +20,7 @@ class DjiMatriceDrone(Drone):
         TAKEOFF = 4
         LAND = 6
 
-    def __init__(self, drone_name, drone_type, ROS_master_connection, id=False):
+    def __init__(self, drone_name, drone_type, ROS_master_connection, id=None):
         super().__init__(drone_name, drone_type, ROS_master_connection, id)
         assert(drone_type == self.drone_type)
         self.prev_flight_status = Drone.Flight_Status.NULL
@@ -140,7 +140,7 @@ class DjiMatriceDrone(Drone):
             print('Calling mission_waypoint_setSpeed service...')
             result = service.call(request)
             print('Service response: {}'.format(result))
-            if result["result"]:
+            if result["speed"] >= 0:
                 result = {"success":True, "message":"New drone speed set", "speed": result["speed"]}
             else:
                 result = {"success":False, "message":"Failed to set new drone speed", "speed":0}

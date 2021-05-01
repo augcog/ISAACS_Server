@@ -67,8 +67,6 @@ add_message_files(
    AllSensorsAvailable.srv
    RegisterDrone.srv
    RegisterSensor.srv
-   SetSpeed.srv
-   GetSpeed.srv
    TypeToTopic.srv
    QueryTopics.srv
    Reset.srv
@@ -84,6 +82,8 @@ add_action_files(
    FILES
    ControlDrone.action
    UploadMission.action
+   SetSpeed.action
+   GetSpeed.action
 )
 
 ## Generate added messages and services with any dependencies listed here
