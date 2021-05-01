@@ -571,10 +571,6 @@ class TestDjimatriceControl(unittest.TestCase):
         result = wrapped_service_call(service, request)
         self.assertTrue(result["success"])
 
-
-# Tests all the methods that are implemented in the mavros.py function.
-# Utilizes wrapped service calls and defining the drone_type in the service Request to let the wrapped service call know to use mavros.py functions.
-class TestMavrosControl(unittest.TestCase):
     @timeout_decorator.timeout(TIMEOUT)
     def test_get_set_speed(self):
         # Register Drone
@@ -627,6 +623,9 @@ class TestMavrosControl(unittest.TestCase):
         # Shutdown Drone
         self.shutdown_DJI_drone(publishes, uid)
 
+
+# Tests all the methods that are implemented in the mavros.py function.
+# Utilizes wrapped service calls and defining the drone_type in the service Request to let the wrapped service call know to use mavros.py functions.
 class TestMavrosControl(unittest.TestCase):
 
     # Helper Method that rejisters a mavros drone with drone_name and returns its UID if successful
