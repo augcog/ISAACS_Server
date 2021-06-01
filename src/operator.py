@@ -263,7 +263,7 @@ def register_drone(request, response):
     d=Drone.create(drone_name, drone_type, ROS_master_connection)
     if d:
         drone_id = get_id(Drone)
-        print(f"Adding drone {id} to global drones map...")
+        print(f"Adding drone {drone_id} to global drones map...")
         d.id = drone_id
         d.drone_namespace = '/drone_' + str(drone_id)
         drones[drone_id] = d
@@ -385,7 +385,7 @@ def register_sensor(request, response):
         parent_drone_id = drone_names[parent_drone_name]
         sensor_id = get_id(Sensor)
         s = Sensor.create(sensor_name, sensor_type, ROS_master_connection, parent_drone_id, sensor_id)
-        print(f"Adding sensor {id} to global sensor map.")
+        print(f"Adding sensor {sensor_id} to global sensor map.")
         sensors[sensor_id] = s
         sensor_names[sensor_name] = sensor_id
         drones.get(parent_drone_id).sensors.append(s)
