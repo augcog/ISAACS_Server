@@ -385,13 +385,18 @@ def register_sensor(request, response):
         parent_drone_id = drone_names[parent_drone_name]
         sensor_id = get_id(Sensor)
         s = Sensor.create(sensor_name, sensor_type, ROS_master_connection, parent_drone_id, sensor_id)
-        print(f"Adding sensor {sensor_id} to global sensor map.")
-        sensors[sensor_id] = s
-        sensor_names[sensor_name] = sensor_id
-        drones.get(parent_drone_id).sensors.append(s)
-        response["success"] = True
-        response["id"] = s.id
-        response["message"] = "Sensor registered"
+        if s:
+            print(f"Adding sensor {sensor_id} to global sensor map.")
+            sensors[sensor_id] = s
+            sensor_names[sensor_name] = sensor_id
+            drones.get(parent_drone_id).sensors.append(s)
+            response["success"] = True
+            response["id"] = s.id
+            response["message"] = "Sensor registered"
+        else:
+            response["success"] = False
+            response["id"] = 0
+            response["message"] = "Sensor type not found."
     else:
         response["success"] = False
         response["id"] = 0

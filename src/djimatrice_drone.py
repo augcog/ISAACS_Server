@@ -41,8 +41,8 @@ class DjiMatriceDrone(Drone):
     # Mission Waypoint Task is the Proper Format for DJI Service Requests
     # Returns the Mission Waypoint Task
     def create_waypoint_task(self, waypoints):
-        command_list = [];
-        command_params = [];
+        command_list = []
+        command_params = []
         for i in range(16):
             command_list.append(0)
             command_params.append(0)
@@ -87,9 +87,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to upload waypoint task...")
             # fake_mission_waypoint_upload found in srv folder. Copied directly from DJI SDK for local testing. 
-            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload',
-                    'isaacs_server/FakeWaypointMissionUpload')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_upload', 'dji_sdk/MissionWpUpload')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_mission_waypoint_upload',
+            #         'isaacs_server/FakeWaypointMissionUpload')
             request = roslibpy.ServiceRequest({"waypoint_task": task})
 
             print('Calling mission_waypoint_upload service...')
@@ -108,9 +108,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to set speed...")
             # fake_set_speed found in srv folder. Copied directly from DJI SDK for local testing. 
-            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed',
-                    'isaacs_server/FakeSetSpeed')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_setSpeed', 'dji_sdk/MissionWpSetSpeed')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_set_speed',
+            #         'isaacs_server/FakeSetSpeed')
             request = roslibpy.ServiceRequest({"speed": speed})
 
             print('Calling mission_waypoint_setSpeed service...')
@@ -132,9 +132,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to fetch speed...")
             # fake_get_speed found in srv folder. Copied directly from DJI SDK for local testing.
-            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed',
-                    'isaacs_server/FakeGetSpeed')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_getSpeed', 'dji_sdk/MissionWpGetSpeed')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_get_speed',
+            #         'isaacs_server/FakeGetSpeed')
             request = roslibpy.ServiceRequest()
 
             print('Calling mission_waypoint_setSpeed service...')
@@ -157,9 +157,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to start drone mission...")
             # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
-            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
-                    'isaacs_server/FakeDroneWaypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+            #         'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.START})
 
             print('Calling mission_waypoint_action start service...')
@@ -182,10 +182,10 @@ class DjiMatriceDrone(Drone):
     def stop_mission(self):
         try:
             print("Attempting to stop drone mission...")
-            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
             # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
-                    'isaacs_server/FakeDroneWaypoint')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+            #         'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.STOP})
 
             print('Calling mission_waypoint_action stop service...')
@@ -207,9 +207,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to pause drone mission...")
             # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
-            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
-                    'isaacs_server/FakeDroneWaypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+            #         'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.PAUSE})
 
             print('Calling mission_waypoint_action pause service...')
@@ -232,9 +232,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to resume drone mission...")
             # fake_drone_waypoint found in srv folder. Copied directly from DJI SDK for local testing.
-            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
-                    'isaacs_server/FakeDroneWaypoint')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/mission_waypoint_action', 'dji_sdk/MissionWpAction')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_waypoint',
+            #         'isaacs_server/FakeDroneWaypoint')
             request = roslibpy.ServiceRequest({"action": Drone.WaypointActions.RESUME})
 
             print('Calling mission_waypoint_action resume service...')
@@ -257,9 +257,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             # fake_drone_control found in srv folder. Copied directly from DJI SDK for local testing.
-            # service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
-                    'isaacs_server/FakeDroneControl')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
+            #         'isaacs_server/FakeDroneControl')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.LAND})
 
             print('Calling land_drone service...')
@@ -282,9 +282,9 @@ class DjiMatriceDrone(Drone):
         try:
             print("Attempting to call drone specific service...")
             # fake_drone_control found in srv folder. Copied directly from DJI SDK for local testing.
-            #service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
-            service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
-                    'isaacs_server/FakeDroneControl')
+            service = roslibpy.Service(self.ROS_master_connection, 'dji_sdk/drone_task_control', 'dji_sdk/DroneTaskControl')
+            # service = roslibpy.Service(self.ROS_master_connection, 'isaacs_server/fake_drone_control',
+            #         'isaacs_server/FakeDroneControl')
             request = roslibpy.ServiceRequest({"task": Drone.TaskControl.GO_HOME})
 
             print('Calling fly_home service...')
