@@ -11,6 +11,7 @@ from mavros_drone import MavrosDrone
 import roslibpy
 import math
 import haversine as hs
+import pickle
 
 
 def dijkstra(G):
@@ -224,7 +225,8 @@ def RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize):
     ''' RRT star algorithm '''
     G = Graph(startpos, endpos)
 
-    for _ in range(n_iter):
+    for i in range(n_iter):
+        print(i)
         randvex = G.randomPosition()
         if isInObstacle(randvex, obstacles, radius):
             continue
@@ -332,7 +334,7 @@ def ObstaclesFromMatLab(matGrid):
             for z in range(len(matGrid[0][0])):
                 for yaw in range(len(matGrid[0][0][0])):
                     if matGrid[x][y][z][yaw] <= 0:
-                        oGrid.append((x,y,z,yaw))
+                        oGrid.append((x,y,yaw,z))
     return oGrid
 
 def getLatLong(oldLat, oldLong, dx, dy):
@@ -372,25 +374,25 @@ def path_to_waypoint(startlat, startlong, start, path):
 # Main
 if __name__ == '__main__':
 
-    client = roslibpy.Ros(host='localhost', port=9090)
+    #client = roslibpy.Ros(host='localhost', port=9090)
     serviceName = '/mavros/mission/push'
-    client.run()
+    #client.run()
 
     # Load .mat file
-    mat = scipy.io.loadmat('test.mat')
-    matGrid = mat["x"]
+    mat = scipy.io.loadmat('test2.mat')
+    matGrid = mat["data"][:,:,:,:,-1]
 
     # Problem Parameters from Matlab File
     # Might have to change window function
     startpos = (0, 0, 0, 0)
-    startlat = 37.8719
-    startlong = -122.2585
-    endpos = (5,5,5,0)
-    #obstacles = ObstaclesFromMatLab(matGrid)
-    obstacles = [(2,2,2,0)]
+    startlat = 37.91522447196717
+    startlong = -122.33786459393546
+    endpos = (80,80,80,0)
+    obstacles = ObstaclesFromMatLab(matGrid)
+    print(obstacles)
     n_iter = 400
     radius = 0.5
-    stepSize = 0.7
+    stepSize = 1
 
     G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
     # G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
