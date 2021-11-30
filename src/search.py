@@ -379,7 +379,7 @@ if __name__ == '__main__':
     #client.run()
 
     # Load .mat file
-    mat = scipy.io.loadmat('test2.mat')
+    mat = scipy.io.loadmat('small.mat')
     matGrid = mat["data"][:,:,:,:,-1]
 
     # Problem Parameters from Matlab File
@@ -387,10 +387,10 @@ if __name__ == '__main__':
     startpos = (0, 0, 0, 0)
     startlat = 37.91522447196717
     startlong = -122.33786459393546
-    endpos = (80,80,80,0)
+    endpos = (30,30,5,0)
     obstacles = ObstaclesFromMatLab(matGrid)
     print(obstacles)
-    n_iter = 400
+    n_iter = 600
     radius = 0.5
     stepSize = 1
 
@@ -402,6 +402,9 @@ if __name__ == '__main__':
         print(path)
         #plot(G, obstacles, radius, path)
         wp = path_to_waypoint(startlat, startlong, startpos, path)
+        file = open('wp_small.txt', 'wb')
+        pickle.dump(wp, file)
+        file.close()
         service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
         request = roslibpy.ServiceRequest({'waypoints': wp})
 
