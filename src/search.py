@@ -356,7 +356,7 @@ def getLatLong(oldLat, oldLong, dx, dy):
     degreeOffset = dy * 0.0000089;
     newLat = oldLat + degreeOffset
     # pi / 180 = 0.018
-    newLong = oldLong + degreeOffset / math.cos(oldLat * 0.018)
+    newLong = oldLong + dx * 0.0000089 / math.cos(oldLat * 0.018)
     trueDist = math.sqrt(dx ** 2 + dy ** 2)
     haversineDist = hs.haversine((oldLat, oldLong), (newLat, newLong)) * 1000
     # if abs(haversineDist - trueDist) > 1:
@@ -365,7 +365,7 @@ def getLatLong(oldLat, oldLong, dx, dy):
     #     print("Error is greater than 1 meter")
     return newLat, newLong
 
-def path_to_waypoint(startlat, startlong, start, path):
+def path_to_waypoint(startlat, startlong, startalt, start, path):
     wp = []
     for node in path:
         newLat, newLong = getLatLong(startlat, startlong, node[0], node[1])
@@ -375,7 +375,7 @@ def path_to_waypoint(startlat, startlong, start, path):
                             'is_current': False, 'autocontinue': True, 'param1': 0,
                             'param2': 0, 'param3': 0, 'param4': node[3], 'x_lat': newLat,
                             'y_long': newLong,
-                            'z_alt': node[2]}
+                            'z_alt': node[2]+startalt}
         wp.append(new_waypoint)
     return wp
 
@@ -394,8 +394,9 @@ if __name__ == '__main__':
     # Load .mat file
     if skip:
         print("**** skipping calculations and using wp.txt")
-        file = open('wp.txt', 'rb')
+        file = open('wp_small_kcui.txt', 'rb')
         wp = pickle.load(file)
+        print(wp)
         service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
         request = roslibpy.ServiceRequest({'waypoints': wp})
 
@@ -414,12 +415,13 @@ if __name__ == '__main__':
         startpos = (0, 0, 0, 0)
         startlat = 37.91522447196717
         startlong = -122.33786459393546
+        startalt = 10
         endpos = (30,30,5,0)
         obstacles = ObstaclesFromMatLab(matGrid)
         print(obstacles)
         n_iter = 400
         radius = 0.5
-        stepSize = 5
+        stepSize = 2
 
         #G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
         G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
@@ -428,7 +430,7 @@ if __name__ == '__main__':
             path = dijkstra(G)
             print(path)
             #plot(G, obstacles, radius, path)
-            wp = path_to_waypoint(startlat, startlong, startpos, path)
+            wp = path_to_waypoint(startlat, startlong, startalt, startpos, path)
             file = open('wp_small.txt', 'wb')
             pickle.dump(wp, file)
             file.close()
