@@ -412,11 +412,11 @@ if __name__ == '__main__':
 
         # Problem Parameters from Matlab File
         # Might have to change window function
-        startpos = (5, 15, 0, 0)
-        startlat = 37.91522447196717
-        startlong = -122.33786459393546
+        startpos = (0, 0, 0, 0)
+        startlat = 37.91526394
+        startlong = -122.33739213
         startalt = 10
-        endpos = (25,15,5,0)
+        endpos = (30,30,5,0)
         obstacles = ObstaclesFromMatLab(matGrid)
         print(obstacles)
         n_iter = 400
