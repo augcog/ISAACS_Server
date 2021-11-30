@@ -368,7 +368,7 @@ def getLatLong(oldLat, oldLong, dx, dy):
 def path_to_waypoint(startlat, startlong, startalt, start, path):
     wp = []
     for node in path:
-        newLat, newLong = getLatLong(startlat, startlong, node[0], node[1])
+        newLat, newLong = getLatLong(startlat, startlong, node[0] - start[0], node[1] - start[1])
 
         new_waypoint = {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
                             'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value,
@@ -394,7 +394,7 @@ if __name__ == '__main__':
     # Load .mat file
     if skip:
         print("**** skipping calculations and using wp.txt")
-        file = open('wp_small_kcui.txt', 'rb')
+        file = open('kcui.txt', 'rb')
         wp = pickle.load(file)
         print(wp)
         service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
@@ -412,11 +412,11 @@ if __name__ == '__main__':
 
         # Problem Parameters from Matlab File
         # Might have to change window function
-        startpos = (0, 0, 0, 0)
+        startpos = (5, 15, 0, 0)
         startlat = 37.91522447196717
         startlong = -122.33786459393546
         startalt = 10
-        endpos = (30,30,5,0)
+        endpos = (25,15,5,0)
         obstacles = ObstaclesFromMatLab(matGrid)
         print(obstacles)
         n_iter = 400
@@ -431,7 +431,7 @@ if __name__ == '__main__':
             print(path)
             #plot(G, obstacles, radius, path)
             wp = path_to_waypoint(startlat, startlong, startalt, startpos, path)
-            file = open('wp_small.txt', 'wb')
+            file = open('wp_close.txt', 'wb')
             pickle.dump(wp, file)
             file.close()
             service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
