@@ -196,7 +196,8 @@ def RRT(startpos, endpos, obstacles, n_iter, radius, stepSize):
     ''' RRT algorithm '''
     G = Graph(startpos, endpos)
 
-    for _ in range(n_iter):
+    for i in range(n_iter):
+        print(i)
         randvex = G.randomPosition()
         if isInObstacle(randvex, obstacles, radius):
             continue
@@ -212,12 +213,19 @@ def RRT(startpos, endpos, obstacles, n_iter, radius, stepSize):
         G.add_edge(newidx, nearidx, dist)
 
         dist = distance(newvex, G.endpos)
-        if dist < 2 * radius:
+        line = Line(newvex, G.endpos)
+        if not isThruObstacle(line, obstacles, radius):
             endidx = G.add_vex(G.endpos)
             G.add_edge(newidx, endidx, dist)
             G.success = True
-            #print('success')
-            # break
+            print('success')
+            break
+        # if dist < 2 * radius:
+        #     endidx = G.add_vex(G.endpos)
+        #     G.add_edge(newidx, endidx, dist)
+        #     G.success = True
+        #     print('success')
+        #     break
     return G
 
 
@@ -270,8 +278,8 @@ def RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize):
                 G.distances[endidx] = G.distances[newidx]+dist
 
             G.success = True
-            #print('success')
-            # break
+            print('success')
+            break
     return G
 
 
@@ -392,10 +400,10 @@ if __name__ == '__main__':
     print(obstacles)
     n_iter = 600
     radius = 0.5
-    stepSize = 1
+    stepSize = 5
 
-    G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
-    # G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
+    #G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
+    G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
 
     if G.success:
         path = dijkstra(G)
