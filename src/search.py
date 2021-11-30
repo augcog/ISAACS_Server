@@ -12,6 +12,7 @@ import roslibpy
 import math
 import haversine as hs
 import pickle
+import sys
 
 
 def dijkstra(G):
@@ -381,38 +382,20 @@ def path_to_waypoint(startlat, startlong, start, path):
 
 # Main
 if __name__ == '__main__':
-
-    #client = roslibpy.Ros(host='localhost', port=9090)
+    num_args = len(sys.argv)
+    skip = False
+    #to test without running RRT, give any command line argument, and we use wp.txt to test with sample waypoints
+    if num_args == 2:
+        skip = True
+    #client = roslibpy.Ros(host='localhost', port=9090) #uncomment this when testing with ROS
     serviceName = '/mavros/mission/push'
-    #client.run()
+    #client.run() #uncomment this when testing with ROS
 
     # Load .mat file
-    mat = scipy.io.loadmat('small.mat')
-    matGrid = mat["data"][:,:,:,:,-1]
-
-    # Problem Parameters from Matlab File
-    # Might have to change window function
-    startpos = (0, 0, 0, 0)
-    startlat = 37.91522447196717
-    startlong = -122.33786459393546
-    endpos = (30,30,5,0)
-    obstacles = ObstaclesFromMatLab(matGrid)
-    print(obstacles)
-    n_iter = 600
-    radius = 0.5
-    stepSize = 5
-
-    #G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
-    G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
-
-    if G.success:
-        path = dijkstra(G)
-        print(path)
-        #plot(G, obstacles, radius, path)
-        wp = path_to_waypoint(startlat, startlong, startpos, path)
-        file = open('wp_small.txt', 'wb')
-        pickle.dump(wp, file)
-        file.close()
+    if skip:
+        print("**** skipping calculations and using wp.txt")
+        file = open('wp.txt', 'rb')
+        wp = pickle.load(file)
         service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
         request = roslibpy.ServiceRequest({'waypoints': wp})
 
@@ -420,7 +403,43 @@ if __name__ == '__main__':
         result = service.call(request)
         print('Service response: {}'.format(result))
         client.terminate()
+        print("Done.")
 
-    else:
-        print("No path")
-        #plot(G, obstacles, radius)
+    else: # Do the full RRT calculation using the matlab unsafe set
+        mat = scipy.io.loadmat('small.mat')
+        matGrid = mat["data"][:,:,:,:,-1]
+
+        # Problem Parameters from Matlab File
+        # Might have to change window function
+        startpos = (0, 0, 0, 0)
+        startlat = 37.91522447196717
+        startlong = -122.33786459393546
+        endpos = (30,30,5,0)
+        obstacles = ObstaclesFromMatLab(matGrid)
+        print(obstacles)
+        n_iter = 400
+        radius = 0.5
+        stepSize = 5
+
+        #G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize)
+        G = RRT(startpos, endpos, obstacles, n_iter, radius, stepSize)
+
+        if G.success:
+            path = dijkstra(G)
+            print(path)
+            #plot(G, obstacles, radius, path)
+            wp = path_to_waypoint(startlat, startlong, startpos, path)
+            file = open('wp_small.txt', 'wb')
+            pickle.dump(wp, file)
+            file.close()
+            service = roslibpy.Service(client, serviceName, 'mavros_msgs/WaypointPush')
+            request = roslibpy.ServiceRequest({'waypoints': wp})
+
+            print('Calling /mavros/mission/push service...')
+            result = service.call(request)
+            print('Service response: {}'.format(result))
+            client.terminate()
+
+        else:
+            print("No path")
+            #plot(G, obstacles, radius)
