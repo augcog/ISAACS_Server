@@ -10,7 +10,7 @@ Original file is located at
 '''
 MIT License
 Copyright (c) 2019 Fanjin Zeng
-This work is licensed under the terms of the MIT license, see <https://opensource.org/licenses/MIT>.  
+This work is licensed under the terms of the MIT license, see <https://opensource.org/licenses/MIT>.
 https://gist.github.com/Fnjn/58e5eaa27a3dc004c3526ea82a92de80
 RRT = rapidly exploring random tree
 '''
@@ -248,7 +248,7 @@ def getPath(start, end, obstaclesFile):
     obstacles = ObstaclesFromMatLab(matGrid)
     n_iter = 230
     radius = 5
-    stepSize = 4 
+    stepSize = 4
 
     G = RRT_star(startpos, endpos, obstacles, n_iter, radius, stepSize, matGrid)
 
@@ -275,16 +275,17 @@ def getLatLong(oldLat, oldLong, dx, dy):
     haversineDist = hs.haversine((oldLat, oldLong), (newLat, newLong)) * 1000
     return (newLat, newLong)
 
-def path_to_waypoint(path):
+def path_to_waypoint(startlat, startlong, startalt, start, path):
     wp = []
     for node in path:
-        xLat, yLat = getLatLong(37.8719, -122.2585, node[0], node[1])
+        newLat, newLong = getLatLong(startlat, startlong, node[0] - start[0], node[1] - start[1])
+
         new_waypoint = {'frame': MavrosDrone.FRAME_REFERENCE.RELATIVE_ALT.value,
                             'command': MavrosDrone.MAV_CMD.NAVIGATE_TO_WAYPOINT.value,
                             'is_current': False, 'autocontinue': True, 'param1': 0,
-                            'param2': 0, 'param3': 0, 'x_lat': xLat,
-                            'y_long': yLat,
-                            'z_alt': node[2]}
+                            'param2': 0, 'param3': 0, 'param4': node[3], 'x_lat': newLat,
+                            'y_long': newLong,
+                            'z_alt': node[2]+startalt}
         wp.append(new_waypoint)
     return wp
 
