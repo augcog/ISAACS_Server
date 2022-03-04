@@ -20,7 +20,6 @@ from random import random
 from collections import deque
 from mavros_drone import MavrosDrone
 import ipympl
-#import haversine as hs
 import scipy.io
 import pickle
 import math
@@ -269,19 +268,24 @@ def getLatLong(oldLat, oldLong, dx, dy):
     # 1m in degree = 0.0089 / 1000 = 0.0000089
     degreeOffset = dy * 0.0000089
     newLat = oldLat + degreeOffset
-    # pi / 180 = 0.018
     newLong = oldLong + dx * 0.0000089 / math.cos(oldLat * 0.018)
-    #trueDist = math.sqrt(dx ** 2 + dy ** 2)
-    #haversineDist = hs.haversine((oldLat, oldLong), (newLat, newLong)) * 1000
     return (newLat, newLong)
-  
-def getDXDY(oldLat, oldLong, newLat, newLong, startX, startY):
+
+#Return new x and y based off of change in lat and long
+def getXY(initial, dest, startX, startY):
+    oldLat = initial['x_lat']
+    oldLong = initial['y_long']
+    newLat = dest['x_lat']
+    newLong = dest['y_long']
     degreeOffset = newLat - oldLat
     dy = degreeOffset / 0.0000089
     dx = (newLong - oldLong) * math.cos(oldLat * 0.018) / 0.0000089
-    return startX + dx, startY + dy
+    return round(startX + dx), round(startY + dy)
 
-def path_to_waypoint(startlat, startlong, startalt, start, path):
+def path_to_waypoint(initial, start, path):
+    startlat = initial['x_lat']
+    startlong = initial['y_long']
+    startalt = initial['z_alt']
     wp = []
     for node in path:
         newLat, newLong = getLatLong(startlat, startlong, node[0] - start[0], node[1] - start[1])
@@ -295,18 +299,22 @@ def path_to_waypoint(startlat, startlong, startalt, start, path):
         wp.append(new_waypoint)
     return wp
 
-def getMavrosWaypoints(start, end, obstaclesFile):
-    return path_to_waypoint(getPath(start, end, obstaclesFile))
+def getMavrosWaypoints(initial, initialXY, start, end, obstaclesFile):
+    #start and end are waypoints
+    startpos = getXY(initial, start, initialXY[0], initialXY[1])
+    endpos = getXY(initial, end, initialXY[0], initialXY[1])
+    return path_to_waypoint(start, startpos, getPath(startpos, endpos, obstaclesFile))
 
-def getSafeWaypoints(userWaypoints, obstaclesFile):
-  #Convert between lat long, x y
+def getSafeWaypoints(userWaypoints, obstaclesFile = "small-4d-unsafe-set.mat"):
+  # Need corresponding lat long to x y initial value
+  initialXY = (0,0)
   mat = scipy.io.loadmat(obstaclesFile)
   matGrid = mat["data"][:,:,:,:,-1]
   safeWaypoints = [userWaypoints[0]]
   for i in range(1, len(userWaypoints)):
     line = Line(userWaypoints[i - 1], userWaypoints[i])
     if isThruObstacleDiscretized(line, matGrid):
-      safeWaypoints.extend(getMavrosWaypoints(userWaypoints[i - 1], userWaypoints[i], obstaclesFile))
+      safeWaypoints.extend(getMavrosWaypoints(userWaypoints[0], initialXY, userWaypoints[i - 1], userWaypoints[i], obstaclesFile))
     else:
       safeWaypoints.append(userWaypoints[i])
   return safeWaypoints

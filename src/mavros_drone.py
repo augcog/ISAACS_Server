@@ -2,6 +2,7 @@ import roslibpy
 import numpy as np
 from drone import Drone
 from enum import Enum
+from rrt_star import getSafeWaypoints
 
 class MavrosDrone(Drone):
 
@@ -59,6 +60,9 @@ class MavrosDrone(Drone):
         #     'z_alt': 10}
         #     ] + converted_waypoint_objects
         print(converted_waypoint_objects)
+        
+        #Comment/Uncomment following line to turn on and off RRT safety
+        converted_waypoint_objects = getSafeWaypoints(converted_waypoint_objects)
 
         try:
             print("Attempting to upload mission...")
@@ -121,7 +125,7 @@ class MavrosDrone(Drone):
         raise NotImplementedError
 
     # Starts a Waypoint Mission
-    # Makes appropriate MAVROS Service calls that lead to start_mission and takeoff 
+    # Makes appropriate MAVROS Service calls that lead to start_mission and takeoff
     # Returns dictionary describing if service call was successful
     def start_mission(self):
         try:
